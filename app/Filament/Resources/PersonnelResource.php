@@ -25,7 +25,7 @@ class PersonnelResource extends Resource
     protected static ?string $navigationGroup = 'People';
     protected static ?string $navigationLabel = 'Personnel';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {
@@ -35,19 +35,22 @@ class PersonnelResource extends Resource
                     ->native(false)
                     ->label('Office')
                     ->relationship('office')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
 
                 Select::make('department_id')
                     ->native(false)
                     ->label('Department')
                     ->relationship('department')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
 
                 Select::make('position_id')
                     ->native(false)
                     ->label('Position')
                     ->relationship('position')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
 
                 TextInput::make('first_name')
                     ->required(),
@@ -55,7 +58,8 @@ class PersonnelResource extends Resource
                 TextInput::make('middle_name')
                     ->nullable(),
 
-                TextInput::make('last_name'),
+                TextInput::make('last_name')
+                    ->required(),
 
                 Select::make('gender')
                     ->options(Gender::values())
@@ -63,6 +67,13 @@ class PersonnelResource extends Resource
 
                 DatePicker::make('date_of_birth')
                     ->required()
+                    ->disabledDates(function () {
+                        return collect(range(0, 365))
+                            ->map(fn($day) => now()->addDays($day)->format('Y-m-d'))
+                            ->toArray();
+                    })
+                    ->rule(['date', 'before:today'])
+                    ->closeOnDateSelection()
                     ->native(false),
 
                 TextInput::make('phone_number')
@@ -80,10 +91,13 @@ class PersonnelResource extends Resource
 
                 DatePicker::make('start_date')
                     ->native(false)
+                    ->closeOnDateSelection()
                     ->required(),
 
                 DatePicker::make('end_date')
                     ->native(false)
+                    ->after('after:start_date')
+                    ->closeOnDateSelection()
                     ->required(),
 
                 TextArea::make('remarks')

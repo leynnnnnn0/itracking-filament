@@ -21,7 +21,7 @@ class AccountingOfficerResource extends Resource
 {
     protected static ?string $model = AccountingOfficer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'People';
 
     public static function form(Form $form): Form
