@@ -2,7 +2,9 @@
 
 namespace App\Enum;
 
-enum UserRole : string
+use Filament\Support\Contracts\HasColor;
+
+enum UserRole: string implements HasColor
 {
     case ADMIN = 'Admin';
     case SUB_ADMIN = 'Sub Admin';
@@ -11,5 +13,13 @@ enum UserRole : string
     {
         $data = array_column(self::cases(), 'value');
         return array_combine($data, $data);
+    }
+
+    public function getColor(): string|array|null
+    {
+        return match ($this) {
+            self::ADMIN => 'success',
+            self::SUB_ADMIN => 'warning',
+        };
     }
 }

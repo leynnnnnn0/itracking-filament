@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasFullName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Personnel extends Model
 {
     /** @use HasFactory<\Database\Factories\PersonnelFactory> */
-    use HasFactory;
+    use HasFactory, HasFullName;
 
     protected $fillable = [
         'office_id',
@@ -35,5 +36,20 @@ class Personnel extends Model
             'start_date' => 'date',
             'end_date' => 'date'
         ];
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
     }
 }

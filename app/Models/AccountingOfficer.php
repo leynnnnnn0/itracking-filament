@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasFullName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AccountingOfficer extends Model
 {
     /** @use HasFactory<\Database\Factories\AccountingOfficerFactory> */
-    use HasFactory;
+    use HasFactory, HasFullName;
 
     protected $fillable = [
         'office_id',
@@ -18,4 +19,9 @@ class AccountingOfficer extends Model
         'email',
         'phone_number'
     ];
+
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
+    }
 }

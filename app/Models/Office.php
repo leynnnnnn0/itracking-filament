@@ -13,4 +13,14 @@ class Office extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function accounting_officers()
+    {
+        return $this->hasMany(AccountingOfficer::class);
+    }
+
+    public function personnel()
+    {
+        return $this->hasMany(Personnel::class);
+    }
 }
