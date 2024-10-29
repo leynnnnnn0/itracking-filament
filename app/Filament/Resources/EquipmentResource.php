@@ -137,11 +137,25 @@ class EquipmentResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+
                 TextColumn::make('property_number'),
+
                 TextColumn::make('quantity'),
-                TextColumn::make('unit'),
-                TextColumn::make('unit_price'),
+
+                TextColumn::make('quantity_available')
+                    ->label('Available'),
+
+                TextColumn::make('quantity_borrowed')
+                    ->label('Borrowed'),
+
+                TextColumn::make('quantity_missing')
+                    ->label('Missing'),
+
+                TextColumn::make('quantity_condemned')
+                    ->label('Condemned'),
+
                 TextColumn::make('status')
+
                     ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
                     ->badge()
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
@@ -166,34 +180,56 @@ class EquipmentResource extends Resource
             ->schema([
                 Section::make('Basic Details')->schema([
                     TextEntry::make('name'),
+
                     TextEntry::make('description'),
+
                     TextEntry::make('property_number'),
+
                     TextEntry::make('unit'),
+
                     TextEntry::make('quantity'),
+
                     TextEntry::make('quantity_available'),
+
                     TextEntry::make('quantity_borrowed'),
+
                     TextEntry::make('quantity_missing'),
+
                     TextEntry::make('quantity_condemned'),
+
                     TextEntry::make('date_acquired')
+
                         ->date('F d, Y'),
                     TextEntry::make('estimated_useful_time')
+
                         ->date('Y-m'),
                     TextEntry::make('quantity_condemned'),
+
                     TextEntry::make('quantity_condemned'),
+
                     TextEntry::make('unit_price'),
+
                     TextEntry::make('total_amount'),
+
                     TextEntry::make('status')
+
                         ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
                         ->badge()
                         ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
                 ])->columns(2),
                 Section::make('Others')->schema([
                     TextEntry::make('personnel.full_name'),
+
                     TextEntry::make('accountable_officer.full_name'),
+
                     TextEntry::make('organization_unit.name'),
+
                     TextEntry::make('operating_unit_project.name'),
+
                     TextEntry::make('fund.name'),
+
                     TextEntry::make('personal_protective_equipment.name'),
+
                 ])->columns(2),
 
 
