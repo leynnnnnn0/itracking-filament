@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\AccountingOfficer;
+use App\Models\AccountableOfficer;
 use App\Models\Department;
 use App\Models\Equipment;
 use App\Models\Fund;
@@ -37,10 +37,8 @@ class DatabaseSeeder extends Seeder
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
         PersonalProtectiveEquipment::factory(5)->create();
-        AccountingOfficer::factory(100)->create();
+        AccountableOfficer::factory(100)->create();
         Personnel::factory(100)->create();
         Equipment::factory(100)->create();
-
-
     }
 }

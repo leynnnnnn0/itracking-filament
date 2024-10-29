@@ -20,7 +20,7 @@ class EquipmentFactory extends Factory
         $quantity = fake()->numberBetween(1, 100);
         return [
             'personnel_id' => fake()->numberBetween(1, 100),
-            'accounting_officer_id' => fake()->numberBetween(1, 100),
+            'accountable_officer_id' => fake()->numberBetween(1, 100),
             'organization_unit_id' => fake()->numberBetween(1, 5),
             'operating_unit_project_id' => fake()->numberBetween(1, 5),
             'fund_id' => fake()->numberBetween(1, 5),

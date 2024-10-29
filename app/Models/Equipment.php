@@ -13,7 +13,7 @@ class Equipment extends Model
 
     protected $fillable = [
         'personnel_id',
-        'accounting_officer_id',
+        'accountable_officer_id',
         'organization_unit_id',
         'operating_unit_project_id',
         'fund_id',
@@ -51,9 +51,9 @@ class Equipment extends Model
         return $this->belongsTo(Personnel::class);
     }
 
-    public function accounting_officer()
+    public function accountable_officer()
     {
-        return $this->belongsTo(AccountingOfficer::class);
+        return $this->belongsTo(AccountableOfficer::class);
     }
 
     public function operating_unit_project()

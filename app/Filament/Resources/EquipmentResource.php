@@ -45,10 +45,10 @@ class EquipmentResource extends Resource
                 Textarea::make('description')
                     ->extraAttributes(['class' => 'resize-none']),
 
-                Select::make('accounting_officer_id')
+                Select::make('accountable_officer_id')
                     ->native(false)
-                    ->label('Accounting Officer')
-                    ->relationship('accounting_officer')
+                    ->label('Accountable Officer')
+                    ->relationship('accountable_officer')
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->full_name)
                     ->required(),
 
@@ -189,7 +189,7 @@ class EquipmentResource extends Resource
                 ])->columns(2),
                 Section::make('Others')->schema([
                     TextEntry::make('personnel.full_name'),
-                    TextEntry::make('accounting_officer.full_name'),
+                    TextEntry::make('accountable_officer.full_name'),
                     TextEntry::make('organization_unit.name'),
                     TextEntry::make('operating_unit_project.name'),
                     TextEntry::make('fund.name'),
@@ -218,6 +218,6 @@ class EquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['personnel', 'accounting_officer', 'organization_unit', 'operating_unit_project', 'fund', 'personal_protective_equipment']);
+        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund', 'personal_protective_equipment']);
     }
 }

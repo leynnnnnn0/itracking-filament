@@ -28,24 +28,23 @@ class CreateBorrowedEquipment extends CreateRecord
             $totalAvailableEquipment = $equipment->quantity_available;
             $totalMissingQuantity = $equipment->quantity_missing;
             if ($borrowedEquipment->status === BorrowStatus::BORROWED->value) {
-
                 $totalAvailableEquipment -= $borrowedEquipment->quantity;
                 $totalBorrowedEquipment += $borrowedEquipment->quantity;
 
                 if ($totalBorrowedEquipment === $equipment->quantity_available) {
-                    $status === EquipmentStatus::FULLY_BORROWED->value;
+                    $status = EquipmentStatus::FULLY_BORROWED->value;
                 } else {
-                    $status ===  EquipmentStatus::PARTIALLY_BORROWED->value;
+                    $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
                 }
-            }
 
+            }
+           
             $equipment->update([
                 'status' => $status,
                 'quantity_available' => $totalAvailableEquipment,
                 'quantity_borrowed' => $totalBorrowedEquipment,
                 'quantity_missing' => $totalMissingQuantity,
             ]);
-
 
         } catch (Exception $e) {
             Notification::make()

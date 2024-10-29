@@ -2,7 +2,7 @@
 
 use App\Enum\EquipmentStatus;
 use App\Enum\Unit;
-use App\Models\AccountingOfficer;
+use App\Models\AccountableOfficer;
 use App\Models\Fund;
 use App\Models\OperatingUnitProject;
 use App\Models\OrganizationUnit;
@@ -21,7 +21,7 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->foreignId('personnel_id')->constrained('personnel')->cascadeOnDelete();
-            $table->foreignIdFor(AccountingOfficer::class)->constrained();
+            $table->foreignIdFor(AccountableOfficer::class)->constrained();
             $table->foreignIdFor(PersonalProtectiveEquipment::class)->constrained('personal_protective_equipment');
             $table->foreignIdFor(Fund::class)->constrained();
             $table->foreignIdFor(OperatingUnitProject::class)->constrained();

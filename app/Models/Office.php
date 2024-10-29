@@ -17,7 +17,7 @@ class Office extends Model
 
     public function accounting_officers()
     {
-        return $this->hasMany(AccountingOfficer::class);
+        return $this->hasMany(AccountableOfficer::class);
     }
 
     public function personnel()

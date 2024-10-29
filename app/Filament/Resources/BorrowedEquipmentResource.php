@@ -26,6 +26,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BorrowedEquipmentResource extends Resource
 {
@@ -44,7 +45,7 @@ class BorrowedEquipmentResource extends Resource
                     ->getSearchResultsUsing(fn(string $search): array => Equipment::whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->pluck('name', 'id')->toArray())
                     ->searchable()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $equipment = Equipment::find($value)?->name;
+                        $equipment = Equipment::find($value);
                         return "$equipment->name (PN: $equipment->property_number)";
                     })
                     ->required(),
@@ -104,7 +105,9 @@ class BorrowedEquipmentResource extends Resource
                 TextColumn::make('end_date')
                     ->date('F d, Y'),
 
-
+                TextColumn::make('status')
+                    ->formatStateUsing(fn($state): string => Str::headline(BorrowStatus::from($state)->name))
+                    ->badge(),
                 TextColumn::make('is_returned')
                     ->label('Is returned?')
                     ->badge()
@@ -118,9 +121,84 @@ class BorrowedEquipmentResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('Partially Borrowed')
-                        ->action(function (BorrowedEquipment $borrowedEquipment){
-                            
+                    Tables\Actions\Action::make('Partially Missing')
+                        ->form([
+                            TextInput::make('quantity_missing')->required(),
+                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                            $borrowedEquipment->status = BorrowStatus::PARTIALLY_MISSING->value;
+                            $quantityMissing = $data['quantity_missing'];
+                            $equipment = $borrowedEquipment->equipment;
+                            // Getting the total returned equipment
+                            $borrowedEquipment->total_quantity_missing += $quantityMissing;
+                            DB::transaction(function () use ($equipment, $quantityMissing, $borrowedEquipment) {
+                                $status = $equipment->status;
+                                if ($borrowedEquipment->total_quantity_missing === $borrowedEquipment->quantity)
+                                    $borrowedEquipment->status = BorrowStatus::MISSING->value;
+
+                                $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityMissing;
+                                $totalMissingQuantity = $equipment->quantity_missing + $quantityMissing;
+
+                                if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
+
+                                $equipment->update([
+                                    'quantity_missing' => $totalMissingQuantity,
+                                    'quantity_borrowed' => $totalBorrowedQuantity,
+                                    'status' => $status
+                                ]);
+
+                                $borrowedEquipment->save();
+                            });
+                        }),
+
+                    Tables\Actions\Action::make('Partially Returned')
+                        ->form([
+                            TextInput::make('quantity_returned')->required(),
+                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                            try {
+                                // Settting the borrow status to clicked option
+                                $borrowedEquipment->status = BorrowStatus::PARTIALLY_RETURNED->value;
+                                // Getting the quanttiy returned from data
+                                $quantityReturned = $data['quantity_returned'];
+                                // Getting the total returned equipment
+                                $borrowedEquipment->total_quantity_returned += $quantityReturned;
+                                // Getting the equipment model
+                                $equipment = $borrowedEquipment->equipment;
+                                // GEtting the current status of the equipment
+                                $status = $equipment->status;
+                                DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityReturned, $status) {
+                                    // Checking if the total quantity returned is equal to quantity borrowed
+                                    if ($borrowedEquipment->total_quantity_returned === $borrowedEquipment->quantity) {
+                                        $borrowedEquipment->status = BorrowStatus::RETURNED->value;
+                                        $borrowedEquipment->returned_date = date('Y-m-d');
+                                    }
+                                    // Getting total available quantity
+                                    $totalAvailableQuantity = $equipment->quantity_available + $quantityReturned;
+                                    // Getting total borrowed equipment left
+                                    $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityReturned;
+
+                                    // if total borrowed is already zero set the equipment status to active
+                                    if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
+
+                                    $equipment->update([
+                                        'quantity_available' => $totalAvailableQuantity,
+                                        'quantity_borrowed' => $totalBorrowedQuantity,
+                                        'status' => $status
+                                    ]);
+
+                                    $borrowedEquipment->save();
+                                });
+                                Notification::make()
+                                    ->title('Success')
+                                    ->body('Updated Successfully')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->success()
+                                    ->send();
+                            }
                         }),
                     Tables\Actions\Action::make('Returned')
                         ->action(function (BorrowedEquipment $borrowedEquipment) {
@@ -146,8 +224,8 @@ class BorrowedEquipmentResource extends Resource
                                     ->success()
                                     ->send();
                             }
-                        }),
-                ])
+                        })
+                ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

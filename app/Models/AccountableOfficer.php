@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AccountingOfficer extends Model
+class AccountableOfficer extends Model
 {
     /** @use HasFactory<\Database\Factories\AccountingOfficerFactory> */
     use HasFactory, HasFullName, HasEquipment, SoftDeletes;

@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountingOfficerResource\Pages;
 use App\Filament\Resources\AccountingOfficerResource\RelationManagers;
-use App\Models\AccountingOfficer;
+use App\Models\AccountableOfficer;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AccountingOfficerResource extends Resource
 {
-    protected static ?string $model = AccountingOfficer::class;
+    protected static ?string $model = AccountableOfficer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'People';
