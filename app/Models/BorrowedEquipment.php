@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BorrowedEquipment extends Model
 {
     /** @use HasFactory<\Database\Factories\BorrowedEquipmentFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'borrowed_equipment_id',
         'equipment_id',
         'quantity',
         'borrower_first_name',
@@ -19,7 +21,12 @@ class BorrowedEquipment extends Model
         'borrower_email',
         'start_date',
         'end_date',
-        'returned_date'
+        'returned_date',
+        'quantity_returned',
+        'quantity_missing',
+        'total_quantity_returned',
+        'total_quantity_missing',
+        'status'
     ];
 
     public function casts()
@@ -31,4 +38,19 @@ class BorrowedEquipment extends Model
         ];
     }
 
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class);
+    }
+
+
+    public function getBorrowerFullNameAttribute()
+    {
+        return "$this->borrower_first_name $this->borrower_last_name";
+    }
+
+    public function getIsReturnedAttribute()
+    {
+        return $this->returned_date ? 'Yes' : 'No';
+    }
 }

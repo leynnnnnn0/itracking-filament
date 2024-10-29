@@ -17,7 +17,7 @@ class EquipmentFactory extends Factory
     public function definition(): array
     {
         $dateAcquired = fake()->date();
-
+        $quantity = fake()->numberBetween(1, 100);
         return [
             'personnel_id' => fake()->numberBetween(1, 100),
             'accounting_officer_id' => fake()->numberBetween(1, 100),
@@ -26,8 +26,8 @@ class EquipmentFactory extends Factory
             'fund_id' => fake()->numberBetween(1, 5),
             'personal_protective_equipment_id' => fake()->numberBetween(1, 5),
             'property_number' => fake()->unique()->numerify('PN#####'),
-            'quantity' => fake()->numberBetween(1, 100),
-            'quantity_borrowed' => 0,
+            'quantity' => $quantity,
+            'quantity_available' => $quantity,
             'unit' => fake()->randomElement(['pcs', 'unit', 'pack']),
             'name' => fake()->word(),
             'description' => fake()->sentence(),

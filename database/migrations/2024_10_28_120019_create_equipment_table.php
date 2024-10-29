@@ -29,6 +29,9 @@ return new class extends Migration
             $table->string('property_number')->unique();
             $table->integer('quantity');
             $table->integer('quantity_borrowed')->default(0);
+            $table->integer('quantity_available')->default(0);
+            $table->integer('quantity_missing')->default(0);
+            $table->integer('quantity_condemned')->default(0);
             $table->enum('unit', Unit::values());
             $table->string('name');
             $table->text('description')->nullable();

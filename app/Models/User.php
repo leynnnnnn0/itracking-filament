@@ -7,13 +7,14 @@ namespace App\Models;
 use App\Traits\HasFullName;
 use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements HasName
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasFullName;
+    use HasFactory, Notifiable, HasFullName, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

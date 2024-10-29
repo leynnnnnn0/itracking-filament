@@ -6,11 +6,12 @@ use App\Traits\HasEquipment;
 use App\Traits\HasFullName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Personnel extends Model
 {
     /** @use HasFactory<\Database\Factories\PersonnelFactory> */
-    use HasFactory, HasFullName, HasEquipment;
+    use HasFactory, HasFullName, HasEquipment, SoftDeletes;
 
     protected $fillable = [
         'office_id',

@@ -15,10 +15,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Validator;
@@ -26,8 +30,9 @@ use Illuminate\Support\Facades\Validator;
 class EquipmentResource extends Resource
 {
     protected static ?string $model = Equipment::class;
-
+    protected static ?string $navigationGroup = 'Equipment';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
 
     public static function form(Form $form): Form
     {
@@ -136,17 +141,62 @@ class EquipmentResource extends Resource
                 TextColumn::make('quantity'),
                 TextColumn::make('unit'),
                 TextColumn::make('unit_price'),
+                TextColumn::make('status')
+                    ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
+                    ->badge()
+                    ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Basic Details')->schema([
+                    TextEntry::make('name'),
+                    TextEntry::make('description'),
+                    TextEntry::make('property_number'),
+                    TextEntry::make('unit'),
+                    TextEntry::make('quantity'),
+                    TextEntry::make('quantity_available'),
+                    TextEntry::make('quantity_borrowed'),
+                    TextEntry::make('quantity_missing'),
+                    TextEntry::make('quantity_condemned'),
+                    TextEntry::make('date_acquired')
+                        ->date('F d, Y'),
+                    TextEntry::make('estimated_useful_time')
+                        ->date('Y-m'),
+                    TextEntry::make('quantity_condemned'),
+                    TextEntry::make('quantity_condemned'),
+                    TextEntry::make('unit_price'),
+                    TextEntry::make('total_amount'),
+                    TextEntry::make('status')
+                        ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
+                        ->badge()
+                        ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
+                ])->columns(2),
+                Section::make('Others')->schema([
+                    TextEntry::make('personnel.full_name'),
+                    TextEntry::make('accounting_officer.full_name'),
+                    TextEntry::make('organization_unit.name'),
+                    TextEntry::make('operating_unit_project.name'),
+                    TextEntry::make('fund.name'),
+                    TextEntry::make('personal_protective_equipment.name'),
+                ])->columns(2),
+
+
             ]);
     }
 
@@ -164,5 +214,10 @@ class EquipmentResource extends Resource
             'create' => Pages\CreateEquipment::route('/create'),
             'edit' => Pages\EditEquipment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['personnel', 'accounting_officer', 'organization_unit', 'operating_unit_project', 'fund', 'personal_protective_equipment']);
     }
 }
