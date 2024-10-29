@@ -11,6 +11,7 @@ use App\Models\OperatingUnitProject;
 use App\Models\OrganizationUnit;
 use App\Models\PersonalProtectiveEquipment;
 use App\Models\Personnel;
+use App\Models\Position;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,12 +33,13 @@ class DatabaseSeeder extends Seeder
         Department::factory(5)->create();
         Fund::factory(5)->create();
         Office::factory(5)->create();
+        Position::factory(5)->create();
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
         PersonalProtectiveEquipment::factory(5)->create();
         AccountingOfficer::factory(100)->create();
         Personnel::factory(100)->create();
-        Equipment::factory(100)->create()
+        Equipment::factory(100)->create();
 
 
     }

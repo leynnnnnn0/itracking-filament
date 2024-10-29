@@ -111,7 +111,8 @@ class PersonnelResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('full_name'),
+                TextColumn::make('full_name')
+                    ->searchable(['first_name', 'last_name']),
                 TextColumn::make('office.name'),
                 TextColumn::make('department.name'),
                 TextColumn::make('position.name'),

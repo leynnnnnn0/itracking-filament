@@ -61,7 +61,8 @@ class AccountingOfficerResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('full_name'),
+                TextColumn::make('full_name')
+                    ->searchable(['first_name', 'last_name']),
                 TextColumn::make('office.name'),
                 TextColumn::make('phone_number'),
                 TextColumn::make('email'),

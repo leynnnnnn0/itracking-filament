@@ -17,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -89,6 +90,9 @@ class EquipmentResource extends Resource
                     ->native(false)
                     ->required(),
 
+                DatePicker::make('date_acquired')
+                    ->native(false),
+
                 DatePicker::make('estimated_useful_time')
                     ->native()
                     ->extraInputAttributes(['type' => 'month']),
@@ -106,14 +110,13 @@ class EquipmentResource extends Resource
                     ->numeric()
                     ->live()
                     ->required()
-                    ->reactive()  // Make it reactive to trigger updates
+                    ->reactive()
                     ->afterStateUpdated(function ($state, $set, $get) {
                         $set('total_amount', ($get('quantity') ?? 0) * ($state ?? 0));
                     }),
 
                 TextInput::make('total_amount')
                     ->numeric()
-                    ->disabled()  // Make it read-only
                     ->required(),
 
                 Select::make('status')
@@ -127,7 +130,12 @@ class EquipmentResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('property_number'),
+                TextColumn::make('quantity'),
+                TextColumn::make('unit'),
+                TextColumn::make('unit_price'),
             ])
             ->filters([
                 //
