@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreignIdFor(OrganizationUnit::class)->constrained();
             $table->string('property_number')->unique();
             $table->integer('quantity');
-            $table->integer('quantity_borrowed');
+            $table->integer('quantity_borrowed')->default(0);
             $table->enum('unit', Unit::values());
             $table->string('name');
             $table->text('description')->nullable();

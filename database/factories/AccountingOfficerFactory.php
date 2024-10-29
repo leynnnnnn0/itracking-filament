@@ -17,7 +17,11 @@ class AccountingOfficerFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'office_id' => fake()->numberBetween(1, 5),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'email' => fake()->unique()->email(),
+            'phone_number' => fake()->phoneNumber(),
         ];
     }
 }
