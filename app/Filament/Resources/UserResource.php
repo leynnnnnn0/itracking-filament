@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 
 class UserResource extends Resource
 {
@@ -44,10 +46,6 @@ class UserResource extends Resource
                         Select::make('gender')
                             ->options(Gender::values())
                             ->required(),
-
-                        DatePicker::make('date_of_birth')
-                            ->required()
-                            ->native(false),
 
                         TextInput::make('phone_number')
                             ->required()
@@ -90,12 +88,34 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('first_name'),
+
+                TextEntry::make('middle_name'),
+
+                TextEntry::make('last_name'),
+
+                TextEntry::make('gender'),
+
+                TextEntry::make('email'),
+
+                TextEntry::make('phone_number'),
+
+                TextEntry::make('role'),
+
             ]);
     }
 

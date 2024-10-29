@@ -21,7 +21,6 @@ class CreateMissingEquipment extends CreateRecord
             $missingEquipment = $this->record;
             $equipment = $missingEquipment->equipment;
 
-            $status = $equipment->status;
             $totalAvaibleEquipment = $equipment->quantity_available - $missingEquipment->quantity;
             if ($missingEquipment->is_condemned) {
                 $totalCondemnedEquipment = $equipment->total_quantity_condemned;
@@ -31,7 +30,6 @@ class CreateMissingEquipment extends CreateRecord
                 $equipment->quantity_missing = $totalMissingEquipment;
             }
             $equipment->quantity_available = $totalAvaibleEquipment;
-            $equipment->status = $status;
             $equipment->save();
         } catch (Exception $e) {
             Notification::make()

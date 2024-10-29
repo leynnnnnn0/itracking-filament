@@ -24,7 +24,6 @@ class PersonnelFactory extends Factory
             'middle_name' => fake()->optional()->firstName(),
             'last_name' => fake()->lastName(),
             'gender' => fake()->randomElement(['Male', 'Female']),
-            'date_of_birth' => fake()->date(),
             'phone_number' => '09' . fake()->numberBetween(000000000, 999999999),
             'email' => fake()->unique()->safeEmail(),
             'start_date' => fake()->date(),

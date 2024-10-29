@@ -17,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -74,7 +75,10 @@ class MissingEquipmentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([])
+            ->columns([
+                TextColumn::make('equipment.name')
+                ->label('Equipment Name'),
+            ])
             ->filters([
                 //
             ])
@@ -102,5 +106,10 @@ class MissingEquipmentResource extends Resource
             'create' => Pages\CreateMissingEquipment::route('/create'),
             'edit' => Pages\EditMissingEquipment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('equipment');
     }
 }

@@ -2,14 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use App\BorrowStatus;
 use App\Enum\EquipmentStatus;
 use App\Enum\Unit;
 use App\Filament\Resources\EquipmentResource\Pages;
 use App\Filament\Resources\EquipmentResource\RelationManagers;
+use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,6 +22,7 @@ use Filament\Forms\Get;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -25,6 +30,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class EquipmentResource extends Resource
@@ -166,6 +172,95 @@ class EquipmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('Borrow')
+                    ->color('warning')
+                    ->form([
+                        \Filament\Forms\Components\Section::make()
+                            ->schema([
+                                Select::make('equipment_id')
+                                    ->native(false)
+                                    ->label('Equipment')
+                                    ->getSearchResultsUsing(fn(string $search): array => Equipment::whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->pluck('name', 'id')->toArray())
+                                    ->searchable()
+                                    ->getOptionLabelUsing(function ($value): ?string {
+                                        $equipment = Equipment::find($value);
+                                        return "$equipment->name (PN: $equipment->property_number)";
+                                    })
+                                    ->default(fn($record) => $record->id) // Automatically set the equipment ID from the clicked row
+                                    ->required(),
+
+                                TextInput::make('quantity')
+                                    ->integer()
+                                    ->required(),
+
+                                TextInput::make('borrower_first_name')
+                                    ->required(),
+
+                                TextInput::make('borrower_last_name')
+                                    ->required(),
+
+                                TextInput::make('borrower_phone_number')
+                                    ->required(),
+
+                                TextInput::make('borrower_email')
+                                    ->email()
+                                    ->required(),
+
+                                DatePicker::make('start_date')
+                                    ->native(false)
+                                    ->required(),
+
+                                DatePicker::make('end_date')
+                                    ->native(false)
+                                    ->required(),
+
+
+                                Hidden::make('status')
+                                    ->default(BorrowStatus::BORROWED->value)
+                                    ->dehydrated(true)
+                                    ->required()
+                            ])->columns(2)
+                    ])->action(function (array $data) {
+                        try {
+                            DB::transaction(function () use ($data) {
+                                $borrowedEquipment = BorrowedEquipment::create([
+                                    'equipment_id' => $data['equipment_id'],
+                                    'quantity' => $data['quantity'],
+                                    'borrower_first_name' => $data['borrower_first_name'],
+                                    'borrower_last_name' => $data['borrower_last_name'],
+                                    'borrower_phone_number' => $data['borrower_phone_number'],
+                                    'borrower_email' => $data['borrower_email'],
+                                    'start_date' => $data['start_date'],
+                                    'end_date' => $data['end_date'],
+                                ]);
+                                $equipment = $borrowedEquipment->equipment;
+
+                                $totalAvailableEquipment = $equipment->quantity_available - $borrowedEquipment->quantity;
+                                $totalBorrowedEquipment =  $equipment->quantity_borrowed + $borrowedEquipment->quantity;
+                                $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
+                                if ($totalBorrowedEquipment === $equipment->quantity_available)
+                                    $status = EquipmentStatus::FULLY_BORROWED->value;
+
+                                $equipment->update([
+                                    'quantity_available' => $totalAvailableEquipment,
+                                    'quantity_borrowed' => $totalBorrowedEquipment,
+                                    'status' => $status
+                                ]);
+
+                                Notification::make()
+                                    ->title('Success')
+                                    ->body('Borrow Log Created.')
+                                    ->success()
+                                    ->send();
+                            });
+                        } catch (Exception $e) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body($e->getMessage())
+                                ->success()
+                                ->send();
+                        }
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

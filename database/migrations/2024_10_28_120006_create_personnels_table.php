@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->enum('gender', Gender::values());
-            $table->date('date_of_birth');
             $table->string('phone_number');
             $table->string('email')->unique();
             $table->date('start_date');

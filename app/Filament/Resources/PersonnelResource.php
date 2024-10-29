@@ -17,6 +17,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Tables\Columns\TextColumn;
 
 class PersonnelResource extends Resource
@@ -65,17 +67,6 @@ class PersonnelResource extends Resource
                     ->options(Gender::values())
                     ->required(),
 
-                DatePicker::make('date_of_birth')
-                    ->required()
-                    ->disabledDates(function () {
-                        return collect(range(0, 365))
-                            ->map(fn($day) => now()->addDays($day)->format('Y-m-d'))
-                            ->toArray();
-                    })
-                    ->rule(['date', 'before:today'])
-                    ->closeOnDateSelection()
-                    ->native(false),
-
                 TextInput::make('phone_number')
                     ->required()
                     ->numeric()
@@ -123,12 +114,49 @@ class PersonnelResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('office.name')
+                    ->label('Office'),
+
+                TextEntry::make('department.name')
+                    ->label('Department'),
+
+                TextEntry::make('position.name')
+                    ->label('Position'),
+
+                TextEntry::make('first_name'),
+
+                TextEntry::make('middle_name'),
+
+                TextEntry::make('last_name'),
+
+                TextEntry::make('gender'),
+
+                TextEntry::make('email'),
+
+                TextEntry::make('phone_number'),
+
+                TextEntry::make('start_date')
+                    ->date('F d, Y'),
+
+                TextEntry::make('end_date')
+                    ->date('F d, Y'),
+
+                TextEntry::make('remarks'),
+
             ]);
     }
 

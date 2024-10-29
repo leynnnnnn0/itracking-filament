@@ -21,7 +21,6 @@ class Personnel extends Model
         'middle_name',
         'last_name',
         'gender',
-        'date_of_birth',
         'phone_number',
         'email',
         'start_date',

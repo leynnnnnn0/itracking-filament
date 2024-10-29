@@ -24,8 +24,6 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->date('returned_date')->nullable();
-            $table->integer('quantity_returned')->default(0);
-            $table->integer('quantity_missing')->default(0);
             $table->integer('total_quantity_returned')->default(0);
             $table->integer('total_quantity_missing')->default(0);
             $table->enum('status', BorrowStatus::values())->default(BorrowStatus::BORROWED->value);

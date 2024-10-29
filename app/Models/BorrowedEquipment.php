@@ -12,7 +12,6 @@ class BorrowedEquipment extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'borrowed_equipment_id',
         'equipment_id',
         'quantity',
         'borrower_first_name',
@@ -22,8 +21,6 @@ class BorrowedEquipment extends Model
         'start_date',
         'end_date',
         'returned_date',
-        'quantity_returned',
-        'quantity_missing',
         'total_quantity_returned',
         'total_quantity_missing',
         'status'

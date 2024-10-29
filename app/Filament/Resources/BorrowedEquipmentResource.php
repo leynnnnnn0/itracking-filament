@@ -19,6 +19,8 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -120,6 +122,7 @@ class BorrowedEquipmentResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Partially Returned with Missing')
@@ -156,7 +159,6 @@ class BorrowedEquipmentResource extends Resource
                                 ]);
 
                                 $borrowedEquipment->save();
-
                             });
                         }),
                     Tables\Actions\Action::make('Returned with Missing')
@@ -329,6 +331,48 @@ class BorrowedEquipmentResource extends Resource
                 ]),
             ]);
     }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                \Filament\Infolists\Components\Section::make('Equipment Details')
+                    ->schema([
+                        TextEntry::make('equipment.name')
+                            ->label('Name'),
+                        TextEntry::make('equipment.property_number')
+                            ->label('Property Number'),
+                    ])->columns(2),
+
+                \Filament\Infolists\Components\Section::make('Borrow Log Details')
+                    ->schema([
+                        TextEntry::make('quantity')
+                            ->label('Quantity Borrowed'),
+                        TextEntry::make('status')
+                            ->badge(),
+                        TextEntry::make('total_quantity_returned'),
+                        TextEntry::make('total_quantity_missing'),
+                        TextEntry::make('start_date')
+                            ->date('F d, Y'),
+                        TextEntry::make('end_date')
+                            ->date('F d, Y'),
+                    ])->columns(2),
+
+                \Filament\Infolists\Components\Section::make('Borrower Details')
+                    ->schema([
+                        TextEntry::make('borrower_first_name'),
+
+                        TextEntry::make('borrower_last_name'),
+
+                        TextEntry::make('borrower_email'),
+
+                        TextEntry::make('borrower_phone_number'),
+                    ])->columns(2)
+
+
+            ]);
+    }
+
 
     public static function getRelations(): array
     {

@@ -26,7 +26,6 @@ class User extends Authenticatable implements HasName
         'middle_name',
         'last_name',
         'gender',
-        'date_of_birth',
         'phone_number',
         'email',
         'password',
