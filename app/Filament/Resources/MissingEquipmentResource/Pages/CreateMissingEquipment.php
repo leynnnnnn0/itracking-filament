@@ -23,7 +23,7 @@ class CreateMissingEquipment extends CreateRecord
 
             $totalAvaibleEquipment = $equipment->quantity_available - $missingEquipment->quantity;
             if ($missingEquipment->is_condemned) {
-                $totalCondemnedEquipment = $equipment->total_quantity_condemned;
+                $totalCondemnedEquipment = $equipment->total_quantity_condemned + $missingEquipment->quantity;
                 $equipment->quantity_condemned = $totalCondemnedEquipment;
             } else {
                 $totalMissingEquipment = $equipment->quantity_missing + $missingEquipment->quantity;

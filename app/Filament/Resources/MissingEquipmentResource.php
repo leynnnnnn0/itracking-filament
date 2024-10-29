@@ -15,6 +15,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -77,18 +80,57 @@ class MissingEquipmentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('equipment.name')
-                ->label('Equipment Name'),
+                    ->label('Equipment Name'),
+
+                TextColumn::make('equipment.property_number')
+                    ->label('Property Number'),
+
+                TextColumn::make('quantity')
+                    ->label('Missing Quantity'),
+
+                TextColumn::make('status')
+                    ->badge(),
+
+                TextColumn::make('reported_by'),
+
+                TextColumn::make('reported_date'),
+
+                TextColumn::make('is_condemned')
+                    ->formatStateUsing(fn($record) => $record->is_condemned ? 'Yes' : 'No'),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Equipment Details')
+                    ->schema([
+                        TextEntry::make('equipment.name')
+                            ->label('Name'),
+
+                            TextEntry::make('equipment.property_number')
+                            ->label('Property Number'),
+                    ])->columns(2),
+
+                Section::make('Report Details')
+                    ->schema([
+                        TextEntry::make('quantity')
+                            ->label('Missing Quantity'),
+                            TextEntry::make('status')
+                    ])->columns(2),
             ]);
     }
 

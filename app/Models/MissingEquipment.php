@@ -33,4 +33,6 @@ class MissingEquipment extends Model
     {
         return $this->belongsTo(Equipment::class);
     }
+
+
 }
