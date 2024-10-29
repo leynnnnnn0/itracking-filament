@@ -36,4 +36,35 @@ class Equipment extends Model
         'unit_price' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
+
+    public function personnel()
+    {
+        return $this->belongsTo(Personnel::class);
+    }
+
+    public function accounting_officer()
+    {
+        return $this->belongsTo(AccountingOfficer::class);
+    }
+
+    public function operating_unit_project()
+    {
+        return $this->belongsTo(OperatingUnitProject::class);
+    }
+
+    public function organization_unit()
+    {
+        return $this->belongsTo(OrganizationUnit::class);
+    }
+
+    public function fund()
+    {
+        return $this->belongsTo(Fund::class);
+    }
+
+
+    public function personal_protective_equipment()
+    {
+        return $this->belongsTo(PersonalProtectiveEquipment::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasEquipment;
 use App\Traits\HasFullName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Personnel extends Model
 {
     /** @use HasFactory<\Database\Factories\PersonnelFactory> */
-    use HasFactory, HasFullName;
+    use HasFactory, HasFullName, HasEquipment;
 
     protected $fillable = [
         'office_id',
@@ -52,4 +53,5 @@ class Personnel extends Model
     {
         return $this->belongsTo(Office::class);
     }
+
 }
