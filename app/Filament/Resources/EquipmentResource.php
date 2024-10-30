@@ -87,13 +87,6 @@ class EquipmentResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
                     ->required(),
 
-                Select::make('personal_protective_equipment_id')
-                    ->native(false)
-                    ->label('Personal Protective Equipment')
-                    ->relationship('personal_protective_equipment')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
-                    ->required(),
-
                 TextInput::make('property_number')
                     ->required()
                     ->placeholder('PN****************')
@@ -157,7 +150,8 @@ class EquipmentResource extends Resource
                 TextColumn::make('name')
                     ->searchable(),
 
-                TextColumn::make('property_number'),
+                TextColumn::make('property_number')
+                    ->searchable(),
 
                 TextColumn::make('quantity'),
 
@@ -204,6 +198,10 @@ class EquipmentResource extends Resource
 
                                 TextInput::make('quantity')
                                     ->integer()
+                                    ->numeric()
+                                    ->extraInputAttributes([
+                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    ])
                                     ->required(),
 
                                 TextInput::make('borrower_first_name')
@@ -336,7 +334,6 @@ class EquipmentResource extends Resource
 
                     TextEntry::make('fund.name'),
 
-                    TextEntry::make('personal_protective_equipment.name'),
 
                 ])->columns(2),
 
@@ -362,6 +359,6 @@ class EquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund', 'personal_protective_equipment']);
+        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund']);
     }
 }

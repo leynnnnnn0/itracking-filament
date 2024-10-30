@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+
 class BorrowedEquipmentResource extends Resource
 {
     protected static ?string $model = BorrowedEquipment::class;
@@ -38,19 +39,34 @@ class BorrowedEquipmentResource extends Resource
             ->schema([
                 Select::make('equipment_id')
                     ->native(false)
-                    ->relationship('equipment')
+                    ->relationship('equipment', 'select_display')
                     ->label('Equipment')
-                    ->getSearchResultsUsing(fn(string $search): array => Equipment::whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->pluck('name', 'id')->toArray())
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
+                    ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
-                    ->getOptionLabelUsing(function ($value): ?string {
-                        $equipment = Equipment::find($value);
-                        return "$equipment->name (PN: $equipment->property_number)";
-                    })
+                    ->reactive() // Make this field reactive
                     ->required(),
 
                 TextInput::make('quantity')
                     ->integer()
-                    ->required(),
+                    ->required()
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
+                    ->hint(function (callable $get) {
+                        $equipmentId = $get('equipment_id');
+                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                        return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
+                    })
+                    ->minValue(1)
+                    ->maxValue(function (callable $get) {
+                        $equipmentId = $get('equipment_id');
+                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                        return  $quantityAvailable ?? 0;
+                    }),
+
 
                 TextInput::make('borrower_first_name')
                     ->required(),
@@ -67,10 +83,14 @@ class BorrowedEquipmentResource extends Resource
 
                 DatePicker::make('start_date')
                     ->native(false)
+                    ->default(today())
+                    ->closeOnDateSelection()
                     ->required(),
 
                 DatePicker::make('end_date')
                     ->native(false)
+                    ->after('start_date')
+                    ->closeOnDateSelection()
                     ->required(),
 
                 Select::make('status')

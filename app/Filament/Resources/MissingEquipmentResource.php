@@ -40,15 +40,33 @@ class MissingEquipmentResource extends Resource
             ->schema([
                 Select::make('equipment_id')
                     ->native(false)
-                    ->relationship('equipment')
+                    ->relationship('equipment', 'select_display')
                     ->label('Equipment')
-                    ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->pluck('name', 'id')->toArray())
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
+                    ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
+                    ->reactive() // Make this field reactive
                     ->required(),
 
                 TextInput::make('quantity')
                     ->integer()
-                    ->required(),
+                    ->required()
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
+                    ->hint(function (callable $get) {
+                        $equipmentId = $get('equipment_id');
+                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                        return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
+                    })
+                    ->minValue(1)
+                    ->maxValue(function (callable $get) {
+                        $equipmentId = $get('equipment_id');
+                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                        return  $quantityAvailable ?? 0;
+                    }),
 
                 Select::make('status')
                     ->live()
@@ -62,6 +80,7 @@ class MissingEquipmentResource extends Resource
 
                 DatePicker::make('reported_date')
                     ->native(false)
+                    ->default(today())
                     ->required(),
 
                 Textarea::make('remarks')
@@ -133,7 +152,14 @@ class MissingEquipmentResource extends Resource
                     ->schema([
                         TextEntry::make('quantity')
                             ->label('Missing Quantity'),
-                        TextEntry::make('status')
+                        TextEntry::make('status'),
+
+                        TextEntry::make('reported_by'),
+
+                        TextEntry::make('reported_date')
+                            ->date('F d, Y'),
+
+                        TextEntry::make('description'),
                     ])->columns(2),
             ]);
     }

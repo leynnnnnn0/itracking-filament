@@ -17,7 +17,6 @@ class Equipment extends Model
         'organization_unit_id',
         'operating_unit_project_id',
         'fund_id',
-        'personal_protective_equipment_id',
         'property_number',
         'quantity',
         'quantity_available',
@@ -71,11 +70,6 @@ class Equipment extends Model
         return $this->belongsTo(Fund::class);
     }
 
-
-    public function personal_protective_equipment()
-    {
-        return $this->belongsTo(PersonalProtectiveEquipment::class);
-    }
 
     public function borrowed_equipment()
     {

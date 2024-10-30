@@ -24,7 +24,6 @@ class EquipmentFactory extends Factory
             'organization_unit_id' => fake()->numberBetween(1, 5),
             'operating_unit_project_id' => fake()->numberBetween(1, 5),
             'fund_id' => fake()->numberBetween(1, 5),
-            'personal_protective_equipment_id' => fake()->numberBetween(1, 5),
             'property_number' => fake()->unique()->numerify('PN#####'),
             'quantity' => $quantity,
             'quantity_available' => $quantity,
