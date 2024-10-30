@@ -21,7 +21,7 @@ class SupplyHistoryResource extends Resource
 {
     protected static ?string $model = SupplyHistory::class;
     protected static ?string $navigationGroup = 'Supply';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     public static function form(Form $form): Form
     {

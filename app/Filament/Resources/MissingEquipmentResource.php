@@ -36,7 +36,7 @@ class MissingEquipmentResource extends Resource
     protected static ?string $model = MissingEquipment::class;
     protected static ?string $navigationGroup = 'Equipment';
     protected static ?string $navigationLabel = 'Missing Equipment';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
     public static function form(Form $form): Form
     {
