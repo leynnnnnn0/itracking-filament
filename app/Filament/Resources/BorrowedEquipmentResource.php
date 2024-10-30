@@ -93,7 +93,11 @@ class BorrowedEquipmentResource extends Resource
                 TextColumn::make('equipment.name')
                     ->label('Equipment'),
 
-                TextColumn::make('quantity'),
+                TextColumn::make('quantity')
+                    ->label('Quantity Borrowed'),
+
+                TextColumn::make('equipment.quantity_available')
+                    ->label('Quantity Available'),
 
                 TextColumn::make('borrower_full_name'),
 

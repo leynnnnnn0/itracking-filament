@@ -3,10 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountingOfficerResource\Pages;
-use App\Filament\Resources\AccountingOfficerResource\RelationManagers;
 use App\Models\AccountableOfficer;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -15,9 +12,9 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AccountingOfficerResource extends Resource
 {
@@ -33,8 +30,7 @@ class AccountingOfficerResource extends Resource
                 Select::make('office_id')
                     ->native(false)
                     ->label('Office')
-                    ->relationship('office')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+                    ->relationship('office', 'name'),
 
                 TextInput::make('first_name')
                     ->required(),
@@ -55,6 +51,7 @@ class AccountingOfficerResource extends Resource
 
                 TextInput::make('email')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->email(),
             ]);
     }
@@ -70,7 +67,9 @@ class AccountingOfficerResource extends Resource
                 TextColumn::make('email'),
             ])
             ->filters([
-                //
+                SelectFilter::make('office')
+                    ->multiple()
+                    ->relationship('office', 'name'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

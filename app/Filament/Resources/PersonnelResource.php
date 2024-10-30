@@ -20,6 +20,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class PersonnelResource extends Resource
 {
@@ -111,7 +112,17 @@ class PersonnelResource extends Resource
                 TextColumn::make('email'),
             ])
             ->filters([
-                //
+                SelectFilter::make('office')
+                    ->multiple()
+                    ->relationship('office', 'name'),
+
+                SelectFilter::make('department')
+                    ->multiple()
+                    ->relationship('department', 'name'),
+
+                SelectFilter::make('position')
+                    ->multiple()
+                    ->relationship('position', 'name'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
