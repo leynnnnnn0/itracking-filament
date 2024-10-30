@@ -55,8 +55,7 @@ class SupplyResource extends Resource
                         Hidden::make('total')->required(),
 
                         DatePicker::make('expiry_date')
-                            ->native(false)
-                            ->required(),
+                            ->native(false),
 
                         Select::make('categories')
                             ->relationship('categories', 'name')
