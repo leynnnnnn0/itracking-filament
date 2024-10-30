@@ -50,9 +50,7 @@ class SupplyHistoryResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+            ->actions([])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -79,5 +77,10 @@ class SupplyHistoryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['supply']);
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }
