@@ -9,6 +9,7 @@ use App\Filament\Resources\EquipmentResource\Pages;
 use App\Filament\Resources\EquipmentResource\RelationManagers;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
+use Carbon\Carbon;
 use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -94,7 +95,11 @@ class EquipmentResource extends Resource
                     ->required(),
 
                 TextInput::make('property_number')
-                    ->required(),
+                    ->required()
+                    ->placeholder('PN****************')
+                    ->regex('/^PN[a-zA-Z0-9]{14,18}$/')
+                    ->maxLength(20)
+                    ->minLength(16),
 
                 Select::make('unit')
                     ->options(Unit::values())
@@ -102,11 +107,19 @@ class EquipmentResource extends Resource
                     ->required(),
 
                 DatePicker::make('date_acquired')
+                    ->closeOnDateSelection()
+                    ->required()
                     ->native(false),
 
                 DatePicker::make('estimated_useful_time')
-                    ->native()
-                    ->extraInputAttributes(['type' => 'month']),
+                    ->extraInputAttributes(['type' => 'month'])
+                    ->formatStateUsing(
+                        fn($record) => $record && $record->estimated_useful_time
+                            ? Carbon::parse($record->estimated_useful_time)->format('Y-m')
+                            : null
+                    )
+                    ->required(),
+
 
                 TextInput::make('quantity')
                     ->numeric()
