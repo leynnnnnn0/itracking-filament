@@ -132,6 +132,26 @@ class PersonnelResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function (Model $record) {
+                        if ($record->equipment()->exists()) {
+                            Notification::make()
+                                ->title('Deletion Failed')
+                                ->body('Cannot delete this personnel because it has associated equipment.')
+                                ->danger()
+                                ->send();
+
+                            return false;
+                        }
+
+                        $record->delete();
+                    })
+                    ->requiresConfirmation()
+                    ->modalIconColor('danger')
+                    ->color('danger')
+                    ->modalHeading('Delete personnel')
+                    ->modalDescription('Are you sure you\'d like to delete this personnel?')
+                    ->modalSubmitActionLabel('Yes, Delete it')
 
             ])
             ->bulkActions([
