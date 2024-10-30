@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Supply;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,16 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('supplies', function (Blueprint $table) {
+        Schema::create('supply_histories', function (Blueprint $table) {
             $table->id();
-            $table->text('description');
-            $table->string('unit');
+            $table->foreignIdFor(Supply::class)->constrained()->cascadeOnDelete();
             $table->integer('quantity');
-            $table->integer('used')->default(0);
-            $table->integer('recently_added')->default(0);
-            $table->integer('total')->default(0);
-            $table->date('expiry_date')->nullable();
-            $table->boolean('is_consumable')->default(false);
+            $table->integer('used');
+            $table->integer('added');
+            $table->integer('total');
             $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('supplies');
+        Schema::dropIfExists('supply_histories');
     }
 };

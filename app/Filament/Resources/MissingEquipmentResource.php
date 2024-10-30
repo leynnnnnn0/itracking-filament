@@ -7,6 +7,8 @@ use App\Filament\Resources\MissingEquipmentResource\Pages;
 use App\Filament\Resources\MissingEquipmentResource\RelationManagers;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
@@ -93,7 +95,8 @@ class MissingEquipmentResource extends Resource
 
                 TextColumn::make('reported_by'),
 
-                TextColumn::make('reported_date'),
+                TextColumn::make('reported_date')
+                    ->date('F d, Y'),
 
                 TextColumn::make('is_condemned')
                     ->formatStateUsing(fn($record) => $record->is_condemned ? 'Yes' : 'No'),
@@ -109,7 +112,8 @@ class MissingEquipmentResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+        ;
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -121,7 +125,7 @@ class MissingEquipmentResource extends Resource
                         TextEntry::make('equipment.name')
                             ->label('Name'),
 
-                            TextEntry::make('equipment.property_number')
+                        TextEntry::make('equipment.property_number')
                             ->label('Property Number'),
                     ])->columns(2),
 
@@ -129,7 +133,7 @@ class MissingEquipmentResource extends Resource
                     ->schema([
                         TextEntry::make('quantity')
                             ->label('Missing Quantity'),
-                            TextEntry::make('status')
+                        TextEntry::make('status')
                     ])->columns(2),
             ]);
     }
@@ -147,6 +151,20 @@ class MissingEquipmentResource extends Resource
             'index' => Pages\ListMissingEquipment::route('/'),
             'create' => Pages\CreateMissingEquipment::route('/create'),
             'edit' => Pages\EditMissingEquipment::route('/{record}/edit'),
+        ];
+    }
+
+    protected function getActions(): array
+    {
+        return [
+            Action::make('new_missing_equipment')
+                ->label('New missing equipment')
+                ->color('success')
+                ->icon('heroicon-o-plus'),
+            Action::make('additional_action')
+                ->label('Additional Action')
+                ->color('primary')
+                ->icon('heroicon-o-plus'),
         ];
     }
 

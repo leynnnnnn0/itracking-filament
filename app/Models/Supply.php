@@ -29,4 +29,14 @@ class Supply extends Model
         'used' => 'integer',
         'total' => 'integer'
     ];
+
+    public function supplyHistory()
+    {
+        return $this->hasMany(SupplyHistory::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'supply_categories');
+    }
 }
