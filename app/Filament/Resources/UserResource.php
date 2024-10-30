@@ -21,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -44,6 +45,7 @@ class UserResource extends Resource
                         TextInput::make('last_name'),
 
                         Select::make('gender')
+                            ->native(false)
                             ->options(Gender::values())
                             ->required(),
 
@@ -58,18 +60,26 @@ class UserResource extends Resource
 
                         TextInput::make('email')
                             ->required()
+                            ->unique(ignoreRecord: true)
                             ->email(),
 
-                        Select::make('Role')
+                        Select::make('role')
                             ->options(UserRole::values())
+                            ->enum(UserRole::class)
                             ->native(false)
                             ->required(),
+                    ])->columns(2),
 
+                Section::make('Account Access')
+                    ->schema([
                         TextInput::make('password')
                             ->rules(['min:8'])
+                            ->label(fn(string $operation): string => $operation === 'create' ? 'Password' : 'New Password')
                             ->password()
-                            ->revealable()
-                            ->required(),
+                            ->dehydrated(fn($state) => filled($state))
+                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                            ->required(fn(string $operation): bool => $operation === 'create')
+                            ->revealable(),
                     ])->columns(2)
             ]);
     }
@@ -81,7 +91,8 @@ class UserResource extends Resource
                 TextColumn::make('full_name'),
                 TextColumn::make('email'),
                 TextColumn::make('phone_number'),
-                TextColumn::make('role')->badge()
+                TextColumn::make('role')
+                    ->badge()
                     ->color(fn(string $state): string => UserRole::from($state)->getColor())
             ])
             ->filters([
@@ -114,7 +125,9 @@ class UserResource extends Resource
 
                 TextEntry::make('phone_number'),
 
-                TextEntry::make('role'),
+                TextEntry::make('role')
+                    ->badge()
+                    ->color(fn(string $state): string => UserRole::from($state)->getColor()),
 
             ]);
     }

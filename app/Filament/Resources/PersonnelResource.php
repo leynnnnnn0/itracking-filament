@@ -65,7 +65,8 @@ class PersonnelResource extends Resource
                     ->required(),
 
                 Select::make('gender')
-                    ->options(Gender::values())
+                    ->options(Gender::class)
+                    ->enum(Gender::class)
                     ->required(),
 
                 TextInput::make('phone_number')
@@ -79,16 +80,18 @@ class PersonnelResource extends Resource
 
                 TextInput::make('email')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->email(),
 
                 DatePicker::make('start_date')
                     ->native(false)
                     ->closeOnDateSelection()
+                    ->default(date('Y-m-d'))
                     ->required(),
 
                 DatePicker::make('end_date')
                     ->native(false)
-                    ->after('after:start_date')
+                    ->after('start_date')
                     ->closeOnDateSelection()
                     ->required(),
 
