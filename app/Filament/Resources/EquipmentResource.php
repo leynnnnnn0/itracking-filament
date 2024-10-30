@@ -187,22 +187,34 @@ class EquipmentResource extends Resource
                                 Select::make('equipment_id')
                                     ->native(false)
                                     ->label('Equipment')
-                                    ->getSearchResultsUsing(fn(string $search): array => Equipment::whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->pluck('name', 'id')->toArray())
                                     ->searchable()
                                     ->getOptionLabelUsing(function ($value): ?string {
                                         $equipment = Equipment::find($value);
                                         return "$equipment->name (PN: $equipment->property_number)";
                                     })
-                                    ->default(fn($record) => $record->id) // Automatically set the equipment ID from the clicked row
+                                    ->default(fn($record) => $record->id)
                                     ->required(),
 
                                 TextInput::make('quantity')
                                     ->integer()
-                                    ->numeric()
+                                    ->required()
                                     ->extraInputAttributes([
                                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                                     ])
-                                    ->required(),
+                                    ->hint(function (callable $get) {
+                                        $equipmentId = $get('equipment_id');
+                                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                                        return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
+                                    })
+                                    ->minValue(1)
+                                    ->maxValue(function (callable $get) {
+                                        $equipmentId = $get('equipment_id');
+                                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+
+                                        return  $quantityAvailable ?? 0;
+                                    }),
+
 
                                 TextInput::make('borrower_first_name')
                                     ->required(),
