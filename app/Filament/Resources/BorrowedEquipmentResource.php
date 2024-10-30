@@ -180,6 +180,7 @@ class BorrowedEquipmentResource extends Resource
                                 $borrowedEquipment->save();
                             });
                         }),
+
                     Tables\Actions\Action::make('Returned with Missing')
                         ->form([
                             TextInput::make('quantity_missing')->required(),
@@ -211,6 +212,7 @@ class BorrowedEquipmentResource extends Resource
                                 $borrowedEquipment->save();
                             });
                         }),
+
                     Tables\Actions\Action::make('Missing')
                         ->requiresConfirmation()
                         ->modalIconColor('warning')
@@ -238,6 +240,7 @@ class BorrowedEquipmentResource extends Resource
                                 $borrowedEquipment->save();
                             });
                         }),
+
                     Tables\Actions\Action::make('Partially Missing')
                         ->form([
                             TextInput::make('quantity_missing')->required(),
@@ -317,10 +320,18 @@ class BorrowedEquipmentResource extends Resource
                                     ->send();
                             }
                         }),
+
                     Tables\Actions\Action::make('Returned')
+                        ->requiresConfirmation()
+                        ->modalIconColor('warning')
+                        ->color('warning')
+                        ->modalHeading('Tag as Returned')
+                        ->modalDescription('Are you sure you\'d like to tag this as returned? This cannot be undone.')
+                        ->modalSubmitActionLabel('Yes, tag as retunred')
                         ->action(function (BorrowedEquipment $borrowedEquipment) {
                             try {
                                 $borrowedEquipment->returned_date = date('Y-m-d');
+                                $borrowedEquipment->status = BorrowStatus::RETURNED->value;
                                 $equipment = $borrowedEquipment->equipment;
                                 DB::transaction(function () use ($borrowedEquipment, $equipment) {
                                     $borrowedEquipment->save();

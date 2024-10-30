@@ -9,11 +9,13 @@ use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class FundResource extends Resource
@@ -45,6 +47,28 @@ class FundResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function (Model $record) {
+                        // Check if there are associated personnel
+                        if ($record->equipment()->exists()) {
+                            Notification::make()
+                                ->title('Deletion Failed')
+                                ->body('Cannot delete this fund because it has associated equipment.')
+                                ->danger()
+                                ->send();
+
+                            return false; // Prevent deletion
+                        }
+
+                        // If no associated personnel, proceed with deletion
+                        $record->delete(); // Delete the record
+                    })
+                    ->requiresConfirmation()
+                    ->modalIconColor('danger')
+                    ->color('danger')
+                    ->modalHeading('Delete Fund')
+                    ->modalDescription('Are you sure you\'d like to delete this fund?')
+                    ->modalSubmitActionLabel('Yes, Delete it')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

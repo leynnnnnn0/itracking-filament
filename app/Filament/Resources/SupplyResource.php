@@ -22,6 +22,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -86,12 +87,18 @@ class SupplyResource extends Resource
 
                 TextColumn::make('total'),
 
+                TextColumn::make('categories.name')
+                    ->badge(),
 
                 TextColumn::make('expiry_date')
                     ->date('F d, Y'),
             ])
             ->filters([
-                //
+                SelectFilter::make('categories')
+                    ->multiple()
+                    ->relationship('categories', 'name')
+                    ->preload()
+                    ->searchable()
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -143,6 +150,6 @@ class SupplyResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['categories']);
+        return parent::getEloquentQuery()->with(['categories'])->orderBy('total');
     }
 }

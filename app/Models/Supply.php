@@ -40,4 +40,9 @@ class Supply extends Model
     {
         return $this->belongsToMany(Category::class, 'supply_categories');
     }
+
+    public function getSelectDisplayAttribute()
+    {
+        return "$this->description (ID# $this->id)";
+    }
 }

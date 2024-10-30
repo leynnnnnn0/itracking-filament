@@ -15,7 +15,7 @@ class Office extends Model
         'name'
     ];
 
-    public function accounting_officers()
+    public function accountable_officers()
     {
         return $this->hasMany(AccountableOfficer::class);
     }

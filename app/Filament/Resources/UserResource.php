@@ -21,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -88,7 +89,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('full_name'),
+                TextColumn::make('full_name')->searchable(['first_name', 'last_name']),
                 TextColumn::make('email'),
                 TextColumn::make('phone_number'),
                 TextColumn::make('role')
@@ -96,7 +97,9 @@ class UserResource extends Resource
                     ->color(fn(string $state): string => UserRole::from($state)->getColor())
             ])
             ->filters([
-                //
+                SelectFilter::make('role')
+                    ->native(false)
+                    ->options(UserRole::values())
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

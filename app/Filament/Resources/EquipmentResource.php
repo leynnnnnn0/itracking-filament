@@ -11,6 +11,7 @@ use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use Carbon\Carbon;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
@@ -179,6 +180,7 @@ class EquipmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                // Borrow Form
                 Tables\Actions\Action::make('Borrow')
                     ->color('warning')
                     ->form([
@@ -231,10 +233,14 @@ class EquipmentResource extends Resource
 
                                 DatePicker::make('start_date')
                                     ->native(false)
+                                    ->default(today())
+                                    ->closeOnDateSelection()
                                     ->required(),
 
                                 DatePicker::make('end_date')
                                     ->native(false)
+                                    ->after('start_date')
+                                    ->closeOnDateSelection()
                                     ->required(),
 
 
@@ -372,5 +378,12 @@ class EquipmentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund']);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+         
+        ];
     }
 }
