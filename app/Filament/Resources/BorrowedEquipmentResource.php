@@ -31,6 +31,7 @@ class BorrowedEquipmentResource extends Resource
 {
     protected static ?string $model = BorrowedEquipment::class;
     protected static ?string $navigationGroup = 'Equipment';
+    protected static ?string $navigationLabel = 'Borrowed Equipment';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

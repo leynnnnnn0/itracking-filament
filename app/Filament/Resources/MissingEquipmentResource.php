@@ -7,6 +7,7 @@ use App\Filament\Resources\MissingEquipmentResource\Pages;
 use App\Filament\Resources\MissingEquipmentResource\RelationManagers;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms;
@@ -20,18 +21,21 @@ use Filament\Forms\Get;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class MissingEquipmentResource extends Resource
 {
     protected static ?string $model = MissingEquipment::class;
     protected static ?string $navigationGroup = 'Equipment';
-
+    protected static ?string $navigationLabel = 'Missing Equipment';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -45,7 +49,7 @@ class MissingEquipmentResource extends Resource
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
-                    ->reactive() // Make this field reactive
+                    ->reactive()
                     ->required(),
 
                 TextInput::make('quantity')
@@ -126,13 +130,65 @@ class MissingEquipmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('reported_to_spmo')
+                    ->label('Reported to SPMO')
+                    ->requiresConfirmation()
+                    ->modalIconColor('warning')
+                    ->color('warning')
+                    ->modalHeading('Confirmation')
+                    ->modalDescription('Are you sure you\'d like to tag this as Reported to SPMO?')
+                    ->modalSubmitActionLabel('Yes')
+                    ->action(function (Model $record) {
+                        $record->update([
+                            'status' => MissingStatus::REPORTED_TO_SPMO->value
+                        ]);
+                        Notification::make()
+                            ->title('Updated Successfully')
+                            ->body('Status Changed to Reported to SPMO.')
+                            ->success()
+                            ->send();
+                    })->visible(fn($record) => $record->status === MissingStatus::REPORTED->value),
+
+                Tables\Actions\Action::make('condemned')
+                    ->requiresConfirmation()
+                    ->modalIconColor('danger')
+                    ->color('danger')
+                    ->modalHeading('Confirmation')
+                    ->modalDescription('Are you sure you\'d like to tag this as condemned?')
+                    ->modalSubmitActionLabel('Yes')
+                    ->action(function (Model $record) {
+                        try {
+                            DB::transaction(function () use ($record) {
+                                $record->update([
+                                    'is_condemned' => true
+                                ]);
+                                $equipment =  $record->equipment;
+                                $equipment->update([
+                                    'quantity_missing' => $equipment->quantity_missing - $record->quantity,
+                                    'quantity_condemned' => $equipment->quantity_condemned + $record->quantity,
+                                ]);
+                            });
+
+
+                            Notification::make()
+                                ->title('Updated Successfully')
+                                ->body('Mark as Condemned.')
+                                ->success()
+                                ->send();
+                        } catch (Exception $e) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body($e->getMessage())
+                                ->success()
+                                ->send();
+                        }
+                    })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-        ;
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -160,6 +216,9 @@ class MissingEquipmentResource extends Resource
                             ->date('F d, Y'),
 
                         TextEntry::make('description'),
+
+                        TextEntry::make('is_condemned')
+                            ->formatStateUsing(fn($record) => $record->is_condemned ? 'Yes' : 'No'),
                     ])->columns(2),
             ]);
     }

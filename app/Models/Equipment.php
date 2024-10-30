@@ -22,7 +22,7 @@ class Equipment extends Model
         'quantity_available',
         'quantity_borrowed',
         'quantity_missing',
-        'quantity_codemned',
+        'quantity_condemned',
         'unit',
         'name',
         'description',

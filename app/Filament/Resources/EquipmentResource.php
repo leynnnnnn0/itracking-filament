@@ -7,8 +7,10 @@ use App\Enum\EquipmentStatus;
 use App\Enum\Unit;
 use App\Filament\Resources\EquipmentResource\Pages;
 use App\Filament\Resources\EquipmentResource\RelationManagers;
+use App\Models\AccountableOfficer;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
+use App\Models\Personnel;
 use Carbon\Carbon;
 use Exception;
 use Filament\Actions\Action;
@@ -28,10 +30,13 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -174,8 +179,71 @@ class EquipmentResource extends Resource
                     ->badge()
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
+            ->pushHeaderActions([
+                \Filament\Tables\Actions\Action::make('export')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(function ($livewire) {
+
+                        return redirect()->route('equipment-pdf');
+                    })
+            ])
             ->filters([
-                //
+                SelectFilter::make('responsible_person')
+                    ->relationship('personnel', 'id')
+                    ->getSearchResultsUsing(function (string $search) {
+                        return Personnel::query()
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn($personnel) => [$personnel->id => $personnel->full_name])
+                            ->toArray();
+                    })
+                    ->getOptionLabelUsing(fn($value): ?string => Personnel::find($value)?->full_name)
+                    ->searchable(),
+
+                SelectFilter::make('accountable_officer')
+                    ->relationship('accountable_officer', 'id')
+                    ->getSearchResultsUsing(function (string $search) {
+                        return AccountableOfficer::query()
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn($accountable_officer) => [$accountable_officer->id => $accountable_officer->full_name])
+                            ->toArray();
+                    })
+                    ->getOptionLabelUsing(fn($value): ?string => AccountableOfficer::find($value)?->full_name)
+                    ->searchable(),
+
+                TernaryFilter::make('available')
+                    ->label('Available Equipment')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('quantity_available', '>', 0),
+                        false: fn(Builder $query) => $query->where('quantity_available', '=', 0),
+                    ),
+
+                TernaryFilter::make('borrowed')
+                    ->label('Borrowed Equipment')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('quantity_borrowed', '>', 0),
+                        false: fn(Builder $query) => $query->where('quantity_borrowed', '=', 0),
+                    ),
+
+                TernaryFilter::make('missing')
+                    ->label('Missing Equipment')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('quantity_missing', '>', 0),
+                        false: fn(Builder $query) => $query->where('quantity_missing', '=', 0),
+                    ),
+
+                TernaryFilter::make('condemned')
+                    ->label('Condemned Equipment')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('quantity_condemned', '>', 0),
+                        false: fn(Builder $query) => $query->where('quantity_condemned', '=', 0),
+                    ),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -327,9 +395,6 @@ class EquipmentResource extends Resource
                     TextEntry::make('estimated_useful_time')
 
                         ->date('Y-m'),
-                    TextEntry::make('quantity_condemned'),
-
-                    TextEntry::make('quantity_condemned'),
 
                     TextEntry::make('unit_price'),
 
@@ -377,13 +442,11 @@ class EquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund']);
+        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund'])->orderBy('quantity');
     }
 
     protected function getHeaderActions(): array
     {
-        return [
-         
-        ];
+        return [];
     }
 }
