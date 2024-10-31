@@ -4,12 +4,12 @@ namespace App\Filament\Resources;
 
 use App\BorrowStatus;
 use App\Enum\EquipmentStatus;
-use App\Enum\Unit;
 use App\Filament\Resources\EquipmentResource\Pages;
 use App\Models\AccountableOfficer;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use App\Models\Personnel;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Exception;
 use Filament\Forms\Components\DatePicker;
@@ -100,8 +100,15 @@ class EquipmentResource extends Resource
                     ->minLength(16),
 
                 Select::make('unit')
-                    ->options(Unit::values())
+                    ->options(Unit::select('name')->pluck('name', 'name'))
                     ->native(false)
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data): string {
+                        return Unit::create($data)->name;
+                    })
                     ->required(),
 
                 DatePicker::make('date_acquired')

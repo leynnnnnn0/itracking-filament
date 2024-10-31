@@ -31,7 +31,7 @@ return new class extends Migration
             $table->integer('quantity_available')->default(0);
             $table->integer('quantity_missing')->default(0);
             $table->integer('quantity_condemned')->default(0);
-            $table->enum('unit', Unit::values());
+            $table->string('unit');
             $table->string('name');
             $table->text('description')->nullable();
             $table->date('date_acquired');

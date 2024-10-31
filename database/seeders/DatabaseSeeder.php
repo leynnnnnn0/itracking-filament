@@ -14,6 +14,7 @@ use App\Models\PersonalProtectiveEquipment;
 use App\Models\Personnel;
 use App\Models\Position;
 use App\Models\SupplyCategory;
+use App\Models\Unit;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,7 +25,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {   
+    {
         // User::factory(10)->create();
 
         User::factory()->create([
@@ -36,6 +37,7 @@ class DatabaseSeeder extends Seeder
         Fund::factory(5)->create();
         Office::factory(5)->create();
         Position::factory(5)->create();
+        Unit::factory(5)->create();
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
         PersonalProtectiveEquipment::factory(5)->create();

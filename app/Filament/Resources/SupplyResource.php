@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use App\Enum\Unit;
 use App\Filament\Resources\SupplyResource\Pages;
 use App\Filament\Resources\SupplyResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Supply;
+use App\Models\Unit;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -41,9 +41,17 @@ class SupplyResource extends Resource
                 Section::make('Department Details')
                     ->schema([
                         TextInput::make('description')->required(),
+
                         Select::make('unit')
-                            ->options(Unit::values())
+                            ->options(Unit::select('name')->pluck('name', 'name'))
                             ->native(false)
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required(),
+                            ])
+                            ->createOptionUsing(function (array $data): string {
+                                return Unit::create($data)->name;
+                            })
                             ->required(),
 
                         TextInput::make('quantity')
