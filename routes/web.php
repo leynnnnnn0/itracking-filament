@@ -10,9 +10,8 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::get('/equipment-pdf/{equipment}', EquipmentPdf::class)->name('equipment-pdf');
+Route::get('/equipment-pdf/{equipment}/{personnel}', EquipmentPdf::class)->name('equipment-pdf');
 
-Route::get('/equipment-list-pdf', [ListEquipment::class, 'export'])->name('equipment-list-pdf');
    
 
 Route::view('profile', 'profile')

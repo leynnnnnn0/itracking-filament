@@ -9,11 +9,13 @@ use Illuminate\Http\Request;
 
 class EquipmentPdf extends Controller
 {
-    public function __invoke(Equipment $equipment)
+    public function __invoke(Equipment $equipment, $previousPersonnel)
     {
-        dd($equipment);
-        
-        $pdf = PDF::loadView('pdf.equipment-list', ['equipments' => $equipment]);
+
+        $pdf = PDF::loadView('pdf.equipment', [
+            'equipment' => $equipment,
+            'previous_responsible_person' => $previousPersonnel
+        ]);
 
         return $pdf->setPaper('a3', 'landscape')->download('equipment-report.pdf');;
     }

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\EquipmentResource\Pages;
 
 use App\Filament\Resources\EquipmentResource;
-use App\Models\Equipment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;

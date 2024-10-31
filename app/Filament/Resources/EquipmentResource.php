@@ -6,23 +6,18 @@ use App\BorrowStatus;
 use App\Enum\EquipmentStatus;
 use App\Enum\Unit;
 use App\Filament\Resources\EquipmentResource\Pages;
-use App\Filament\Resources\EquipmentResource\RelationManagers;
 use App\Models\AccountableOfficer;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use App\Models\Personnel;
 use Carbon\Carbon;
 use Exception;
-use Filament\Actions\Action;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -35,10 +30,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class EquipmentResource extends Resource
 {
@@ -51,6 +43,12 @@ class EquipmentResource extends Resource
     {
         return $form
             ->schema([
+                Hidden::make('previous_personnel')
+                    ->formatStateUsing(function ($state, $record) {
+                        // If there's an existing record (edit mode) and the state is empty, use a default value.
+                        return $state ?? $record?->personnel->full_name;
+                    })->dehydrated(true),
+
                 TextInput::make('name')
                     ->maxLength(30)
                     ->label('Equipment Name')
@@ -132,9 +130,9 @@ class EquipmentResource extends Resource
                     }),
 
                 TextInput::make('unit_price')
-                    ->maxLength(30)
                     ->numeric()
                     ->live()
+                    ->maxValue(99999999)
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, $set, $get) {

@@ -6,8 +6,14 @@ use App\Filament\Resources\EquipmentResource;
 use App\Traits\HasConfirmationModal;
 use App\Traits\HasRedirectUrl;
 use App\Traits\HasUpdateConfirmationModal;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Notifications\Actions\Action as NotifAction;
+use Illuminate\Support\Facades\Blade;
+use Livewire\Attributes\On;
 
 class EditEquipment extends EditRecord
 {
@@ -16,8 +22,29 @@ class EditEquipment extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\DeleteAction::make(),
-        ];
+        return [];
+    }
+
+
+    protected function afterSave(): void
+    {
+        // Access the form data
+        $equipment = $this->record;
+        $previousPersonnel = $this->data['previous_personnel'];
+        $newPersonnel = $equipment->personnel->full_name;
+
+        // Check if personnel changed
+        if ($previousPersonnel != $newPersonnel) {
+            Notification::make()
+                ->title('Download PDF')
+                ->success()
+                ->body('Equipment Responsible Person Changed.')
+                ->actions([
+                    NotifAction::make('download')
+                        ->url(route('equipment-pdf', [$equipment, $previousPersonnel]), true)
+                ])
+                ->duration(100000)
+                ->send();
+        }
     }
 }

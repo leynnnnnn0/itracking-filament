@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Traits;
-use Filament\Actions; 
+
+use Filament\Actions;
+
 trait HasUpdateConfirmationModal
 {
     protected function getSaveFormAction(): Actions\Action
@@ -11,7 +13,7 @@ trait HasUpdateConfirmationModal
             ->requiresConfirmation()
             ->action(function () {
                 $this->closeActionModal();
-                $this->create();
+                $this->save();
             });
     }
 }
