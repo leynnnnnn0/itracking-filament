@@ -182,15 +182,6 @@ class EquipmentResource extends Resource
                     ->badge()
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
-            ->pushHeaderActions([
-                \Filament\Tables\Actions\Action::make('export')
-                    ->label('Download PDF')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->action(function ($livewire) {
-
-                        return redirect()->route('equipment-pdf');
-                    })
-            ])
             ->filters([
                 SelectFilter::make('responsible_person')
                     ->relationship('personnel', 'id')
