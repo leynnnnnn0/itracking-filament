@@ -85,7 +85,8 @@ class SupplyResource extends Resource
 
                 TextColumn::make('used'),
 
-                TextColumn::make('total'),
+                TextColumn::make('total')
+                ->color(fn($record) => $record->total < 50 ? 'danger' : 'success'),
 
                 TextColumn::make('categories.name')
                     ->badge(),

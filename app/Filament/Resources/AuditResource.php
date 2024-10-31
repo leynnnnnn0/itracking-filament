@@ -103,8 +103,6 @@ class AuditResource extends Resource
     {
         return [
             'index' => Pages\ListAudits::route('/'),
-            'create' => Pages\CreateAudit::route('/create'),
-            'edit' => Pages\EditAudit::route('/{record}/edit'),
         ];
     }
 
