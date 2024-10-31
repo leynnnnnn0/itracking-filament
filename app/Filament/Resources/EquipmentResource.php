@@ -124,10 +124,21 @@ class EquipmentResource extends Resource
                     ->numeric()
                     ->live()
                     ->required()
-                    ->reactive()  // Make it reactive to trigger updates
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, $set, $get, $record) {
                         $set('total_amount', ($state ?? 0) * ($get('unit_price') ?? 0));
+                        $set('quantity_available', ($record?->quantity_available ?? 0) + ($state ?? 0));
                     }),
+
+
+                Hidden::make('quantity_available')
+                    ->dehydrated(true)
+                    ->live()
+                    ->required()
+                    ->reactive(),
 
                 TextInput::make('unit_price')
                     ->numeric()
@@ -135,12 +146,18 @@ class EquipmentResource extends Resource
                     ->maxValue(99999999)
                     ->required()
                     ->reactive()
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
                     ->afterStateUpdated(function ($state, $set, $get) {
                         $set('total_amount', ($get('quantity') ?? 0) * ($state ?? 0));
                     }),
 
                 TextInput::make('total_amount')
                     ->numeric()
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
                     ->required(),
 
                 Select::make('status')
@@ -240,6 +257,7 @@ class EquipmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
                 // Borrow Form
                 Tables\Actions\Action::make('Borrow')
                     ->color('warning')

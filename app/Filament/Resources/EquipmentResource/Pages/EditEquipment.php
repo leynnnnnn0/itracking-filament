@@ -3,17 +3,12 @@
 namespace App\Filament\Resources\EquipmentResource\Pages;
 
 use App\Filament\Resources\EquipmentResource;
-use App\Traits\HasConfirmationModal;
 use App\Traits\HasRedirectUrl;
 use App\Traits\HasUpdateConfirmationModal;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Actions;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Actions\Action as NotifAction;
-use Illuminate\Support\Facades\Blade;
-use Livewire\Attributes\On;
+
 
 class EditEquipment extends EditRecord
 {
