@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\Gender;
 use App\Filament\Resources\AccountingOfficerResource\Pages;
 use App\Models\AccountableOfficer;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -32,10 +35,25 @@ class AccountingOfficerResource extends Resource
                 Select::make('office_id')
                     ->native(false)
                     ->label('Office')
-                    ->relationship('office', 'name'),
+                    ->relationship('office')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
+
+                Select::make('department_id')
+                    ->native(false)
+                    ->label('Department')
+                    ->relationship('department')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
+
+                Select::make('position_id')
+                    ->native(false)
+                    ->label('Position')
+                    ->relationship('position')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
+                    ->required(),
 
                 TextInput::make('first_name')
-                    ->maxLength(30)
                     ->maxLength(30)
                     ->required(),
 
@@ -44,7 +62,13 @@ class AccountingOfficerResource extends Resource
                     ->nullable(),
 
                 TextInput::make('last_name')
-                    ->maxLength(30),
+                    ->maxLength(30)
+                    ->required(),
+
+                Select::make('gender')
+                    ->options(Gender::class)
+                    ->enum(Gender::class)
+                    ->required(),
 
                 TextInput::make('phone_number')
                     ->required()
@@ -59,6 +83,21 @@ class AccountingOfficerResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->email(),
+
+                DatePicker::make('start_date')
+                    ->native(false)
+                    ->closeOnDateSelection()
+                    ->default(date('Y-m-d'))
+                    ->required(),
+
+                DatePicker::make('end_date')
+                    ->native(false)
+                    ->after('start_date')
+                    ->closeOnDateSelection()
+                    ->required(),
+
+                Textarea::make('remarks')
+                    ->extraAttributes(['class' => 'resize-none'])
             ]);
     }
 
@@ -146,6 +185,6 @@ class AccountingOfficerResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('office');
+        return parent::getEloquentQuery()->with(['position', 'department', 'office']);
     }
 }

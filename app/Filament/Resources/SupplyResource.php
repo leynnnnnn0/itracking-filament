@@ -57,6 +57,9 @@ class SupplyResource extends Resource
                         TextInput::make('quantity')
                             ->maxLength(30)
                             ->reactive()
+                            ->extraInputAttributes([
+                                'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                            ])
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 $set('total', $state ?? 0);
                             })

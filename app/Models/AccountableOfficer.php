@@ -16,12 +16,37 @@ class AccountableOfficer extends Model implements Auditable
 
     protected $fillable = [
         'office_id',
+        'department_id',
+        'position_id',
         'first_name',
         'middle_name',
         'last_name',
+        'gender',
+        'phone_number',
         'email',
-        'phone_number'
+        'start_date',
+        'end_date',
+        'remarks'
     ];
+
+    public function casts()
+    {
+        return [
+
+            'start_date' => 'date',
+            'end_date' => 'date'
+        ];
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
 
     public function office()
     {

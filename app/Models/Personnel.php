@@ -34,7 +34,7 @@ class Personnel extends Model implements Auditable
     public function casts()
     {
         return [
-            'date_of_birth' => 'date',
+
             'start_date' => 'date',
             'end_date' => 'date'
         ];
