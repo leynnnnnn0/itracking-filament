@@ -29,9 +29,9 @@ class OrganizationUnitResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Office Details')
+                Section::make('Organization Unit Details')
                     ->schema([
-                        TextInput::make('name')->required()
+                        TextInput::make('name') ->maxLength(30)->required()
                     ])->columns(2)
             ]);
     }

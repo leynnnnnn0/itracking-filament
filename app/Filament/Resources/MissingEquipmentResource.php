@@ -54,6 +54,7 @@ class MissingEquipmentResource extends Resource
 
                 TextInput::make('quantity')
                     ->integer()
+                    ->maxLength(7)
                     ->required()
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -80,6 +81,7 @@ class MissingEquipmentResource extends Resource
                     ->required(),
 
                 TextInput::make('reported_by')
+                ->maxLength(30)
                     ->required(),
 
                 DatePicker::make('reported_date')

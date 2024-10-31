@@ -50,6 +50,7 @@ class BorrowedEquipmentResource extends Resource
 
                 TextInput::make('quantity')
                     ->integer()
+                    ->maxLength(7)
                     ->required()
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -70,13 +71,21 @@ class BorrowedEquipmentResource extends Resource
 
 
                 TextInput::make('borrower_first_name')
+                    ->maxLength(30)
                     ->required(),
 
                 TextInput::make('borrower_last_name')
+                    ->maxLength(30)
                     ->required(),
 
-                TextInput::make('borrower_phone_number')
-                    ->required(),
+                TextInput::make('phone_number')
+                    ->required()
+                    ->numeric()
+                    ->regex('/^09\d{9}$/')
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
+                    ->maxLength(11),
 
                 TextInput::make('borrower_email')
                     ->email()

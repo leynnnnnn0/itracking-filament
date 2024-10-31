@@ -38,12 +38,16 @@ class UserResource extends Resource
                 Section::make('User Details')
                     ->schema([
                         TextInput::make('first_name')
+                            ->maxLength(30)
                             ->required(),
 
                         TextInput::make('middle_name')
+                            ->maxLength(30)
                             ->nullable(),
 
-                        TextInput::make('last_name'),
+                        TextInput::make('last_name')
+                            ->maxLength(30)
+                            ->required(),
 
                         Select::make('gender')
                             ->native(false)

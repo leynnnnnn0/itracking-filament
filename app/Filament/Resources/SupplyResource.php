@@ -47,6 +47,7 @@ class SupplyResource extends Resource
                             ->required(),
 
                         TextInput::make('quantity')
+                            ->maxLength(30)
                             ->reactive()
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 $set('total', $state ?? 0);
@@ -81,12 +82,13 @@ class SupplyResource extends Resource
                 TextColumn::make('description')
                     ->searchable(),
 
-                TextColumn::make('quantity'),
+                TextColumn::make('quantity')
+                    ->maxLength(30),
 
                 TextColumn::make('used'),
 
                 TextColumn::make('total')
-                ->color(fn($record) => $record->total < 50 ? 'danger' : 'success'),
+                    ->color(fn($record) => $record->total < 50 ? 'danger' : 'success'),
 
                 TextColumn::make('categories.name')
                     ->badge(),

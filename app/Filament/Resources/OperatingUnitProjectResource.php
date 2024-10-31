@@ -29,9 +29,9 @@ class OperatingUnitProjectResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Office Details')
+                Section::make('Operating Unit/Project Details')
                     ->schema([
-                        TextInput::make('name')->required()
+                        TextInput::make('name') ->maxLength(30)->required()
                     ])->columns(2)
             ]);
     }

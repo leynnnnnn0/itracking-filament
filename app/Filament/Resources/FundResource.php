@@ -31,7 +31,7 @@ class FundResource extends Resource
             ->schema([
                 Section::make('Office Details')
                     ->schema([
-                        TextInput::make('name')->required()
+                        TextInput::make('name') ->maxLength(30)->required()
                     ])->columns(2)
             ]);
     }

@@ -35,12 +35,16 @@ class AccountingOfficerResource extends Resource
                     ->relationship('office', 'name'),
 
                 TextInput::make('first_name')
+                    ->maxLength(30)
+                    ->maxLength(30)
                     ->required(),
 
                 TextInput::make('middle_name')
+                    ->maxLength(30)
                     ->nullable(),
 
-                TextInput::make('last_name'),
+                TextInput::make('last_name')
+                    ->maxLength(30),
 
                 TextInput::make('phone_number')
                     ->required()
