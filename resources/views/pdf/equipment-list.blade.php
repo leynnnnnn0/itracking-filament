@@ -21,7 +21,6 @@
                 <th>Description</th>
                 <th>Date Acquired</th>
                 <th>Fund</th>
-                <th>PPE Class</th>
                 <th>Estimated Useful Time</th>
                 <th>Unit Price</th>
                 <th>Total Amount</th>
@@ -43,10 +42,9 @@
                 <td>{{ $equipment->quantity_condemned ?? 'N/a' }}</td>
                 <td>{{ $equipment->unit ?? 'N/a' }}</td>
                 <td>{{ $equipment->description ?? 'N/a' }}</td>
-                <td>{{ Carbon\Carbon::parse($equipment->date_acquired)->format('F d, Y') }}</td>
+                <td>{{ $equipment->date_acquired ? Carbon\Carbon::parse($equipment->date_acquired)->format('F d, Y') : 'N/a' }}</td>
                 <td>{{ $equipment->fund->name ?? 'N/a' }}</td>
-                <td>{{ $equipment->personal_protective_equipment->name ?? 'N/a' }}</td>
-                <td>{{ $equipment->estimated_useful_time ? 'Until ' .  Carbon\Carbon::createFromFormat('Y-m', $equipment->estimated_useful_time)->format('F Y') : 'N/a'}}</td>
+                <td>{{ 'test' }}</td>
                 <td>{{ number_format($equipment->unit_price, 2) ?? 'N/a'}} </td>
                 <td>{{ number_format($equipment->total_amount, 2) ?? 'N/a'}} </td>
             </tr>

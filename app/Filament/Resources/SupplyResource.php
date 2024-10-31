@@ -82,8 +82,7 @@ class SupplyResource extends Resource
                 TextColumn::make('description')
                     ->searchable(),
 
-                TextColumn::make('quantity')
-                    ->maxLength(30),
+                TextColumn::make('quantity'),
 
                 TextColumn::make('used'),
 
