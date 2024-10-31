@@ -7,11 +7,12 @@ use App\Traits\HasFullName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Personnel extends Model
+class Personnel extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\PersonnelFactory> */
-    use HasFactory, HasFullName, HasEquipment, SoftDeletes;
+    use HasFactory, HasFullName, HasEquipment, SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'office_id',
@@ -53,5 +54,4 @@ class Personnel extends Model
     {
         return $this->belongsTo(Office::class);
     }
-
 }

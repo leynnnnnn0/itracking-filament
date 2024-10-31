@@ -6,11 +6,12 @@ use App\Traits\HasRedirectUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Supply extends Model
+class Supply extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\SupplyFactory> */
-    use HasFactory, SoftDeletes, HasRedirectUrl;
+    use HasFactory, SoftDeletes, HasRedirectUrl, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'description',
