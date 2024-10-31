@@ -6,6 +6,7 @@ use App\BorrowStatus;
 use App\Enum\EquipmentStatus;
 use App\Filament\Resources\BorrowedEquipmentResource;
 use App\Models\Equipment;
+use App\Traits\HasConfirmationModal;
 use App\Traits\HasRedirectUrl;
 use Exception;
 use Filament\Actions;
@@ -14,7 +15,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateBorrowedEquipment extends CreateRecord
 {
-    use HasRedirectUrl;
+    use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = BorrowedEquipmentResource::class;
 
     protected function afterCreate()

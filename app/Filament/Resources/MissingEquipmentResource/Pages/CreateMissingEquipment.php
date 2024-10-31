@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MissingEquipmentResource\Pages;
 
 use App\Enum\EquipmentStatus;
 use App\Filament\Resources\MissingEquipmentResource;
+use App\Traits\HasConfirmationModal;
 use App\Traits\HasRedirectUrl;
 use Exception;
 use Filament\Actions;
@@ -12,7 +13,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateMissingEquipment extends CreateRecord
 {
-    use HasRedirectUrl;
+    use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = MissingEquipmentResource::class;
 
     protected function afterCreate()
