@@ -6,6 +6,7 @@ use App\Filament\Resources\SupplyResource\Pages;
 use App\Filament\Resources\SupplyResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Supply;
+use App\Models\SupplyHistory;
 use App\Models\Unit;
 use Exception;
 use Filament\Forms;
@@ -28,6 +29,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class SupplyResource extends Resource
 {
@@ -136,6 +138,7 @@ class SupplyResource extends Resource
                             try {
                                 $record->quantity += $data['quantity'];
                                 $record->total += $data['quantity'];
+                                $record->recently_added = $data['quantity'];
                                 $record->save();
                                 Notification::make()
                                     ->title("$record->description (ID: $record->id)")
@@ -177,6 +180,7 @@ class SupplyResource extends Resource
                                 }
                                 $record->used += $quantityUsed;
                                 $record->total -= $quantityUsed;
+                                $record->recently_added = 0;
                                 $record->save();
                                 Notification::make()
                                     ->title("$record->description (ID: $record->id)")

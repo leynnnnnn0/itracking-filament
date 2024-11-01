@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Observers\SupplyObserver;
 use App\Traits\HasRedirectUrl;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
+#[ObservedBy([SupplyObserver::class])]
 class Supply extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\SupplyFactory> */

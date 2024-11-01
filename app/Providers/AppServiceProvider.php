@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Supply;
+use App\Observers\SupplyObserver;
 use App\Services\SupplyMonitoringService;
 use Illuminate\Support\ServiceProvider;
 
