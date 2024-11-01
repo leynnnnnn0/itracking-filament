@@ -6,6 +6,7 @@ use App\Enum\Gender;
 use App\Filament\Resources\PersonnelResource\Pages;
 use App\Filament\Resources\PersonnelResource\RelationManagers;
 use App\Models\Personnel;
+use App\Traits\HasAuthorizationCheck;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PersonnelResource extends Resource
 {
+    use HasAuthorizationCheck;
     protected static ?string $model = Personnel::class;
     protected static ?string $navigationGroup = 'People';
     protected static ?string $navigationLabel = 'Personnel';
@@ -58,14 +60,26 @@ class PersonnelResource extends Resource
                     ->required(),
 
                 TextInput::make('first_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->required(),
 
                 TextInput::make('middle_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->nullable(),
 
                 TextInput::make('last_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->required(),
 
@@ -101,6 +115,10 @@ class PersonnelResource extends Resource
                     ->required(),
 
                 TextArea::make('remarks')
+                    ->rules([
+                        'string',
+                        'regex:/[a-zA-Z]/',
+                    ])
                     ->extraAttributes(['class' => 'resize-none'])
 
 

@@ -26,6 +26,11 @@ use Illuminate\Support\Facades\DB;
 class DeleteArchive extends Page implements HasTable
 {
     use InteractsWithTable, InteractsWithRecords;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->role === 'Sub Admin';
+    }
     protected static ?string $navigationIcon = 'heroicon-o-trash';
 
     protected static string $view = 'filament.pages.delete-archive';

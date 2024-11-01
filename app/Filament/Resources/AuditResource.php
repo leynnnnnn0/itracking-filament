@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AuditResource\Pages;
 use App\Models\User;
+use App\Traits\HasAuthorizationCheck;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -19,8 +20,8 @@ use Illuminate\Support\Str;
 
 class AuditResource extends Resource
 {
+    use HasAuthorizationCheck;
     protected static ?string $model = Audit::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

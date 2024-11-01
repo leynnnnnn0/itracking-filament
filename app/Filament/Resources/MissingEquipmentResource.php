@@ -81,7 +81,11 @@ class MissingEquipmentResource extends Resource
                     ->required(),
 
                 TextInput::make('reported_by')
-                ->maxLength(30)
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
+                    ->maxLength(30)
                     ->required(),
 
                 DatePicker::make('reported_date')

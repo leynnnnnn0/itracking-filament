@@ -39,14 +39,26 @@ class UserResource extends Resource
                 Section::make('User Details')
                     ->schema([
                         TextInput::make('first_name')
+                            ->rules([
+                                'string',
+                                'regex:/^[a-zA-Z\s]+$/',
+                            ])
                             ->maxLength(30)
                             ->required(),
 
                         TextInput::make('middle_name')
+                            ->rules([
+                                'string',
+                                'regex:/^[a-zA-Z\s]+$/',
+                            ])
                             ->maxLength(30)
                             ->nullable(),
 
                         TextInput::make('last_name')
+                            ->rules([
+                                'string',
+                                'regex:/^[a-zA-Z\s]+$/',
+                            ])
                             ->maxLength(30)
                             ->required(),
 

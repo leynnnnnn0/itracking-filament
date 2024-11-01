@@ -44,7 +44,11 @@ class SupplyResource extends Resource
             ->schema([
                 Section::make('Department Details')
                     ->schema([
-                        TextInput::make('description')->required(),
+                        TextInput::make('description')
+                            ->rules([
+                                'string',
+                                'regex:/[a-zA-Z]/',
+                            ])->required(),
 
                         Select::make('unit')
                             ->options(Unit::select('name')->pluck('name', 'name'))

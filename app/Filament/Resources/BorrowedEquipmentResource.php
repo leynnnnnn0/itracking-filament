@@ -75,10 +75,18 @@ class BorrowedEquipmentResource extends Resource
 
 
                 TextInput::make('borrower_first_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/', 
+                    ])
                     ->maxLength(30)
                     ->required(),
 
                 TextInput::make('borrower_last_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->required(),
 

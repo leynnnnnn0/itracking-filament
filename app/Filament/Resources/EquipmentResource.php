@@ -179,6 +179,10 @@ class EquipmentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->rules([
+                        'string',
+                        'regex:/[a-zA-Z]/',
+                    ])
                     ->searchable(),
 
                 TextColumn::make('property_number')

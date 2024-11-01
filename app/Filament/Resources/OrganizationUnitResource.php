@@ -31,7 +31,11 @@ class OrganizationUnitResource extends Resource
             ->schema([
                 Section::make('Organization Unit Details')
                     ->schema([
-                        TextInput::make('name') ->maxLength(30)->required()
+                        TextInput::make('name')
+                        ->rules([
+                            'string',
+                            'regex:/[a-zA-Z]/', 
+                        ])->maxLength(30)->required()
                     ])->columns(2)
             ]);
     }

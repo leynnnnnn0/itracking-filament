@@ -55,14 +55,26 @@ class AccountingOfficerResource extends Resource
                     ->required(),
 
                 TextInput::make('first_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->required(),
 
                 TextInput::make('middle_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->nullable(),
 
                 TextInput::make('last_name')
+                    ->rules([
+                        'string',
+                        'regex:/^[a-zA-Z\s]+$/',
+                    ])
                     ->maxLength(30)
                     ->required(),
 
@@ -98,6 +110,10 @@ class AccountingOfficerResource extends Resource
                     ->required(),
 
                 Textarea::make('remarks')
+                    ->rules([
+                        'string',
+                        'regex:/[a-zA-Z]/',
+                    ])
                     ->extraAttributes(['class' => 'resize-none'])
             ]);
     }
