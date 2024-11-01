@@ -7,6 +7,7 @@ use App\Filament\Resources\SupplyResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Supply;
 use App\Models\Unit;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -19,6 +20,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -63,7 +65,8 @@ class SupplyResource extends Resource
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 $set('total', $state ?? 0);
                             })
-                            ->required(),
+                            ->required()
+                            ->visible(fn(string $operation) => $operation === 'create'),
 
                         Hidden::make('total')->required(),
 
@@ -116,6 +119,79 @@ class SupplyResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('Add Quantity')
+                        ->color('success')
+                        ->form([
+                            TextInput::make('quantity')
+                                ->maxLength(30)
+                                ->reactive()
+                                ->numeric()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                ])
+                                ->required()
+                        ])
+                        ->action(function ($data, $record) {
+                            try {
+                                $record->quantity += $data['quantity'];
+                                $record->total += $data['quantity'];
+                                $record->save();
+                                Notification::make()
+                                    ->title("$record->description (ID: $record->id)")
+                                    ->body('Quantity Updated')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->warning()
+                                    ->send();
+                            }
+                        }),
+
+                    Tables\Actions\Action::make('Record Usage')
+                        ->color('warning')
+                        ->form([
+                            TextInput::make('quantity')
+                                ->maxLength(30)
+                                ->reactive()
+                                ->numeric()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                ])
+                                ->required()
+                        ])
+                        ->action(function ($data, $record) {
+                            try {
+                                $quantityUsed = $data['quantity'];
+                                if ($quantityUsed > $record->total) {
+                                    Notification::make()
+                                        ->title('Quantity Used Exceeded.')
+                                        ->body("Quantiy used should not be greater than $record->description (ID: $record->id) quantity")
+                                        ->danger()
+                                        ->send()
+                                        ->duration(100000);
+                                    return;
+                                }
+                                $record->used += $quantityUsed;
+                                $record->total -= $quantityUsed;
+                                $record->save();
+                                Notification::make()
+                                    ->title("$record->description (ID: $record->id)")
+                                    ->body('Supply Usage Updated.')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->warning()
+                                    ->send();
+                            }
+                        }),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
