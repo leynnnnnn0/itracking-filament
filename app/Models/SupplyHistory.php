@@ -28,6 +28,7 @@ class SupplyHistory extends Model implements Auditable
         ];
     }
 
+
     public function supply()
     {
         return $this->belongsTo(Supply::class);

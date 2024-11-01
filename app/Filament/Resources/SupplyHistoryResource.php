@@ -51,6 +51,11 @@ class SupplyHistoryResource extends Resource
 
             ])
             ->filters([
+                SelectFilter::make('categories')
+                    ->multiple()
+                    ->relationship('supply.categories', 'name')
+                    ->preload()
+                    ->searchable(),
                 SelectFilter::make('supply')
                     ->relationship('supply', 'description')
                     ->searchable(),
@@ -97,7 +102,7 @@ class SupplyHistoryResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['supply']);
+        return parent::getEloquentQuery()->with(['supply'])->latest();
     }
 
     public static function canCreate(): bool
