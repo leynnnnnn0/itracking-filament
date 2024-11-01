@@ -55,17 +55,19 @@ class BorrowedEquipmentResource extends Resource
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])
-                    ->hint(function (callable $get) {
+                    ->hint(function (callable $get, string $operation, $record) {
                         $equipmentId = $get('equipment_id');
                         $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
-
+                        if ($operation === 'edit' && $record)
+                            $quantityAvailable +=  $record->quantity;
                         return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
                     })
                     ->minValue(1)
-                    ->maxValue(function (callable $get) {
+                    ->maxValue(function (callable $get, string $operation, $record) {
                         $equipmentId = $get('equipment_id');
                         $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
-
+                        if ($operation === 'edit' && $record)
+                            $quantityAvailable +=  $record->quantity;
                         return  $quantityAvailable ?? 0;
                     }),
 
@@ -78,7 +80,7 @@ class BorrowedEquipmentResource extends Resource
                     ->maxLength(30)
                     ->required(),
 
-                TextInput::make('phone_number')
+                TextInput::make('borrower_phone_number')
                     ->required()
                     ->numeric()
                     ->regex('/^09\d{9}$/')

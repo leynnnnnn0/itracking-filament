@@ -3,19 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AuditResource\Pages;
-use App\Filament\Resources\AuditResource\RelationManagers;
-use Filament\Forms;
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\KeyValueEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use OwenIt\Auditing\Models\Audit;
 use Illuminate\Support\Str;
 
@@ -47,7 +45,29 @@ class AuditResource extends Resource
                 TextColumn::make('created_at')
                     ->date('F d, Y'),
             ])
-            ->filters([])
+            ->filters([
+                SelectFilter::make('user_id')
+                    ->label('User')
+                    ->getSearchResultsUsing(function (string $search) {
+                        return User::query()
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->limit(10)
+                            ->get()
+                            ->mapWithKeys(fn($personnel) => [$personnel->id => $personnel->full_name])
+                            ->toArray();
+                    })
+                    ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->full_name)
+                    ->searchable(),
+
+                SelectFilter::make('event')
+                    ->options([
+                        'created' => 'Created',
+                        'updated' => 'Updated',
+                        'deleted' => 'Deleted',
+                        'restored' => 'Restored'
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
