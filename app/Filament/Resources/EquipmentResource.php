@@ -45,11 +45,15 @@ class EquipmentResource extends Resource
             ->schema([
                 Hidden::make('previous_personnel')
                     ->formatStateUsing(function ($state, $record) {
-                        // If there's an existing record (edit mode) and the state is empty, use a default value.
+
                         return $state ?? $record?->personnel->full_name;
                     })->dehydrated(true),
 
                 TextInput::make('name')
+                    ->rules([
+                        'string',
+                        'regex:/[a-zA-Z]/',
+                    ])
                     ->maxLength(30)
                     ->label('Equipment Name')
                     ->required(),
@@ -179,10 +183,6 @@ class EquipmentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->rules([
-                        'string',
-                        'regex:/[a-zA-Z]/',
-                    ])
                     ->searchable(),
 
                 TextColumn::make('property_number')
