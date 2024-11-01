@@ -88,9 +88,9 @@ class AuditResource extends Resource
                     ->label('Auditable Type')
                     ->formatStateUsing(fn($state) => Str::title(Str::snake(Str::afterLast($state, '\\'), ' '))),
 
-                KeyValueEntry::make('old_values'),
+                KeyValueEntry::make('old_values')->columnSpanFull(),
 
-                KeyValueEntry::make('new_values'),
+                KeyValueEntry::make('new_values')->columnSpanFull(),
 
                 TextEntry::make('ip_address')
                     ->label('IP Address'),

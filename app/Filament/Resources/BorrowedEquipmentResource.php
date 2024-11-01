@@ -20,6 +20,8 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -150,7 +152,16 @@ class BorrowedEquipmentResource extends Resource
 
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
+                SelectFilter::make('equipment_id')
+                    ->native(false)
+                    ->label('Equipment')
+                    ->relationship('equipment', 'name')
+                    ->searchable()
+                    ->getOptionLabelUsing(function ($value): ?string {
+                        $equipment = Equipment::find($value);
+                        return "$equipment->name (PN: $equipment->property_number)";
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -366,6 +377,13 @@ class BorrowedEquipmentResource extends Resource
                             }
                         })
                 ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value),
+
+                Tables\Actions\ForceDeleteAction::make()
+                    ->requiresConfirmation()
+                    ->color('danger'),
+                Tables\Actions\RestoreAction::make()
+                    ->requiresConfirmation()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

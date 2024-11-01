@@ -22,6 +22,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -101,6 +102,7 @@ class UserResource extends Resource
                     ->color(fn(string $state): string => UserRole::from($state)->getColor())
             ])
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('role')
                     ->native(false)
                     ->options(UserRole::values())
@@ -109,10 +111,18 @@ class UserResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->requiresConfirmation()
+                    ->color('danger'),
+                Tables\Actions\RestoreAction::make()
+                    ->requiresConfirmation()
+                    ->color('warning'),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
                 ]),
             ]);
     }

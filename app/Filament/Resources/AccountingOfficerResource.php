@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -112,6 +113,7 @@ class AccountingOfficerResource extends Resource
                 TextColumn::make('email'),
             ])
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('office')
                     ->multiple()
                     ->relationship('office', 'name'),
@@ -138,7 +140,13 @@ class AccountingOfficerResource extends Resource
                     ->color('danger')
                     ->modalHeading('Delete accountable officer')
                     ->modalDescription('Are you sure you\'d like to delete this accountable officer?')
-                    ->modalSubmitActionLabel('Yes, Delete it')
+                    ->modalSubmitActionLabel('Yes, Delete it'),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->requiresConfirmation()
+                    ->color('danger'),
+                Tables\Actions\RestoreAction::make()
+                    ->requiresConfirmation()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

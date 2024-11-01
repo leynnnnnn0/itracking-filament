@@ -95,6 +95,8 @@ class SupplyResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
 

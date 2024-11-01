@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -41,11 +42,17 @@ class UnitResource extends Resource
                 TextColumn::make('name')
             ])
             ->filters([
-                //
+                TrashedFilter::make()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->requiresConfirmation()
+                    ->color('danger'),
+                Tables\Actions\RestoreAction::make()
+                    ->requiresConfirmation()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -68,5 +75,10 @@ class UnitResource extends Resource
             'create' => Pages\CreateUnit::route('/create'),
             'edit' => Pages\EditUnit::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery();
     }
 }
