@@ -64,7 +64,7 @@ class SupplyResource extends Resource
 
                         TextInput::make('quantity')
                             ->maxLength(30)
-                            ->reactive()
+                            ->live()
                             ->extraInputAttributes([
                                 'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                             ])
@@ -133,7 +133,7 @@ class SupplyResource extends Resource
                         ->form([
                             TextInput::make('quantity')
                                 ->maxLength(30)
-                                ->reactive()
+                                ->live()
                                 ->numeric()
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -165,7 +165,7 @@ class SupplyResource extends Resource
                         ->form([
                             TextInput::make('quantity')
                                 ->maxLength(30)
-                                ->reactive()
+                                ->live()
                                 ->numeric()
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',

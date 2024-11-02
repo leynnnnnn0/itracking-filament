@@ -52,7 +52,7 @@ class BorrowedEquipmentResource extends Resource
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
-                    ->reactive() // Make this field reactive
+                    ->live() // Make this field reactive
                     ->required(),
 
                 TextInput::make('quantity')

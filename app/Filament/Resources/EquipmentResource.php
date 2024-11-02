@@ -141,7 +141,7 @@ class EquipmentResource extends Resource
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])
-                    ->reactive()
+                    ->live()
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
                         $set('total_amount', ($state ?? 0) * ($get('unit_price') ?? 0));
                         $set('quantity_available', ($record?->quantity_available ?? 0) + ($state ?? 0));
@@ -152,14 +152,14 @@ class EquipmentResource extends Resource
                     ->dehydrated(true)
                     ->live()
                     ->required()
-                    ->reactive(),
+                    ->live(),
 
                 TextInput::make('unit_price')
                     ->numeric()
                     ->live()
                     ->maxValue(99999999)
                     ->required()
-                    ->reactive()
+                    ->live()
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])

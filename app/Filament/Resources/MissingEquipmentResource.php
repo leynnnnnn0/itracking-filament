@@ -53,7 +53,7 @@ class MissingEquipmentResource extends Resource
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
-                    ->reactive()
+                    ->live()
                     ->required(),
 
                 TextInput::make('quantity')
@@ -102,7 +102,7 @@ class MissingEquipmentResource extends Resource
 
                 Radio::make('is_condemned')
                     ->label('Is condemned?')
-                    ->reactive()
+                    ->live()
                     ->hidden(fn(Get $get) => $get('status') !== 'Reported to SPMO')
                     ->boolean()
                     ->inline()
