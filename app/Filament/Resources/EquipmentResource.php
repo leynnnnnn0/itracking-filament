@@ -27,9 +27,11 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EquipmentResource extends Resource
@@ -208,6 +210,7 @@ class EquipmentResource extends Resource
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('responsible_person')
                     ->relationship('personnel', 'id')
                     ->getSearchResultsUsing(function (string $search) {
@@ -266,10 +269,20 @@ class EquipmentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => $record->deleted_at === null),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->visible(Auth::user()->role === 'Admin')
+                    ->requiresConfirmation()
+                    ->color('danger'),
+                Tables\Actions\RestoreAction::make()
+                    ->visible(Auth::user()->role === 'Admin')
+                    ->requiresConfirmation()
+                    ->color('warning'),
                 // Borrow Form
                 Tables\Actions\Action::make('Borrow')
+                    ->visible(fn($record) => $record->deleted_at === null)
                     ->color('warning')
                     ->form([
                         \Filament\Forms\Components\Section::make()
@@ -346,7 +359,8 @@ class EquipmentResource extends Resource
                                     ->default(BorrowStatus::BORROWED->value)
                                     ->dehydrated(true)
                                     ->required()
-                            ])->columns(2)
+                            ])->columns(2),
+
                     ])->action(function (array $data) {
                         try {
                             DB::transaction(function () use ($data) {
