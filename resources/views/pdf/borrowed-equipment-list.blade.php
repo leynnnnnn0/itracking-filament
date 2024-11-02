@@ -1,6 +1,8 @@
 <x-layouts.pdf>
-    <h4 class="center">Borrowed Equipments Log</h4>
-    <h5 class="center">As of {{ Carbon\Carbon::today()->format('F d, Y') }}</h5>
+    <div class="table-header">
+        <h1>Borrowed Equipments Log</h1>
+        <p>Generated on: {{ date('F d, Y') }}</p>
+    </div>
     <table class="print-table">
         <thead>
             <tr>
@@ -14,6 +16,7 @@
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Returned Date</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -29,6 +32,7 @@
                 <td>{{ $borrowedEquipment->start_date->format('M d, Y') }}</td>
                 <td>{{ $borrowedEquipment->end_date->format('M d, Y') }}</td>
                 <td>{{ $borrowedEquipment->returned_date ? $borrowedEquipment->returned_date->format('M d, Y') : 'Not yet returned' }}</td>
+                <td>{{ Str::replace('_', ' ', Str::title(App\BorrowStatus::from($borrowedEquipment->status)->name)) }}</td>
             </tr>
             @endforeach
         </tbody>

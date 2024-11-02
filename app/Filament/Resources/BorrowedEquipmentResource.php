@@ -22,6 +22,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -135,7 +136,8 @@ class BorrowedEquipmentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('equipment.name')
-                    ->label('Equipment'),
+                    ->label('Equipment')
+                    ->searchable(['name']),
 
                 TextColumn::make('quantity')
                     ->label('Quantity Borrowed'),
@@ -143,7 +145,8 @@ class BorrowedEquipmentResource extends Resource
                 TextColumn::make('equipment.quantity_available')
                     ->label('Quantity Available'),
 
-                TextColumn::make('borrower_full_name'),
+                TextColumn::make('borrower_full_name')
+                    ->searchable(['borrower_first_name', 'borrower_last_name']),
 
                 TextColumn::make('start_date')
                     ->date('F d, Y'),
@@ -153,7 +156,8 @@ class BorrowedEquipmentResource extends Resource
 
                 TextColumn::make('status')
                     ->formatStateUsing(fn($state): string => Str::replace('_', ' ', Str::title(BorrowStatus::from($state)->name)))
-                    ->badge(),
+                    ->badge()
+                    ->color(fn(string $state): string => BorrowStatus::from($state)->getColor()),
                 // TextColumn::make('is_returned')
                 //     ->label('Is returned?')
                 //     ->badge()
@@ -163,6 +167,18 @@ class BorrowedEquipmentResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make(),
+                SelectFilter::make('status')
+                    ->multiple()
+                    ->options([
+                        BorrowStatus::BORROWED->value => 'Borrowed',
+                        BorrowStatus::RETURNED->value => 'Returned',
+                        BorrowStatus::PARTIALLY_MISSING->value => 'Partially Missing',
+                        BorrowStatus::PARTIALLY_RETURNED->value => 'Partially Returned',
+                        BorrowStatus::MISSING->value => 'Missing',
+                        BorrowStatus::RETURNED_WITH_MISSING->value => 'Returned with Missing',
+                        BorrowStatus::PARTIALLY_RETURNED_WITH_MISSING->value => 'Partially Returned with Missing',
+                    ]),
+
                 SelectFilter::make('equipment_id')
                     ->native(false)
                     ->label('Equipment')
@@ -286,7 +302,7 @@ class BorrowedEquipmentResource extends Resource
                             });
                         }),
 
-                ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value),
+                ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),
 
 
                 Tables\Actions\ForceDeleteAction::make()

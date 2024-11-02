@@ -203,8 +203,7 @@ class EquipmentResource extends Resource
                     ->label('Condemned'),
 
                 TextColumn::make('status')
-
-                    ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
+                    ->formatStateUsing(fn($state): string => Str::replace('_', ' ', Str::title(EquipmentStatus::from($state)->name)))
                     ->badge()
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
@@ -366,7 +365,7 @@ class EquipmentResource extends Resource
                                 $totalAvailableEquipment = $equipment->quantity_available - $borrowedEquipment->quantity;
                                 $totalBorrowedEquipment =  $equipment->quantity_borrowed + $borrowedEquipment->quantity;
                                 $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
-                                
+
                                 if ($totalBorrowedEquipment === $equipment->quantity_available)
                                     $status = EquipmentStatus::FULLY_BORROWED->value;
 
