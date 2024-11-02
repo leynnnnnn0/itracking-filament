@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('missing_equipment', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('borrowed_equipment_id')->nullable()->constrained('borrowed_equipment');
             $table->foreignIdFor(Equipment::class)->constrained();
             $table->enum('status', MissingStatus::values());
             $table->integer('quantity');

@@ -7,11 +7,13 @@ use App\Enum\EquipmentStatus;
 use App\Filament\Resources\BorrowedEquipmentResource\Pages;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
+use App\Models\MissingEquipment;
 use Exception;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -77,7 +79,7 @@ class BorrowedEquipmentResource extends Resource
                 TextInput::make('borrower_first_name')
                     ->rules([
                         'string',
-                        'regex:/^[a-zA-Z\s]+$/', 
+                        'regex:/^[a-zA-Z\s]+$/',
                     ])
                     ->maxLength(30)
                     ->required(),
@@ -150,12 +152,12 @@ class BorrowedEquipmentResource extends Resource
                     ->date('F d, Y'),
 
                 TextColumn::make('status')
-                    ->formatStateUsing(fn($state): string => Str::headline(BorrowStatus::from($state)->name))
+                    ->formatStateUsing(fn($state): string => Str::replace('_', ' ', Str::title(BorrowStatus::from($state)->name)))
                     ->badge(),
-                TextColumn::make('is_returned')
-                    ->label('Is returned?')
-                    ->badge()
-                    ->color(fn($record) => $record === 'Yes' ? 'success' : 'warning'),
+                // TextColumn::make('is_returned')
+                //     ->label('Is returned?')
+                //     ->badge()
+                //     ->color(fn($record) => $record === 'Yes' ? 'success' : 'warning'),
 
 
             ])
@@ -175,167 +177,41 @@ class BorrowedEquipmentResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('Partially Returned with Missing')
+                    Tables\Actions\Action::make('return')
+                        ->color('primary')
                         ->form([
-                            Section::make()
-                                ->schema([
-                                    TextInput::make('quantity_returned')->required(),
-                                    TextInput::make('quantity_missing')->required(),
-                                ])->columns()
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
-                            $borrowedEquipment->status = BorrowStatus::PARTIALLY_RETURNED_WITH_MISSING->value;
-                            $equipment = $borrowedEquipment->equipment;
-                            $quantityMissing = $data['quantity_missing'];
-                            $quantityReturned = $data['quantity_returned'];
-                            $borrowedEquipment->total_quantity_missing += $quantityMissing;
-                            $borrowedEquipment->total_quantity_returned += $quantityReturned;
-
-                            DB::transaction(function () use ($equipment, $borrowedEquipment, $quantityMissing, $quantityReturned) {
-                                $status = $equipment->status;
-                                // Total Available Quantity 
-                                $totalAvailableQuantity = $equipment->quantity_available + $quantityReturned;
-                                // Total Returned Quantity 
-                                $totalBorrowedQuantity = $equipment->quantity_borrowed - ($quantityMissing + $quantityReturned);
-                                // Total Missing Equipment 
-                                $totalMissingQuantity = $equipment->quantity_missing + $quantityMissing;
-
-                                if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
-
-                                $equipment->update([
-                                    'quantity_missing' => $totalMissingQuantity,
-                                    'quantity_borrowed' => $totalBorrowedQuantity,
-                                    'quantity_available' => $totalAvailableQuantity,
-                                    'status' => $status
-                                ]);
-
-                                $borrowedEquipment->save();
-                            });
-                        }),
-
-                    Tables\Actions\Action::make('Returned with Missing')
-                        ->form([
-                            TextInput::make('quantity_missing')->required(),
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
-                            $quantityMissing = $data['quantity_missing'];
-                            $equipment = $borrowedEquipment->equipment;
-                            $borrowedEquipment->total_quantity_missing += $quantityMissing;
-                            $borrowedEquipment->total_quantity_returned += $borrowedEquipment->quantity - $quantityMissing;
-                            $borrowedEquipment->status = BorrowStatus::RETURNED_WITH_MISSING->value;
-
-                            DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityMissing) {
-                                $status = $equipment->status;
-                                // Total Avaialbel Euqipment
-                                $totalAvailableQuantity = $equipment->quantity_available + ($borrowedEquipment->quantity - $quantityMissing);
-                                // Total Borrowed Euqiopment
-                                $totalBorrowedQuantity = $equipment->quantity_borrowed - $borrowedEquipment->quantity;
-                                // Total Missing Euiqpment
-                                $totalMissingQuantity = $equipment->quantity_missing + $quantityMissing;
-
-                                if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
-
-                                $equipment->update([
-                                    'quantity_missing' => $totalMissingQuantity,
-                                    'quantity_borrowed' => $totalBorrowedQuantity,
-                                    'quantity_available' => $totalAvailableQuantity,
-                                    'status' => $status
-                                ]);
-
-                                $borrowedEquipment->save();
-                            });
-                        }),
-
-                    Tables\Actions\Action::make('Missing')
-                        ->requiresConfirmation()
-                        ->modalIconColor('warning')
-                        ->color('warning')
-                        ->modalHeading('Tag as missing')
-                        ->modalDescription('Are you sure you\'d like to tag this as missing? This cannot be undone.')
-                        ->modalSubmitActionLabel('Yes, tag as missing')
-                        ->action(function (BorrowedEquipment $borrowedEquipment) {
-                            $borrowedEquipment->status = BorrowStatus::MISSING->value;
-                            $equipment = $borrowedEquipment->equipment;
-                            $borrowedEquipment->total_quantity_missing += $borrowedEquipment->quantity;
-                            DB::transaction(function () use ($equipment, $borrowedEquipment) {
-                                $status = $equipment->status;
-                                $totalBorrowedQuantity = $equipment->quantity_borrowed - $borrowedEquipment->quantity;
-                                $totalMissingQuantity = $equipment->quantity_missing + $borrowedEquipment->quantity;
-
-                                if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
-
-                                $equipment->update([
-                                    'quantity_missing' => $totalMissingQuantity,
-                                    'quantity_borrowed' => $totalBorrowedQuantity,
-                                    'status' => $status
-                                ]);
-
-                                $borrowedEquipment->save();
-                            });
-                        }),
-
-                    Tables\Actions\Action::make('Partially Missing')
-                        ->form([
-                            TextInput::make('quantity_missing')->required(),
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
-                            $borrowedEquipment->status = BorrowStatus::PARTIALLY_MISSING->value;
-                            $quantityMissing = $data['quantity_missing'];
-                            $equipment = $borrowedEquipment->equipment;
-                            // Getting the total returned equipment
-                            $borrowedEquipment->total_quantity_missing += $quantityMissing;
-                            DB::transaction(function () use ($equipment, $quantityMissing, $borrowedEquipment) {
-                                $status = $equipment->status;
-                                if ($borrowedEquipment->total_quantity_missing === $borrowedEquipment->quantity)
-                                    $borrowedEquipment->status = BorrowStatus::MISSING->value;
-
-                                $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityMissing;
-                                $totalMissingQuantity = $equipment->quantity_missing + $quantityMissing;
-
-                                if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
-
-                                $equipment->update([
-                                    'quantity_missing' => $totalMissingQuantity,
-                                    'quantity_borrowed' => $totalBorrowedQuantity,
-                                    'status' => $status
-                                ]);
-
-                                $borrowedEquipment->save();
-                            });
-                        }),
-
-                    Tables\Actions\Action::make('Partially Returned')
-                        ->form([
-                            TextInput::make('quantity_returned')->required(),
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                            TextInput::make('quantity_returned')
+                                ->integer()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                ])
+                                ->label('Quantity to return')
+                                ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
                             try {
-                                // Settting the borrow status to clicked option
-                                $borrowedEquipment->status = BorrowStatus::PARTIALLY_RETURNED->value;
-                                // Getting the quanttiy returned from data
                                 $quantityReturned = $data['quantity_returned'];
-                                // Getting the total returned equipment
+
+                                $borrowedEquipment->status = $quantityReturned === $borrowedEquipment->quantity - ($borrowedEquipment->total_quantity_returned + $borrowedEquipment->total_quantity_missing) ? BorrowStatus::RETURNED->value : BorrowStatus::PARTIALLY_RETURNED->value;
+
                                 $borrowedEquipment->total_quantity_returned += $quantityReturned;
-                                // Getting the equipment model
                                 $equipment = $borrowedEquipment->equipment;
-                                // GEtting the current status of the equipment
-                                $status = $equipment->status;
-                                DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityReturned, $status) {
-                                    // Checking if the total quantity returned is equal to quantity borrowed
+                                DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityReturned) {
                                     if ($borrowedEquipment->total_quantity_returned === $borrowedEquipment->quantity) {
                                         $borrowedEquipment->status = BorrowStatus::RETURNED->value;
                                         $borrowedEquipment->returned_date = date('Y-m-d');
+                                    } else {
+                                        $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
                                     }
-                                    // Getting total available quantity
                                     $totalAvailableQuantity = $equipment->quantity_available + $quantityReturned;
-                                    // Getting total borrowed equipment left
                                     $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityReturned;
 
-                                    // if total borrowed is already zero set the equipment status to active
-                                    if ($totalBorrowedQuantity === 0) $status = EquipmentStatus::ACTIVE->value;
-
-                                    $equipment->update([
-                                        'quantity_available' => $totalAvailableQuantity,
-                                        'quantity_borrowed' => $totalBorrowedQuantity,
-                                        'status' => $status
-                                    ]);
-
+                                    $equipment->quantity_available = $totalAvailableQuantity;
+                                    $equipment->quantity_borrowed = $totalBorrowedQuantity;
+                                    $equipment->status = self::getEquimentStatus($equipment);
+                                    $equipment->save();
                                     $borrowedEquipment->save();
                                 });
                                 Notification::make()
@@ -351,40 +227,67 @@ class BorrowedEquipmentResource extends Resource
                                     ->send();
                             }
                         }),
+                    Tables\Actions\Action::make('report missing item')
+                        ->color('danger')
+                        ->form([
+                            Section::make()
+                                ->schema([
+                                    TextInput::make('quantity_missing')
+                                        ->integer()
+                                        ->extraInputAttributes([
+                                            'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                        ])
+                                        ->label('Quantity missing')
+                                        ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                        ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                        ->required(),
 
-                    Tables\Actions\Action::make('Returned')
-                        ->requiresConfirmation()
-                        ->modalIconColor('warning')
-                        ->color('warning')
-                        ->modalHeading('Tag as Returned')
-                        ->modalDescription('Are you sure you\'d like to tag this as returned? This cannot be undone.')
-                        ->modalSubmitActionLabel('Yes, tag as retunred')
-                        ->action(function (BorrowedEquipment $borrowedEquipment) {
-                            try {
-                                $borrowedEquipment->returned_date = date('Y-m-d');
-                                $borrowedEquipment->status = BorrowStatus::RETURNED->value;
+                                    TextInput::make('reported_by')
+                                        ->rules([
+                                            'string',
+                                            'regex:/^[a-zA-Z\s]+$/',
+                                        ])
+                                        ->required(),
+
+                                    Textarea::make('description')
+                                        ->rules([
+                                            'string',
+                                            'regex:/[a-zA-Z]/',
+                                        ])
+                                        ->extraAttributes(['class' => 'resize-none'])
+                                        ->columnSpan(2),
+
+
+                                ])->columns(2)
+                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                            $quantityMissing = $data['quantity_missing'];
+                            DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {
+                                // Create a missign equipmen report
+                                MissingEquipment::create([
+                                    'borrowed_equipment_id' => $borrowedEquipment->id,
+                                    'equipment_id' => $borrowedEquipment->equipment->id,
+                                    'quantity' => $quantityMissing,
+                                    'reported_by' => $data['reported_by'],
+                                    'description' => $data['description'],
+                                    'reported_date' => today()->format('Y-m-d'),
+                                ]);
+                                // Substract the missing equipment quantity to equipment borrowed quantity and add it on missing quantity
+                                $borrowedEquipment->total_quantity_missing += $quantityMissing;
+
+                                $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
+
                                 $equipment = $borrowedEquipment->equipment;
-                                DB::transaction(function () use ($borrowedEquipment, $equipment) {
-                                    $borrowedEquipment->save();
-                                    $quantity_borrowed = $equipment->quantity_borrowed - $borrowedEquipment->quantity;
-                                    $status = EquipmentStatus::ACTIVE->value;
-                                    if ($quantity_borrowed > 0)
-                                        $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
-                                    $equipment->update([
-                                        'status' => $status,
-                                        'quantity_borrowed' => $quantity_borrowed,
-                                        'quantity_available' => $equipment->quantity_available + $borrowedEquipment->quantity
-                                    ]);
-                                });
-                            } catch (Exception $e) {
-                                Notification::make()
-                                    ->title('Error')
-                                    ->body($e->getMessage())
-                                    ->success()
-                                    ->send();
-                            }
-                        })
+                                $equipment->quantity_borrowed -= $quantityMissing;
+                                $equipment->quantity_missing += $quantityMissing;
+                                $equipment->status = self::getEquimentStatus($equipment);
+
+                                $equipment->save();
+                                $borrowedEquipment->save();
+                            });
+                        }),
+
                 ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value),
+
 
                 Tables\Actions\ForceDeleteAction::make()
                     ->requiresConfirmation()
@@ -460,6 +363,60 @@ class BorrowedEquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('equipment');
+        return parent::getEloquentQuery()->with('equipment')->latest();
+    }
+
+    public static function getEquimentStatus($equipment)
+    {
+        $totalAvailableQuantity = $equipment->quantity_available;
+        $totalBorrowedQuantity = $equipment->quantity_borrowed;
+        // Full borrowed is when total avaliable is 0 and qunatity borrowed is greater than 0]
+        if ($totalAvailableQuantity === 0 && $totalBorrowedQuantity > 0)
+            return EquipmentStatus::FULLY_BORROWED->value;
+        // Partaially borrowed is when totalAvailable qunatity is not equals to 0 and borrowed is greater than 0
+        if ($totalAvailableQuantity > 0 && $totalBorrowedQuantity > 0)
+            return EquipmentStatus::PARTIALLY_BORROWED->value;
+
+        return EquipmentStatus::ACTIVE->value;
+    }
+
+    public static function getBorrowStatus($borrowedEquipment)
+    {
+        $totalMissingQuantity = $borrowedEquipment->total_quantity_missing;
+        $borrowedQuantity = $borrowedEquipment->quantity;
+        $totalReturnedQuantity = $borrowedEquipment->total_quantity_returned;
+
+        // Fully missing
+        if ($totalMissingQuantity === $borrowedQuantity) {
+            return BorrowStatus::MISSING->value;
+        }
+
+        // Partially returned with missing items
+        if ($totalMissingQuantity > 0 && $totalReturnedQuantity > 0 && $borrowedQuantity !== ($totalMissingQuantity + $totalReturnedQuantity)) {
+            return BorrowStatus::PARTIALLY_RETURNED_WITH_MISSING->value;
+        }
+
+        // Returned with missing items (no partial returns)
+        if ($totalMissingQuantity > 0 && $borrowedQuantity === ($totalMissingQuantity + $totalReturnedQuantity)) {
+            return BorrowStatus::RETURNED_WITH_MISSING->value;
+        }
+
+        // Partially missing (no returns)
+        if ($totalMissingQuantity > 0 && $totalReturnedQuantity === 0) {
+            return BorrowStatus::PARTIALLY_MISSING->value;
+        }
+
+        // Fully returned with no missing items
+        if ($totalMissingQuantity === 0 && $totalReturnedQuantity === $borrowedQuantity) {
+            return BorrowStatus::RETURNED->value;
+        }
+
+        // Partially returned with no missing items
+        if ($totalMissingQuantity === 0 && $totalReturnedQuantity < $borrowedQuantity) {
+            return BorrowStatus::PARTIALLY_RETURNED->value;
+        }
+
+        // Default case: still borrowed
+        return BorrowStatus::BORROWED->value;
     }
 }

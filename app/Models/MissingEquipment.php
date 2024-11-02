@@ -13,6 +13,7 @@ class MissingEquipment extends Model implements Auditable
     use HasFactory, SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
+        'borrowed_equipment_id',
         'equipment_id',
         'quantity',
         'status',
@@ -34,6 +35,4 @@ class MissingEquipment extends Model implements Auditable
     {
         return $this->belongsTo(Equipment::class);
     }
-
-
 }

@@ -366,6 +366,7 @@ class EquipmentResource extends Resource
                                 $totalAvailableEquipment = $equipment->quantity_available - $borrowedEquipment->quantity;
                                 $totalBorrowedEquipment =  $equipment->quantity_borrowed + $borrowedEquipment->quantity;
                                 $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
+                                
                                 if ($totalBorrowedEquipment === $equipment->quantity_available)
                                     $status = EquipmentStatus::FULLY_BORROWED->value;
 
