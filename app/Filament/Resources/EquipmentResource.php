@@ -12,6 +12,7 @@ use App\Models\Personnel;
 use App\Models\Unit;
 use Carbon\Carbon;
 use Exception;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -185,6 +186,8 @@ class EquipmentResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
+
                 TextColumn::make('name')
                     ->searchable(),
 
@@ -269,141 +272,143 @@ class EquipmentResource extends Resource
                     ),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => $record->deleted_at === null),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make()
-                    ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
-                    ->requiresConfirmation()
-                    ->color('danger'),
-                Tables\Actions\RestoreAction::make()
-                    ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
-                    ->requiresConfirmation()
-                    ->color('warning'),
-                // Borrow Form
-                Tables\Actions\Action::make('Borrow')
-                    ->visible(fn($record) => $record->deleted_at === null && $record->quantity_available > 0)
-                    ->color('warning')
-                    ->form([
-                        \Filament\Forms\Components\Section::make()
-                            ->schema([
-                                Select::make('equipment_id')
-                                    ->native(false)
-                                    ->label('Equipment')
-                                    ->searchable()
-                                    ->getOptionLabelUsing(function ($value): ?string {
-                                        $equipment = Equipment::find($value);
-                                        return "$equipment->name (PN: $equipment->property_number)";
-                                    })
-                                    ->default(fn($record) => $record->id)
-                                    ->required(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn($record) => $record->deleted_at === null),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\ForceDeleteAction::make()
+                        ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
+                        ->requiresConfirmation()
+                        ->color('danger'),
+                    Tables\Actions\RestoreAction::make()
+                        ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
+                        ->requiresConfirmation()
+                        ->color('warning'),
+                    // Borrow Form
+                    Tables\Actions\Action::make('Borrow')
+                        ->visible(fn($record) => $record->deleted_at === null && $record->quantity_available > 0)
+                        ->color('warning')
+                        ->form([
+                            \Filament\Forms\Components\Section::make()
+                                ->schema([
+                                    Select::make('equipment_id')
+                                        ->native(false)
+                                        ->label('Equipment')
+                                        ->searchable()
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $equipment = Equipment::find($value);
+                                            return "$equipment->name (PN: $equipment->property_number)";
+                                        })
+                                        ->default(fn($record) => $record->id)
+                                        ->required(),
 
-                                TextInput::make('quantity')
-                                    ->integer()
-                                    ->maxLength(7)
-                                    ->required()
-                                    ->extraInputAttributes([
-                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
-                                    ])
-                                    ->hint(function (callable $get) {
-                                        $equipmentId = $get('equipment_id');
-                                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+                                    TextInput::make('quantity')
+                                        ->integer()
+                                        ->maxLength(7)
+                                        ->required()
+                                        ->extraInputAttributes([
+                                            'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                        ])
+                                        ->hint(function (callable $get) {
+                                            $equipmentId = $get('equipment_id');
+                                            $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
 
-                                        return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
-                                    })
-                                    ->minValue(1)
-                                    ->maxValue(function (callable $get) {
-                                        $equipmentId = $get('equipment_id');
-                                        $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
+                                            return $quantityAvailable ? 'Available: ' . $quantityAvailable : '';
+                                        })
+                                        ->minValue(1)
+                                        ->maxValue(function (callable $get) {
+                                            $equipmentId = $get('equipment_id');
+                                            $quantityAvailable = Equipment::find($equipmentId)?->quantity_available;
 
-                                        return  $quantityAvailable ?? 0;
-                                    }),
-
-
-                                TextInput::make('borrower_first_name')
-                                    ->maxLength(30)
-                                    ->required(),
-
-                                TextInput::make('borrower_last_name')
-                                    ->maxLength(30)
-                                    ->required(),
-
-                                TextInput::make('borrower_phone_number')
-                                    ->required()
-                                    ->numeric()
-                                    ->regex('/^09\d{9}$/')
-                                    ->extraInputAttributes([
-                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
-                                    ])
-                                    ->maxLength(11),
+                                            return  $quantityAvailable ?? 0;
+                                        }),
 
 
-                                TextInput::make('borrower_email')
-                                    ->email()
-                                    ->required(),
+                                    TextInput::make('borrower_first_name')
+                                        ->maxLength(30)
+                                        ->required(),
 
-                                DatePicker::make('start_date')
-                                    ->native(false)
-                                    ->default(today())
-                                    ->closeOnDateSelection()
-                                    ->required(),
+                                    TextInput::make('borrower_last_name')
+                                        ->maxLength(30)
+                                        ->required(),
 
-                                DatePicker::make('end_date')
-                                    ->native(false)
-                                    ->after('start_date')
-                                    ->closeOnDateSelection()
-                                    ->required(),
+                                    TextInput::make('borrower_phone_number')
+                                        ->required()
+                                        ->numeric()
+                                        ->regex('/^09\d{9}$/')
+                                        ->extraInputAttributes([
+                                            'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                        ])
+                                        ->maxLength(11),
 
 
-                                Hidden::make('status')
-                                    ->default(BorrowStatus::BORROWED->value)
-                                    ->dehydrated(true)
-                                    ->required()
-                            ])->columns(2),
+                                    TextInput::make('borrower_email')
+                                        ->email()
+                                        ->required(),
 
-                    ])->action(function (array $data) {
-                        try {
-                            DB::transaction(function () use ($data) {
-                                $borrowedEquipment = BorrowedEquipment::create([
-                                    'equipment_id' => $data['equipment_id'],
-                                    'quantity' => $data['quantity'],
-                                    'borrower_first_name' => $data['borrower_first_name'],
-                                    'borrower_last_name' => $data['borrower_last_name'],
-                                    'borrower_phone_number' => $data['borrower_phone_number'],
-                                    'borrower_email' => $data['borrower_email'],
-                                    'start_date' => $data['start_date'],
-                                    'end_date' => $data['end_date'],
-                                ]);
-                                $equipment = $borrowedEquipment->equipment;
+                                    DatePicker::make('start_date')
+                                        ->native(false)
+                                        ->default(today())
+                                        ->closeOnDateSelection()
+                                        ->required(),
 
-                                $totalAvailableEquipment = $equipment->quantity_available - $borrowedEquipment->quantity;
-                                $totalBorrowedEquipment =  $equipment->quantity_borrowed + $borrowedEquipment->quantity;
-                                $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
+                                    DatePicker::make('end_date')
+                                        ->native(false)
+                                        ->after('start_date')
+                                        ->closeOnDateSelection()
+                                        ->required(),
 
-                                if ($totalBorrowedEquipment === $equipment->quantity_available)
-                                    $status = EquipmentStatus::FULLY_BORROWED->value;
 
-                                $equipment->update([
-                                    'quantity_available' => $totalAvailableEquipment,
-                                    'quantity_borrowed' => $totalBorrowedEquipment,
-                                    'status' => $status
-                                ]);
+                                    Hidden::make('status')
+                                        ->default(BorrowStatus::BORROWED->value)
+                                        ->dehydrated(true)
+                                        ->required()
+                                ])->columns(2),
 
+                        ])->action(function (array $data) {
+                            try {
+                                DB::transaction(function () use ($data) {
+                                    $borrowedEquipment = BorrowedEquipment::create([
+                                        'equipment_id' => $data['equipment_id'],
+                                        'quantity' => $data['quantity'],
+                                        'borrower_first_name' => $data['borrower_first_name'],
+                                        'borrower_last_name' => $data['borrower_last_name'],
+                                        'borrower_phone_number' => $data['borrower_phone_number'],
+                                        'borrower_email' => $data['borrower_email'],
+                                        'start_date' => $data['start_date'],
+                                        'end_date' => $data['end_date'],
+                                    ]);
+                                    $equipment = $borrowedEquipment->equipment;
+
+                                    $totalAvailableEquipment = $equipment->quantity_available - $borrowedEquipment->quantity;
+                                    $totalBorrowedEquipment =  $equipment->quantity_borrowed + $borrowedEquipment->quantity;
+                                    $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
+
+                                    if ($totalBorrowedEquipment === $equipment->quantity_available)
+                                        $status = EquipmentStatus::FULLY_BORROWED->value;
+
+                                    $equipment->update([
+                                        'quantity_available' => $totalAvailableEquipment,
+                                        'quantity_borrowed' => $totalBorrowedEquipment,
+                                        'status' => $status
+                                    ]);
+
+                                    Notification::make()
+                                        ->title('Success')
+                                        ->body('Borrow Log Created.')
+                                        ->success()
+                                        ->send();
+                                });
+                            } catch (Exception $e) {
                                 Notification::make()
-                                    ->title('Success')
-                                    ->body('Borrow Log Created.')
+                                    ->title('Error')
+                                    ->body($e->getMessage())
                                     ->success()
                                     ->send();
-                            });
-                        } catch (Exception $e) {
-                            Notification::make()
-                                ->title('Error')
-                                ->body($e->getMessage())
-                                ->success()
-                                ->send();
-                        }
-                    })
+                            }
+                        })
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

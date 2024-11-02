@@ -28,11 +28,13 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MissingEquipmentResource extends Resource
 {
@@ -114,6 +116,8 @@ class MissingEquipmentResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
+
                 TextColumn::make('equipment.name')
                     ->label('Equipment Name'),
 
@@ -135,12 +139,16 @@ class MissingEquipmentResource extends Resource
                     ->formatStateUsing(fn($record) => $record->is_condemned ? 'Yes' : 'No'),
             ])
             ->filters([
-                //
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => $record->status !== 'Found'),
+                    ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ActionGroup::make([
 
                     Tables\Actions\Action::make('found')
@@ -243,7 +251,7 @@ class MissingEquipmentResource extends Resource
                                     ->send();
                             }
                         })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned),
-                ])
+                ])->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -258,11 +266,56 @@ class MissingEquipmentResource extends Resource
             ->schema([
                 Section::make('Equipment Details')
                     ->schema([
+                        TextEntry::make('equipment.id')
+                            ->label('Id'),
+
                         TextEntry::make('equipment.name')
                             ->label('Name'),
 
+                        TextEntry::make('equipment.description')
+                            ->label('Description'),
+
                         TextEntry::make('equipment.property_number')
                             ->label('Property Number'),
+
+                        TextEntry::make('equipment.unit')
+                            ->label('Unit'),
+
+                        TextEntry::make('equipment.quantity')
+                            ->label('Quantity'),
+
+                        TextEntry::make('equipment.quantity_available')
+                            ->label('Available Quantity'),
+
+                        TextEntry::make('equipment.quantity_borrowed')
+                            ->label('Borrowed Quantity'),
+
+                        TextEntry::make('equipment.quantity_missing')
+                            ->label('Missing Quantity'),
+
+                        TextEntry::make('equipment.quantity_condemned')
+                            ->label('Condemned Quantity'),
+
+                        TextEntry::make('equipment.date_acquired')
+                            ->label('Date Acquired')
+                            ->date('F d, Y'),
+
+                        TextEntry::make('estimated_useful_time')
+                            ->label('Estimated Useful Time')
+                            ->date('Y-m'),
+
+                        TextEntry::make('equipment.unit_price')
+                            ->label('Unit Price'),
+
+                        TextEntry::make('equipment.total_amount')
+                            ->label('Total Amount'),
+
+                        TextEntry::make('equipment.status')
+                            ->label('Status')
+                            ->formatStateUsing(fn($state): string => Str::headline(EquipmentStatus::from($state)->name))
+                            ->badge()
+                            ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
+
                     ])->columns(2),
 
                 Section::make('Report Details')

@@ -26,7 +26,7 @@ class ListMissingEquipment extends ListRecords
 
     public function export()
     {
-        $query = $this->getFilteredTableQuery();
+        $query = $this->getFilteredTableQuery()->with(['equipment.personnel', 'equipment.accountable_officer']);
         $this->applySortingToTableQuery($query);
         $reports = $query->get();
         return response()->streamDownload(
