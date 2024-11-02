@@ -28,9 +28,11 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SupplyResource extends Resource
@@ -120,6 +122,8 @@ class SupplyResource extends Resource
                     ->date('F d, Y'),
             ])
             ->filters([
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
                 TernaryFilter::make('is_consumable'),
                 SelectFilter::make('categories')
                     ->multiple()
@@ -131,6 +135,8 @@ class SupplyResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Add Quantity')
                         ->color('success')
@@ -210,6 +216,8 @@ class SupplyResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

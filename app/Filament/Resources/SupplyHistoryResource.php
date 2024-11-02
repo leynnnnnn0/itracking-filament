@@ -13,9 +13,11 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class SupplyHistoryResource extends Resource
 {
@@ -51,6 +53,8 @@ class SupplyHistoryResource extends Resource
 
             ])
             ->filters([
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
                 SelectFilter::make('categories')
                     ->multiple()
                     ->relationship('supply.categories', 'name')
@@ -76,10 +80,16 @@ class SupplyHistoryResource extends Resource
                             );
                     })
             ])
-            ->actions([])
+            ->actions([
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
