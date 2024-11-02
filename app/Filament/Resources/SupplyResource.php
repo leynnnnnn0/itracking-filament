@@ -24,8 +24,10 @@ use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -118,6 +120,7 @@ class SupplyResource extends Resource
                     ->date('F d, Y'),
             ])
             ->filters([
+                TernaryFilter::make('is_consumable'),
                 SelectFilter::make('categories')
                     ->multiple()
                     ->relationship('categories', 'name')
@@ -127,6 +130,7 @@ class SupplyResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                DeleteAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Add Quantity')
                         ->color('success')
