@@ -214,7 +214,8 @@ class EquipmentResource extends Resource
                     ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
                 SelectFilter::make('responsible_person')
                     ->relationship('personnel', 'id')
                     ->getSearchResultsUsing(function (string $search) {
@@ -277,14 +278,8 @@ class EquipmentResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->deleted_at === null),
                     Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make()
-                        ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
-                        ->requiresConfirmation()
-                        ->color('danger'),
-                    Tables\Actions\RestoreAction::make()
-                        ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
-                        ->requiresConfirmation()
-                        ->color('warning'),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
                     // Borrow Form
                     Tables\Actions\Action::make('Borrow')
                         ->visible(fn($record) => $record->deleted_at === null && $record->quantity_available > 0)
@@ -413,6 +408,8 @@ class EquipmentResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -422,6 +419,7 @@ class EquipmentResource extends Resource
         return $infolist
             ->schema([
                 Section::make('Basic Details')->schema([
+                    TextEntry::make('id'),
                     TextEntry::make('name'),
 
                     TextEntry::make('description'),

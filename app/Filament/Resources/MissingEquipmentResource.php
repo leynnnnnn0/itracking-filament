@@ -10,6 +10,7 @@ use App\Filament\Resources\MissingEquipmentResource\RelationManagers;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
 use App\Traits\HasModelStatusIdentifier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -33,6 +34,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -144,6 +146,17 @@ class MissingEquipmentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('pdf')
+                    ->label('PDF')
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down')
+                    ->action(function (Model $record) {
+                        return response()->streamDownload(function () use ($record) {
+                            echo Pdf::loadHtml(
+                                Blade::render('pdf.missing-equipment', ['equipment' => $record])
+                            )->stream();
+                        },  'missing-equipment.pdf');
+                    }),
                 Tables\Actions\EditAction::make()
                     ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
                 Tables\Actions\DeleteAction::make(),
@@ -256,6 +269,8 @@ class MissingEquipmentResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

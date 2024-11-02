@@ -29,6 +29,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -168,7 +169,8 @@ class BorrowedEquipmentResource extends Resource
 
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
                 SelectFilter::make('status')
                     ->multiple()
                     ->options([
@@ -192,143 +194,142 @@ class BorrowedEquipmentResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('return')
-                        ->color('primary')
-                        ->form([
-                            TextInput::make('quantity_returned')
-                                ->integer()
-                                ->extraInputAttributes([
-                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
-                                ])
-                                ->label('Quantity to return')
-                                ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                ->required(),
-                        ])
-                        ->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
-                            try {
-                                $quantityReturned = $data['quantity_returned'];
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\ActionGroup::make([
+                        Tables\Actions\Action::make('return')
+                            ->color('primary')
+                            ->form([
+                                TextInput::make('quantity_returned')
+                                    ->integer()
+                                    ->extraInputAttributes([
+                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    ])
+                                    ->label('Quantity to return')
+                                    ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                    ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                    ->required(),
+                            ])
+                            ->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                                try {
+                                    $quantityReturned = $data['quantity_returned'];
 
-                                $borrowedEquipment->status = $quantityReturned === $borrowedEquipment->quantity - ($borrowedEquipment->total_quantity_returned + $borrowedEquipment->total_quantity_missing) ? BorrowStatus::RETURNED->value : BorrowStatus::PARTIALLY_RETURNED->value;
+                                    $borrowedEquipment->status = $quantityReturned === $borrowedEquipment->quantity - ($borrowedEquipment->total_quantity_returned + $borrowedEquipment->total_quantity_missing) ? BorrowStatus::RETURNED->value : BorrowStatus::PARTIALLY_RETURNED->value;
 
-                                $borrowedEquipment->total_quantity_returned += $quantityReturned;
-                                $equipment = $borrowedEquipment->equipment;
-                                DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityReturned) {
-                                    if ($borrowedEquipment->total_quantity_returned === $borrowedEquipment->quantity) {
-                                        $borrowedEquipment->status = BorrowStatus::RETURNED->value;
-                                        $borrowedEquipment->returned_date = date('Y-m-d');
-                                    } else {
-                                        $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
-                                    }
-                                    $totalAvailableQuantity = $equipment->quantity_available + $quantityReturned;
-                                    $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityReturned;
-
-                                    $equipment->quantity_available = $totalAvailableQuantity;
-                                    $equipment->quantity_borrowed = $totalBorrowedQuantity;
-                                    $equipment->status = self::getEquimentStatus($equipment);
-                                    $equipment->save();
-                                    $borrowedEquipment->save();
-                                });
-                                Notification::make()
-                                    ->title('Success')
-                                    ->body('Updated Successfully')
-                                    ->success()
-                                    ->send();
-                            } catch (Exception $e) {
-                                Notification::make()
-                                    ->title('Error')
-                                    ->body($e->getMessage())
-                                    ->success()
-                                    ->send();
-                            }
-                        }),
-                    Tables\Actions\Action::make('report missing item')
-                        ->color('danger')
-                        ->form([
-                            Section::make()
-                                ->schema([
-                                    TextInput::make('quantity_missing')
-                                        ->integer()
-                                        ->extraInputAttributes([
-                                            'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
-                                        ])
-                                        ->label('Quantity missing')
-                                        ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                        ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                        ->required(),
-
-                                    TextInput::make('reported_by')
-                                        ->rules([
-                                            'string',
-                                            'regex:/^[a-zA-Z\s]+$/',
-                                        ])
-                                        ->required(),
-
-                                    Textarea::make('description')
-                                        ->rules([
-                                            'string',
-                                            'regex:/[a-zA-Z]/',
-                                        ])
-                                        ->extraAttributes(['class' => 'resize-none'])
-                                        ->columnSpan(2),
-
-
-                                ])->columns(2)
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
-                            $quantityMissing = $data['quantity_missing'];
-                            try {
-                                DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {
-                                    // Create a missign equipmen report
-                                    MissingEquipment::create([
-                                        'borrowed_equipment_id' => $borrowedEquipment->id,
-                                        'equipment_id' => $borrowedEquipment->equipment->id,
-                                        'quantity' => $quantityMissing,
-                                        'reported_by' => $data['reported_by'],
-                                        'description' => $data['description'],
-                                        'reported_date' => today()->format('Y-m-d'),
-                                    ]);
-                                    // Substract the missing equipment quantity to equipment borrowed quantity and add it on missing quantity
-                                    $borrowedEquipment->total_quantity_missing += $quantityMissing;
-
-                                    $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
-
+                                    $borrowedEquipment->total_quantity_returned += $quantityReturned;
                                     $equipment = $borrowedEquipment->equipment;
-                                    $equipment->quantity_borrowed -= $quantityMissing;
-                                    $equipment->quantity_missing += $quantityMissing;
-                                    $equipment->status = self::getEquimentStatus($equipment);
+                                    DB::transaction(function () use ($borrowedEquipment, $equipment, $quantityReturned) {
+                                        if ($borrowedEquipment->total_quantity_returned === $borrowedEquipment->quantity) {
+                                            $borrowedEquipment->status = BorrowStatus::RETURNED->value;
+                                            $borrowedEquipment->returned_date = date('Y-m-d');
+                                        } else {
+                                            $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
+                                        }
+                                        $totalAvailableQuantity = $equipment->quantity_available + $quantityReturned;
+                                        $totalBorrowedQuantity = $equipment->quantity_borrowed - $quantityReturned;
 
-                                    $equipment->save();
-                                    $borrowedEquipment->save();
-                                });
-                                Notification::make()
-                                    ->title('Success')
-                                    ->success()
-                                    ->send();
-                            } catch (Exception $e) {
-                                Notification::make()
-                                    ->title('Error')
-                                    ->body($e->getMessage())
-                                    ->success()
-                                    ->send();
-                            }
-                        }),
+                                        $equipment->quantity_available = $totalAvailableQuantity;
+                                        $equipment->quantity_borrowed = $totalBorrowedQuantity;
+                                        $equipment->status = self::getEquimentStatus($equipment);
+                                        $equipment->save();
+                                        $borrowedEquipment->save();
+                                    });
+                                    Notification::make()
+                                        ->title('Success')
+                                        ->body('Updated Successfully')
+                                        ->success()
+                                        ->send();
+                                } catch (Exception $e) {
+                                    Notification::make()
+                                        ->title('Error')
+                                        ->body($e->getMessage())
+                                        ->success()
+                                        ->send();
+                                }
+                            }),
+                        Tables\Actions\Action::make('report missing item')
+                            ->color('danger')
+                            ->form([
+                                Section::make()
+                                    ->schema([
+                                        TextInput::make('quantity_missing')
+                                            ->integer()
+                                            ->extraInputAttributes([
+                                                'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                            ])
+                                            ->label('Quantity missing')
+                                            ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                            ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                            ->required(),
 
-                ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),
+                                        TextInput::make('reported_by')
+                                            ->rules([
+                                                'string',
+                                                'regex:/^[a-zA-Z\s]+$/',
+                                            ])
+                                            ->required(),
+
+                                        Textarea::make('description')
+                                            ->rules([
+                                                'string',
+                                                'regex:/[a-zA-Z]/',
+                                            ])
+                                            ->extraAttributes(['class' => 'resize-none'])
+                                            ->columnSpan(2),
 
 
-                Tables\Actions\ForceDeleteAction::make()
-                    ->requiresConfirmation()
-                    ->color('danger'),
-                Tables\Actions\RestoreAction::make()
-                    ->requiresConfirmation()
-                    ->color('warning'),
+                                    ])->columns(2)
+                            ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                                $quantityMissing = $data['quantity_missing'];
+                                try {
+                                    DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {
+                                        // Create a missign equipmen report
+                                        MissingEquipment::create([
+                                            'borrowed_equipment_id' => $borrowedEquipment->id,
+                                            'equipment_id' => $borrowedEquipment->equipment->id,
+                                            'quantity' => $quantityMissing,
+                                            'reported_by' => $data['reported_by'],
+                                            'description' => $data['description'],
+                                            'reported_date' => today()->format('Y-m-d'),
+                                        ]);
+                                        // Substract the missing equipment quantity to equipment borrowed quantity and add it on missing quantity
+                                        $borrowedEquipment->total_quantity_missing += $quantityMissing;
+
+                                        $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
+
+                                        $equipment = $borrowedEquipment->equipment;
+                                        $equipment->quantity_borrowed -= $quantityMissing;
+                                        $equipment->quantity_missing += $quantityMissing;
+                                        $equipment->status = self::getEquimentStatus($equipment);
+
+                                        $equipment->save();
+                                        $borrowedEquipment->save();
+                                    });
+                                    Notification::make()
+                                        ->title('Success')
+                                        ->success()
+                                        ->send();
+                                } catch (Exception $e) {
+                                    Notification::make()
+                                        ->title('Error')
+                                        ->body($e->getMessage())
+                                        ->success()
+                                        ->send();
+                                }
+                            }),
+
+                    ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
