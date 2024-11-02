@@ -16,6 +16,7 @@ class MissingEquipment extends Model implements Auditable
         'borrowed_equipment_id',
         'equipment_id',
         'quantity',
+        'quantity_found',
         'status',
         'description',
         'reported_by',
@@ -34,5 +35,10 @@ class MissingEquipment extends Model implements Auditable
     public function equipment()
     {
         return $this->belongsTo(Equipment::class);
+    }
+
+    public function borrowed_equipment()
+    {
+        return $this->belongsTo(BorrowedEquipment::class);
     }
 }

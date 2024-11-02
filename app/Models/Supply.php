@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use OwenIt\Auditing\Contracts\Auditable;
 
-#[ObservedBy([SupplyObserver::class])]
+// #[ObservedBy([SupplyObserver::class])]
 class Supply extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\SupplyFactory> */

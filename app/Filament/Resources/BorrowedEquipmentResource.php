@@ -157,7 +157,7 @@ class BorrowedEquipmentResource extends Resource
                 TextColumn::make('status')
                     ->formatStateUsing(fn($state): string => Str::replace('_', ' ', Str::title(BorrowStatus::from($state)->name)))
                     ->badge()
-                    ->color(fn(string $state): string => BorrowStatus::from($state)->getColor()),
+                ->color(fn(string $state): string => BorrowStatus::from($state)->getColor()),
                 // TextColumn::make('is_returned')
                 //     ->label('Is returned?')
                 //     ->badge()
@@ -277,29 +277,41 @@ class BorrowedEquipmentResource extends Resource
                                 ])->columns(2)
                         ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
                             $quantityMissing = $data['quantity_missing'];
-                            DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {
-                                // Create a missign equipmen report
-                                MissingEquipment::create([
-                                    'borrowed_equipment_id' => $borrowedEquipment->id,
-                                    'equipment_id' => $borrowedEquipment->equipment->id,
-                                    'quantity' => $quantityMissing,
-                                    'reported_by' => $data['reported_by'],
-                                    'description' => $data['description'],
-                                    'reported_date' => today()->format('Y-m-d'),
-                                ]);
-                                // Substract the missing equipment quantity to equipment borrowed quantity and add it on missing quantity
-                                $borrowedEquipment->total_quantity_missing += $quantityMissing;
+                            try {
+                                DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {
+                                    // Create a missign equipmen report
+                                    MissingEquipment::create([
+                                        'borrowed_equipment_id' => $borrowedEquipment->id,
+                                        'equipment_id' => $borrowedEquipment->equipment->id,
+                                        'quantity' => $quantityMissing,
+                                        'reported_by' => $data['reported_by'],
+                                        'description' => $data['description'],
+                                        'reported_date' => today()->format('Y-m-d'),
+                                    ]);
+                                    // Substract the missing equipment quantity to equipment borrowed quantity and add it on missing quantity
+                                    $borrowedEquipment->total_quantity_missing += $quantityMissing;
 
-                                $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
+                                    $borrowedEquipment->status = self::getBorrowStatus($borrowedEquipment);
 
-                                $equipment = $borrowedEquipment->equipment;
-                                $equipment->quantity_borrowed -= $quantityMissing;
-                                $equipment->quantity_missing += $quantityMissing;
-                                $equipment->status = self::getEquimentStatus($equipment);
+                                    $equipment = $borrowedEquipment->equipment;
+                                    $equipment->quantity_borrowed -= $quantityMissing;
+                                    $equipment->quantity_missing += $quantityMissing;
+                                    $equipment->status = self::getEquimentStatus($equipment);
 
-                                $equipment->save();
-                                $borrowedEquipment->save();
-                            });
+                                    $equipment->save();
+                                    $borrowedEquipment->save();
+                                });
+                                Notification::make()
+                                    ->title('Success')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->success()
+                                    ->send();
+                            }
                         }),
 
                 ])->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),

@@ -25,7 +25,7 @@ enum BorrowStatus: string implements HasColor
     {
         return match ($this) {
             self::BORROWED => 'primary',
-            self::PARTIALLY_RETURNED => Color::Yellow,
+            self::PARTIALLY_RETURNED => 'info',
             self::RETURNED => 'success',
             self::PARTIALLY_MISSING => 'warning',
             self::MISSING => 'danger',

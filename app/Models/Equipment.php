@@ -71,7 +71,6 @@ class Equipment extends Model implements Auditable
         return $this->belongsTo(Fund::class);
     }
 
-
     public function borrowed_equipment()
     {
         return $this->hasMany(BorrowedEquipment::class);

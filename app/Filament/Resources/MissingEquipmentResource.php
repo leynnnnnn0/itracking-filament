@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\BorrowStatus;
+use App\Enum\EquipmentStatus;
 use App\Enum\MissingStatus;
 use App\Filament\Resources\MissingEquipmentResource\Pages;
 use App\Filament\Resources\MissingEquipmentResource\RelationManagers;
@@ -135,60 +137,111 @@ class MissingEquipmentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('reported_to_spmo')
-                    ->label('Reported to SPMO')
-                    ->requiresConfirmation()
-                    ->modalIconColor('warning')
-                    ->color('warning')
-                    ->modalHeading('Confirmation')
-                    ->modalDescription('Are you sure you\'d like to tag this as Reported to SPMO?')
-                    ->modalSubmitActionLabel('Yes')
-                    ->action(function (Model $record) {
-                        $record->update([
-                            'status' => MissingStatus::REPORTED_TO_SPMO->value
-                        ]);
-                        Notification::make()
-                            ->title('Updated Successfully')
-                            ->body('Status Changed to Reported to SPMO.')
-                            ->success()
-                            ->send();
-                    })->visible(fn($record) => $record->status === MissingStatus::REPORTED->value),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => $record->status !== 'Found'),
+                Tables\Actions\ActionGroup::make([
 
-                Tables\Actions\Action::make('condemned')
-                    ->requiresConfirmation()
-                    ->modalIconColor('danger')
-                    ->color('danger')
-                    ->modalHeading('Confirmation')
-                    ->modalDescription('Are you sure you\'d like to tag this as condemned?')
-                    ->modalSubmitActionLabel('Yes')
-                    ->action(function (Model $record) {
-                        try {
-                            DB::transaction(function () use ($record) {
-                                $record->update([
-                                    'is_condemned' => true
-                                ]);
-                                $equipment =  $record->equipment;
-                                $equipment->update([
-                                    'quantity_missing' => $equipment->quantity_missing - $record->quantity,
-                                    'quantity_condemned' => $equipment->quantity_condemned + $record->quantity,
-                                ]);
-                            });
+                    Tables\Actions\Action::make('found')
+                        ->visible(fn($record) => $record->status !== 'Found')
+                        ->color('success')
+                        ->form([
+                            TextInput::make('quantity_found')
+                                ->integer()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                ])
+                                ->maxValue(fn($record) => $record->quantity - $record->quantity_found)
+                                ->hint(fn($record) => 'Missing Quantity: ' . $record->quantity - $record->quantity_found)
+                        ])
+                        ->action(function (array $data, Model $record) {
+                            try {
+                                DB::transaction(function () use ($record, $data) {
+                                    $equipment = $record->equipment;
+                                    $quantityFound = $data['quantity_found'];
+                                    if ($record->borrowed_equipment()->exists()) {
+                                        $record->borrowed_equipment->total_quantity_missing -= $quantityFound;
+                                        $record->borrowed_equipment->total_quantity_returned += $quantityFound;
+                                        $record->borrowed_equipment->status = self::getBorrowStatus($record->borrowed_equipment);
+                                    }
+                                    $equipment->quantity_missing -= $quantityFound;
+                                    $equipment->quantity_available += $quantityFound;
+                                    $record->quantity_found += $quantityFound;
 
+                                    if ($record->quantity_found === $record->quantity) {
+                                        $record->status = MissingStatus::FOUND->value;
+                                    }
+                                    $equipment->status = self::getEquimentStatus($equipment);
+                                    $record->save();
+                                    $equipment->save();
+                                    $record->borrowed_equipment->save();
+                                });
+                                Notification::make()
+                                    ->title('Success')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->warning()
+                                    ->send();
+                            }
+                        }),
 
+                    Tables\Actions\Action::make('reported_to_spmo')
+                        ->label('Reported to SPMO')
+                        ->requiresConfirmation()
+                        ->modalIconColor('warning')
+                        ->color('warning')
+                        ->modalHeading('Confirmation')
+                        ->modalDescription('Are you sure you\'d like to tag this as Reported to SPMO?')
+                        ->modalSubmitActionLabel('Yes')
+                        ->action(function (Model $record) {
+                            $record->update([
+                                'status' => MissingStatus::REPORTED_TO_SPMO->value
+                            ]);
                             Notification::make()
                                 ->title('Updated Successfully')
-                                ->body('Mark as Condemned.')
+                                ->body('Status Changed to Reported to SPMO.')
                                 ->success()
                                 ->send();
-                        } catch (Exception $e) {
-                            Notification::make()
-                                ->title('Error')
-                                ->body($e->getMessage())
-                                ->success()
-                                ->send();
-                        }
-                    })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned),
+                        })->visible(fn($record) => $record->status === MissingStatus::REPORTED->value),
+
+                    Tables\Actions\Action::make('condemned')
+                        ->requiresConfirmation()
+                        ->modalIconColor('danger')
+                        ->color('danger')
+                        ->modalHeading('Confirmation')
+                        ->modalDescription('Are you sure you\'d like to tag this as condemned?')
+                        ->modalSubmitActionLabel('Yes')
+                        ->action(function (Model $record) {
+                            try {
+                                DB::transaction(function () use ($record) {
+                                    $record->update([
+                                        'is_condemned' => true
+                                    ]);
+                                    $equipment =  $record->equipment;
+                                    $equipment->update([
+                                        'quantity_missing' => $equipment->quantity_missing - $record->quantity,
+                                        'quantity_condemned' => $equipment->quantity_condemned + $record->quantity,
+                                    ]);
+                                });
+
+
+                                Notification::make()
+                                    ->title('Updated Successfully')
+                                    ->body('Mark as Condemned.')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->success()
+                                    ->send();
+                            }
+                        })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -214,6 +267,10 @@ class MissingEquipmentResource extends Resource
                     ->schema([
                         TextEntry::make('quantity')
                             ->label('Missing Quantity'),
+                        TextEntry::make('status'),
+
+                        TextEntry::make('quantity_found'),
+
                         TextEntry::make('status'),
 
                         TextEntry::make('reported_by'),
@@ -262,5 +319,59 @@ class MissingEquipmentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('equipment');
+    }
+
+    public static function getBorrowStatus($borrowedEquipment)
+    {
+        $totalMissingQuantity = $borrowedEquipment->total_quantity_missing;
+        $borrowedQuantity = $borrowedEquipment->quantity;
+        $totalReturnedQuantity = $borrowedEquipment->total_quantity_returned;
+
+        // Fully missing
+        if ($totalMissingQuantity === $borrowedQuantity) {
+            return BorrowStatus::MISSING->value;
+        }
+
+        // Partially returned with missing items
+        if ($totalMissingQuantity > 0 && $totalReturnedQuantity > 0 && $borrowedQuantity !== ($totalMissingQuantity + $totalReturnedQuantity)) {
+            return BorrowStatus::PARTIALLY_RETURNED_WITH_MISSING->value;
+        }
+
+        // Returned with missing items (no partial returns)
+        if ($totalMissingQuantity > 0 && $borrowedQuantity === ($totalMissingQuantity + $totalReturnedQuantity)) {
+            return BorrowStatus::RETURNED_WITH_MISSING->value;
+        }
+
+        // Partially missing (no returns)
+        if ($totalMissingQuantity > 0 && $totalReturnedQuantity === 0) {
+            return BorrowStatus::PARTIALLY_MISSING->value;
+        }
+
+        // Fully returned with no missing items
+        if ($totalMissingQuantity === 0 && $totalReturnedQuantity === $borrowedQuantity) {
+            return BorrowStatus::RETURNED->value;
+        }
+
+        // Partially returned with no missing items
+        if ($totalMissingQuantity === 0 && $totalReturnedQuantity < $borrowedQuantity) {
+            return BorrowStatus::PARTIALLY_RETURNED->value;
+        }
+
+        // Default case: still borrowed
+        return BorrowStatus::BORROWED->value;
+    }
+
+    public static function getEquimentStatus($equipment)
+    {
+        $totalAvailableQuantity = $equipment->quantity_available;
+        $totalBorrowedQuantity = $equipment->quantity_borrowed;
+        // Full borrowed is when total avaliable is 0 and qunatity borrowed is greater than 0]
+        if ($totalAvailableQuantity === 0 && $totalBorrowedQuantity > 0)
+            return EquipmentStatus::FULLY_BORROWED->value;
+        // Partaially borrowed is when totalAvailable qunatity is not equals to 0 and borrowed is greater than 0
+        if ($totalAvailableQuantity > 0 && $totalBorrowedQuantity > 0)
+            return EquipmentStatus::PARTIALLY_BORROWED->value;
+
+        return EquipmentStatus::ACTIVE->value;
     }
 }

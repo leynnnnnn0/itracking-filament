@@ -51,4 +51,9 @@ class BorrowedEquipment extends Model implements Auditable
     {
         return $this->returned_date ? 'Yes' : 'No';
     }
+
+    public function missing_equipment()
+    {
+        return $this->hasMany(MissingEquipment::class);
+    }
 }

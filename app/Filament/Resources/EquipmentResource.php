@@ -39,6 +39,7 @@ class EquipmentResource extends Resource
     protected static ?string $model = Equipment::class;
     protected static ?string $navigationGroup = 'Equipment';
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $navigationPosition = '0';
 
 
     public static function form(Form $form): Form
@@ -273,16 +274,16 @@ class EquipmentResource extends Resource
                     ->visible(fn($record) => $record->deleted_at === null),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ForceDeleteAction::make()
-                    ->visible(Auth::user()->role === 'Admin')
+                    ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
                     ->requiresConfirmation()
                     ->color('danger'),
                 Tables\Actions\RestoreAction::make()
-                    ->visible(Auth::user()->role === 'Admin')
+                    ->visible(fn($record) => $record->deleted_at && Auth::user()->role === 'Admin')
                     ->requiresConfirmation()
                     ->color('warning'),
                 // Borrow Form
                 Tables\Actions\Action::make('Borrow')
-                    ->visible(fn($record) => $record->deleted_at === null)
+                    ->visible(fn($record) => $record->deleted_at === null && $record->quantity_available > 0)
                     ->color('warning')
                     ->form([
                         \Filament\Forms\Components\Section::make()
