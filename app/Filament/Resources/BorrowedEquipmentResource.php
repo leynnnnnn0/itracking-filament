@@ -157,7 +157,7 @@ class BorrowedEquipmentResource extends Resource
                 TextColumn::make('status')
                     ->formatStateUsing(fn($state): string => Str::replace('_', ' ', Str::title(BorrowStatus::from($state)->name)))
                     ->badge()
-                ->color(fn(string $state): string => BorrowStatus::from($state)->getColor()),
+                    ->color(fn(string $state): string => BorrowStatus::from($state)->getColor()),
                 // TextColumn::make('is_returned')
                 //     ->label('Is returned?')
                 //     ->badge()
@@ -404,6 +404,8 @@ class BorrowedEquipmentResource extends Resource
         // Partaially borrowed is when totalAvailable qunatity is not equals to 0 and borrowed is greater than 0
         if ($totalAvailableQuantity > 0 && $totalBorrowedQuantity > 0)
             return EquipmentStatus::PARTIALLY_BORROWED->value;
+        if ($totalAvailableQuantity === 0 && $totalBorrowedQuantity === 0 && $equipment->condemned === $equipment->quantity)
+            return EquipmentStatus::CONDEMNED->value;
 
         return EquipmentStatus::ACTIVE->value;
     }

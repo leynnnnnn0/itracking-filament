@@ -162,6 +162,7 @@ class MissingEquipmentResource extends Resource
                                         $record->borrowed_equipment->total_quantity_missing -= $quantityFound;
                                         $record->borrowed_equipment->total_quantity_returned += $quantityFound;
                                         $record->borrowed_equipment->status = self::getBorrowStatus($record->borrowed_equipment);
+                                        $record->borrowed_equipment->save();
                                     }
                                     $equipment->quantity_missing -= $quantityFound;
                                     $equipment->quantity_available += $quantityFound;
@@ -173,7 +174,6 @@ class MissingEquipmentResource extends Resource
                                     $equipment->status = self::getEquimentStatus($equipment);
                                     $record->save();
                                     $equipment->save();
-                                    $record->borrowed_equipment->save();
                                 });
                                 Notification::make()
                                     ->title('Success')
@@ -221,10 +221,10 @@ class MissingEquipmentResource extends Resource
                                         'is_condemned' => true
                                     ]);
                                     $equipment =  $record->equipment;
-                                    $equipment->update([
-                                        'quantity_missing' => $equipment->quantity_missing - $record->quantity,
-                                        'quantity_condemned' => $equipment->quantity_condemned + $record->quantity,
-                                    ]);
+                                    $equipment->quantity_missing -= $record->quantity;
+                                    $equipment->quantity_condemned += $record->quantity;
+                                    $equipment->status = self::getEquimentStatus($equipment);
+                                    $equipment->save();
                                 });
 
 
@@ -318,7 +318,7 @@ class MissingEquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('equipment');
+        return parent::getEloquentQuery()->with('equipment')->latest();
     }
 
     public static function getBorrowStatus($borrowedEquipment)
@@ -371,6 +371,8 @@ class MissingEquipmentResource extends Resource
         // Partaially borrowed is when totalAvailable qunatity is not equals to 0 and borrowed is greater than 0
         if ($totalAvailableQuantity > 0 && $totalBorrowedQuantity > 0)
             return EquipmentStatus::PARTIALLY_BORROWED->value;
+        if ($totalAvailableQuantity === 0 && $totalBorrowedQuantity === 0 && $equipment->quantity_condemned === $equipment->quantity)
+            return EquipmentStatus::CONDEMNED->value;
 
         return EquipmentStatus::ACTIVE->value;
     }
