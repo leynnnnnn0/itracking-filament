@@ -3,17 +3,16 @@
 namespace App\Filament\Resources\AuditResource\Pages;
 
 use App\Filament\Resources\AuditResource;
-use Filament\Actions;
+use App\Traits\HasPdfDownload;
 use Filament\Resources\Pages\ListRecords;
 
 class ListAudits extends ListRecords
 {
+    use HasPdfDownload;
     protected static string $resource = AuditResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getViewName(): string
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return 'audits-list';
     }
 }
