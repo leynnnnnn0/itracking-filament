@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class GetNotification
 {
-
     public function handle(Login $event): void
     {
         $recipient = Auth::user();
@@ -21,13 +20,9 @@ class GetNotification
         DB::table('notifications')->delete();
 
         $this->checkLowStockSupplies($recipient);
-
         $this->checkSupplyExpirations($recipient);
-
         $this->checkAccountableOfficerExpirations($recipient);
-
         $this->checkPersonnelExpirations($recipient);
-
         $this->checkEquipmentBorrowings($recipient);
     }
 
@@ -37,10 +32,10 @@ class GetNotification
             ->orderBy('total', 'asc')
             ->get();
 
-        if ($lowStockSupplies->count() > 0) {
+        foreach ($lowStockSupplies as $supply) {
             Notification::make()
-                ->title("Inventory Management: Critical Stock Levels")
-                ->body($this->formatLowStockMessage($lowStockSupplies))
+                ->title("Low Stock Alert: {$supply->description}")
+                ->body("Only {$supply->total} {$supply->unit} remaining (ID# {$supply->id})\n\nPlease restock immediately.")
                 ->danger()
                 ->persistent()
                 ->sendToDatabase($recipient);
@@ -52,11 +47,16 @@ class GetNotification
         $expiringSupplies = Supply::where('expiry_date', '<', now()->addWeek())
             ->get();
 
-        if ($expiringSupplies->count() > 0) {
+        foreach ($expiringSupplies as $supply) {
+            $isExpired = $supply->expiry_date <= today();
+            
+            $status = $isExpired ? 'EXPIRED' : 'Expiring ' . $supply->expiry_date->diffForHumans();
+            $title = $isExpired ? 'Expired Supply' : 'Supply Expiring Soon';
+            
             Notification::make()
-                ->title("Inventory Alert: Upcoming Supply Expirations")
-                ->body($this->formatExpiryMessage($expiringSupplies))
-                ->warning()
+                ->title("{$title}: {$supply->description}")
+                ->body("Status: {$status}\nID# {$supply->id}\n\nTake necessary action immediately.")
+                ->when($isExpired, fn($notification) => $notification->danger(), fn($notification) => $notification->warning())
                 ->persistent()
                 ->sendToDatabase($recipient);
         }
@@ -68,10 +68,11 @@ class GetNotification
             ->where('end_date', '>', today())
             ->get();
 
-        if ($endingContracts->count() > 0) {
+        foreach ($endingContracts as $contract) {
             Notification::make()
-                ->title("Human Resources: Accountable Officer Contracts Expiring")
-                ->body($this->formatContractExpirationMessage($endingContracts, 'Accountable Officer'))
+                ->title("Contract Expiring: {$contract->name}")
+                ->body("Accountable Officer contract expires {$contract->end_date->diffForHumans()}\n" .
+                    "ID# {$contract->id}\n\nInitiate renewal process.")
                 ->warning()
                 ->persistent()
                 ->sendToDatabase($recipient);
@@ -84,10 +85,11 @@ class GetNotification
             ->where('end_date', '>', today())
             ->get();
 
-        if ($endingContracts->count() > 0) {
+        foreach ($endingContracts as $contract) {
             Notification::make()
-                ->title("Human Resources: Personnel Contracts Expiring")
-                ->body($this->formatContractExpirationMessage($endingContracts, 'Personnel'))
+                ->title("Contract Expiring: {$contract->name}")
+                ->body("Personnel contract expires {$contract->end_date->diffForHumans()}\n" .
+                    "ID# {$contract->id}\n\nInitiate renewal process.")
                 ->warning()
                 ->persistent()
                 ->sendToDatabase($recipient);
@@ -96,99 +98,36 @@ class GetNotification
 
     private function checkEquipmentBorrowings($recipient): void
     {
+        // Check equipment due in next 2 days
         $toReturnEquipment = BorrowedEquipment::where('end_date', '<', now()->addDays(2))
             ->whereNull('returned_date')
             ->get();
 
+        foreach ($toReturnEquipment as $equipment) {
+            Notification::make()
+                ->title("Equipment Due Soon: {$equipment->equipment_name}")
+                ->body("Borrowed by: {$equipment->borrower_full_name}\n" .
+                    "Due: {$equipment->end_date->diffForHumans()}\n" .
+                    "ID# {$equipment->id}\n\nFollow up on return.")
+                ->warning()
+                ->persistent()
+                ->sendToDatabase($recipient);
+        }
+
+        // Check overdue equipment
         $overDueEquipment = BorrowedEquipment::where('end_date', '<', today())
             ->whereNull('returned_date')
             ->get();
 
-        $notifications = [];
-
-        if ($toReturnEquipment->count() > 0) {
-            $notifications[] = [
-                'title' => "Equipment Management: Upcoming Returns",
-                'body' => $this->formatEquipmentBorrowingMessage($toReturnEquipment, 'due'),
-                'type' => 'warning'
-            ];
-        }
-
-        if ($overDueEquipment->count() > 0) {
-            $notifications[] = [
-                'title' => "Equipment Management: Overdue Equipment",
-                'body' => $this->formatEquipmentBorrowingMessage($overDueEquipment, 'overdue'),
-                'type' => 'danger'
-            ];
-        }
-
-        foreach ($notifications as $notification) {
+        foreach ($overDueEquipment as $equipment) {
             Notification::make()
-                ->title($notification['title'])
-                ->body($notification['body'])
-                ->{$notification['type']}()
+                ->title("Overdue Equipment: {$equipment->equipment_name}")
+                ->body("Borrowed by: {$equipment->borrower_full_name}\n" .
+                    "Was due: {$equipment->end_date->diffForHumans()}\n" .
+                    "ID# {$equipment->id}\n\nRequires immediate attention.")
+                ->danger()
                 ->persistent()
                 ->sendToDatabase($recipient);
         }
-    }
-
-    private function formatLowStockMessage($supplies): string
-    {
-        $messages = $supplies->map(function ($supply) {
-            return "• {$supply->description} (ID# {$supply->id}): Only {$supply->total} {$supply->unit} remaining";
-        });
-
-        return "Critical inventory levels detected:\n" .
-            $messages->implode("\n") .
-            "\n\nImmediate restocking is required to maintain operational readiness.";
-    }
-
-    private function formatExpiryMessage($supplies): string
-    {
-        $expiredItems = $supplies->where('expiry_date', '<=', today());
-        $expiringItems = $supplies->where('expiry_date', '>', today());
-
-        $messages = [];
-
-        if ($expiredItems->count() > 0) {
-            $expiredMessages = $expiredItems->map(function ($supply) {
-                return "• {$supply->description} (ID# {$supply->id}): EXPIRED";
-            });
-            $messages[] = "Expired Inventory:\n" . $expiredMessages->implode("\n");
-        }
-
-        if ($expiringItems->count() > 0) {
-            $expiringMessages = $expiringItems->map(function ($supply) {
-                return "• {$supply->description} (ID# {$supply->id}): Expires {$supply->expiry_date->diffForHumans()}";
-            });
-            $messages[] = "Inventory Nearing Expiration:\n" . $expiringMessages->implode("\n");
-        }
-
-        return implode("\n\n", $messages) .
-            "\n\nReview and take necessary actions to mitigate risks.";
-    }
-
-    private function formatContractExpirationMessage($contracts, $type): string
-    {
-        $messages = $contracts->map(function ($contract) {
-            return "• {$contract->name} (ID# {$contract->id}): Expires {$contract->end_date->diffForHumans()}";
-        });
-
-        return "Upcoming {$type} Contract Expirations:\n" .
-            $messages->implode("\n") .
-            "\n\nInitiate contract renewal or replacement process.";
-    }
-
-    private function formatEquipmentBorrowingMessage($equipment, $status): string
-    {
-        $messages = $equipment->map(function ($item) use ($status) {
-            return "• {$item->equipment_name} (ID# {$item->id}): Borrowed by {$item->borrower_full_name}, {$status} {$item->end_date->diffForHumans()}";
-        });
-
-        $statusText = $status === 'due' ? 'Upcoming' : 'Overdue';
-
-        return "{$statusText} Equipment Returns:\n" .
-            $messages->implode("\n") .
-            "\n\nTake immediate action to manage equipment returns.";
     }
 }
