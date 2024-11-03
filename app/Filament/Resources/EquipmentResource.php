@@ -134,6 +134,8 @@ class EquipmentResource extends Resource
                     )
                     ->required(),
 
+                Hidden::make('previous_quantity')
+                    ->dehydrated(true),
 
                 TextInput::make('quantity')
                     ->maxLength(7)
@@ -146,7 +148,12 @@ class EquipmentResource extends Resource
                     ->live()
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
                         $set('total_amount', (float)($state ?? 0) * (float)($get('unit_price') ?? 0));
-                        $set('quantity_available', (float)($record?->quantity_available ?? 0) + (float)($state ?? 0));
+                        if (!$record) {
+                            $set('quantity_available', (float)($record?->quantity_available ?? 0) + (float)($state ?? 0));
+                        }
+                        if ($state && $record) {
+                            $set('previous_quantity', $record->quantity);
+                        }
                     }),
 
 

@@ -17,9 +17,4 @@ class CreateSupply extends CreateRecord
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = SupplyResource::class;
 
-    protected function afterCreate()
-    {
-
-      
-    }
 }

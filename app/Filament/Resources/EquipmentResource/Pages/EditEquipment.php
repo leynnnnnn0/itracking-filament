@@ -3,21 +3,58 @@
 namespace App\Filament\Resources\EquipmentResource\Pages;
 
 use App\Filament\Resources\EquipmentResource;
+use App\Traits\HasModelStatusIdentifier;
 use App\Traits\HasRedirectUrl;
 use App\Traits\HasUpdateConfirmationModal;
+use ErrorException;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Actions\Action as NotifAction;
-
+use PhpParser\Node\Expr\Throw_;
 
 class EditEquipment extends EditRecord
 {
-    use HasRedirectUrl, HasUpdateConfirmationModal;
+    use HasRedirectUrl, HasUpdateConfirmationModal, HasModelStatusIdentifier;
     protected static string $resource = EquipmentResource::class;
 
     protected function getHeaderActions(): array
     {
         return [];
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->submit(null)
+            ->requiresConfirmation()
+            ->action(function () {
+                $record = $this->record;
+                $data = $this->form->getState();
+                $previousQuantity = $data['previous_quantity'];
+                $newQuantity = $data['quantity'];
+
+                $totalQuantity =  $record->quantity_missing + $record->quantity_borrowed + $record->quantity_condemned;
+                if ($newQuantity < $totalQuantity) {
+                    $this->closeActionModal();
+                    Notification::make()
+                        ->title('Invalid Quantity')
+                        ->body("New quantity ({$newQuantity}) must be at least equal to the total quantity in use ($totalQuantity)")
+                        ->danger()
+                        ->send();
+
+                    $this->halt();
+                }
+
+
+
+                $data['quantity_available'] += $newQuantity - $previousQuantity;
+
+                $this->form->fill($data);
+                $this->record->status = self::getEquimentStatus($this->record);
+                $this->closeActionModal();
+                $this->save();
+            });
     }
 
 
@@ -36,7 +73,7 @@ class EditEquipment extends EditRecord
                 ->body('Equipment Responsible Person Changed.')
                 ->actions([
                     NotifAction::make('download')
-                        ->url(route('equipment-pdf', [$equipment, $previousPersonnel]), true)
+                        ->url(route('equipment-pdf', [$equipment, $previousPersonnel]))
                 ])
                 ->duration(100000)
                 ->send();
