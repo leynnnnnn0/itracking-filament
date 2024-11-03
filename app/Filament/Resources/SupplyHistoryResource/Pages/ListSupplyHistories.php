@@ -34,11 +34,17 @@ class ListSupplyHistories extends ListRecords
 
             $query = $this->getFilteredTableQuery();
             $this->applySortingToTableQuery($query);
+            $filters = $this->tableFilters;
+
             $supplies = $query->get();
             return response()->streamDownload(
-                function () use ($supplies) {
+                function () use ($supplies, $filters) {
                     echo Pdf::loadHtml(
-                        Blade::render('pdf.supply-history-list', ['supplies' => $supplies])
+                        Blade::render('pdf.supply-history-list', [
+                            'supplies' => $supplies,
+                            'from' => $filters['created_at']['created_from'],
+                            'until' => $filters['created_at']['created_until']
+                        ])
                     )
                         ->setPaper('a3', 'landscape')
                         ->stream();

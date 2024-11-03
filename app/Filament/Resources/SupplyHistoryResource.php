@@ -38,7 +38,7 @@ class SupplyHistoryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id'),
-                
+
                 TextColumn::make('supply.description')
                     ->searchable(),
 
