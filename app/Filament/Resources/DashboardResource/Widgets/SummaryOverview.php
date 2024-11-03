@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DashboardResource\Widgets;
 
 use App\BorrowStatus;
+use App\Enum\MissingStatus;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
@@ -20,7 +21,8 @@ class SummaryOverview extends BaseWidget
             Stat::make('Active Borrow Log', BorrowedEquipment::whereNot('status',  BorrowStatus::RETURNED->value)->count())
                 ->description('Not returned equipment')
                 ->color('warning'),
-            Stat::make('Missing Equipment', MissingEquipment::whereNot('is_condemned')->count())
+            Stat::make('Missing Equipment', MissingEquipment::where('is_condemned', false)
+                ->where('status', '!=', MissingStatus::FOUND->value)->count())
                 ->description('Equipment still not found')
                 ->color('danger'),
         ];
