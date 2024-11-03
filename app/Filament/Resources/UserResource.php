@@ -23,6 +23,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -115,7 +116,8 @@ class UserResource extends Resource
                     ->color(fn(string $state): string => UserRole::from($state)->getColor())
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
                 SelectFilter::make('role')
                     ->native(false)
                     ->options(UserRole::values())
@@ -124,18 +126,15 @@ class UserResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make()
-                    ->requiresConfirmation()
-                    ->color('danger'),
-                Tables\Actions\RestoreAction::make()
-                    ->requiresConfirmation()
-                    ->color('warning'),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

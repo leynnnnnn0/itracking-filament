@@ -21,6 +21,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class AccountingOfficerResource extends Resource
 {
@@ -122,51 +123,67 @@ class AccountingOfficerResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('full_name')
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('office.name'),
+                TextColumn::make('department.name'),
+                TextColumn::make('position.name'),
                 TextColumn::make('phone_number'),
                 TextColumn::make('email'),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
+
                 SelectFilter::make('office')
                     ->multiple()
                     ->relationship('office', 'name'),
+
+                SelectFilter::make('department')
+                    ->multiple()
+                    ->relationship('department', 'name'),
+
+                SelectFilter::make('position')
+                    ->multiple()
+                    ->relationship('position', 'name'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->action(function (Model $record) {
-                        if ($record->equipment()->exists()) {
-                            Notification::make()
-                                ->title('Deletion Failed')
-                                ->body('Cannot delete this accountable officer because it has associated equipment.')
-                                ->danger()
-                                ->send();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->action(function (Model $record) {
+                            if ($record->equipment()->exists()) {
+                                Notification::make()
+                                    ->title('Deletion Failed')
+                                    ->body('Cannot delete this accountable officer because it has associated equipment.')
+                                    ->danger()
+                                    ->send();
 
-                            return false;
-                        }
+                                return false;
+                            }
 
-                        $record->delete();
-                    })
-                    ->requiresConfirmation()
-                    ->modalIconColor('danger')
-                    ->color('danger')
-                    ->modalHeading('Delete accountable officer')
-                    ->modalDescription('Are you sure you\'d like to delete this accountable officer?')
-                    ->modalSubmitActionLabel('Yes, Delete it'),
-                Tables\Actions\ForceDeleteAction::make()
-                    ->requiresConfirmation()
-                    ->color('danger'),
-                Tables\Actions\RestoreAction::make()
-                    ->requiresConfirmation()
-                    ->color('warning'),
+                            $record->delete();
+                        })
+                        ->requiresConfirmation()
+                        ->modalIconColor('danger')
+                        ->color('danger')
+                        ->modalHeading('Delete accountable officer')
+                        ->modalDescription('Are you sure you\'d like to delete this accountable officer?')
+                        ->modalSubmitActionLabel('Yes, Delete it'),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -175,8 +192,15 @@ class AccountingOfficerResource extends Resource
     {
         return $infolist
             ->schema([
+                TextEntry::make('id'),
                 TextEntry::make('office.name')
                     ->label('Office'),
+
+                TextEntry::make('department.name')
+                    ->label('Department'),
+
+                TextEntry::make('position.name')
+                    ->label('Position'),
 
                 TextEntry::make('first_name'),
 
@@ -184,9 +208,19 @@ class AccountingOfficerResource extends Resource
 
                 TextEntry::make('last_name'),
 
+                TextEntry::make('gender'),
+
                 TextEntry::make('email'),
 
                 TextEntry::make('phone_number'),
+
+                TextEntry::make('start_date')
+                    ->date('F d, Y'),
+
+                TextEntry::make('end_date')
+                    ->date('F d, Y'),
+
+                TextEntry::make('remarks'),
 
             ]);
     }

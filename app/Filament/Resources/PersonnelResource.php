@@ -23,7 +23,9 @@ use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class PersonnelResource extends Resource
 {
@@ -139,6 +141,9 @@ class PersonnelResource extends Resource
                 TextColumn::make('email'),
             ])
             ->filters([
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
+
                 SelectFilter::make('office')
                     ->multiple()
                     ->relationship('office', 'name'),
@@ -173,12 +178,17 @@ class PersonnelResource extends Resource
                     ->color('danger')
                     ->modalHeading('Delete personnel')
                     ->modalDescription('Are you sure you\'d like to delete this personnel?')
-                    ->modalSubmitActionLabel('Yes, Delete it')
+                    ->modalSubmitActionLabel('Yes, Delete it'),
+
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
