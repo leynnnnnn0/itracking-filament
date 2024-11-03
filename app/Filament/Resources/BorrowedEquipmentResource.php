@@ -57,6 +57,7 @@ class BorrowedEquipmentResource extends Resource
                     ->required(),
 
                 TextInput::make('quantity')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->integer()
                     ->maxLength(7)
                     ->required()
@@ -247,7 +248,7 @@ class BorrowedEquipmentResource extends Resource
                                     ->success()
                                     ->send();
                             }
-                        })->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),
+                        })->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value && $record->status !== BorrowStatus::MISSING->value),
                     Tables\Actions\Action::make('report missing item')
                         ->color('danger')
                         ->form([
@@ -316,7 +317,7 @@ class BorrowedEquipmentResource extends Resource
                                     ->success()
                                     ->send();
                             }
-                        })->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value),
+                        })->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value && $record->status !== BorrowStatus::MISSING->value),
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
