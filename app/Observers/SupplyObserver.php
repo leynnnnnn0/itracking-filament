@@ -4,19 +4,26 @@ namespace App\Observers;
 
 use App\Models\Supply;
 use App\Models\SupplyHistory;
+use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SupplyObserver
 {
     public function created(Supply $supply)
     {
-        $recipient = Auth::user();
-        Notification::make()
-            ->title('New supply created')
-            ->body('A new supply has been created in the system')
-            ->info()
-            ->sendToDatabase($recipient);
+        try {
+            SupplyHistory::create([
+                'supply_id' => $supply->id,
+                'quantity' => $supply->quantity,
+                'used' => 0,
+                'added' => 0,
+                'total' => $supply->total,
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+        }
     }
     /**
      * Handle the Supply "updated" event.

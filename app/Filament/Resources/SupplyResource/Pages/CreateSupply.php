@@ -20,17 +20,6 @@ class CreateSupply extends CreateRecord
     protected function afterCreate()
     {
 
-        try {
-            $supply = $this->record;
-            $history = SupplyHistory::create([
-                'supply_id' => $supply->id,
-                'quantity' => $supply->quantity,
-                'used' => 0,
-                'added' => 0,
-                'total' => $supply->total,
-            ]);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
+      
     }
 }

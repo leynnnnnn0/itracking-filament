@@ -122,6 +122,7 @@ class EquipmentResource extends Resource
                 DatePicker::make('date_acquired')
                     ->closeOnDateSelection()
                     ->required()
+                    ->beforeOrEqual('today')
                     ->native(false),
 
                 DatePicker::make('estimated_useful_time')
@@ -144,8 +145,8 @@ class EquipmentResource extends Resource
                     ])
                     ->live()
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
-                        $set('total_amount', ($state ?? 0) * ($get('unit_price') ?? 0));
-                        $set('quantity_available', ($record?->quantity_available ?? 0) + ($state ?? 0));
+                        $set('total_amount', (float)($state ?? 0) * (float)($get('unit_price') ?? 0));
+                        $set('quantity_available', (float)($record?->quantity_available ?? 0) + (float)($state ?? 0));
                     }),
 
 
@@ -165,7 +166,7 @@ class EquipmentResource extends Resource
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])
                     ->afterStateUpdated(function ($state, $set, $get) {
-                        $set('total_amount', ($get('quantity') ?? 0) * ($state ?? 0));
+                        $set('total_amount', (float)($get('quantity') ?? 0)  * (float)($state ?? 0));
                     }),
 
                 TextInput::make('total_amount')

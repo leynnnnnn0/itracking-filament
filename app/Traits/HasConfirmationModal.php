@@ -16,5 +16,15 @@ trait HasConfirmationModal
                 $this->create();
             });
     }
-    
+
+    protected function getCreateAnotherFormAction(): Actions\Action
+    {
+        return parent::getCreateAnotherFormAction()
+            ->submit(null)
+            ->requiresConfirmation()
+            ->action(function () {
+                $this->closeActionModal();
+                $this->create();
+            });
+    }
 }
