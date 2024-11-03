@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class FundResource extends Resource
 {
@@ -47,7 +48,8 @@ class FundResource extends Resource
                 TextColumn::make('name')
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -72,11 +74,15 @@ class FundResource extends Resource
                     ->color('danger')
                     ->modalHeading('Delete Fund')
                     ->modalDescription('Are you sure you\'d like to delete this fund?')
-                    ->modalSubmitActionLabel('Yes, Delete it')
+                    ->modalSubmitActionLabel('Yes, Delete it'),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

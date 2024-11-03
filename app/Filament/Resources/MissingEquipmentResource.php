@@ -157,9 +157,14 @@ class MissingEquipmentResource extends Resource
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                                 ])
+                                ->minValue(1)
+                                ->required()
                                 ->maxValue(fn($record) => $record->quantity - $record->quantity_found)
                                 ->hint(fn($record) => 'Missing Quantity: ' . $record->quantity - $record->quantity_found)
                         ])
+                        ->requiresConfirmation()
+                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the equipment details record accordingly.')
+                        ->modalSubmitActionLabel('Submit')
                         ->action(function (array $data, Model $record) {
                             try {
                                 DB::transaction(function () use ($record, $data) {
@@ -193,7 +198,9 @@ class MissingEquipmentResource extends Resource
                                     ->warning()
                                     ->send();
                             }
-                        })->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
+                        })
+
+                        ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
 
                     Tables\Actions\Action::make('reported_to_spmo')
                         ->label('Reported to SPMO')

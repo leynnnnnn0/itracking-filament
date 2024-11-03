@@ -208,6 +208,9 @@ class BorrowedEquipmentResource extends Resource
                                 ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
                                 ->required(),
                         ])
+                        ->requiresConfirmation()
+                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the equipment details record accordingly.')
+                        ->modalSubmitActionLabel('Submit')
                         ->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
                             try {
                                 $quantityReturned = $data['quantity_returned'];
@@ -248,36 +251,35 @@ class BorrowedEquipmentResource extends Resource
                     Tables\Actions\Action::make('report missing item')
                         ->color('danger')
                         ->form([
-                            Section::make()
-                                ->schema([
-                                    TextInput::make('quantity_missing')
-                                        ->integer()
-                                        ->extraInputAttributes([
-                                            'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
-                                        ])
-                                        ->label('Quantity missing')
-                                        ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                        ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
-                                        ->required(),
 
-                                    TextInput::make('reported_by')
-                                        ->rules([
-                                            'string',
-                                            'regex:/^[a-zA-Z\s]+$/',
-                                        ])
-                                        ->required(),
+                            TextInput::make('quantity_missing')
+                                ->integer()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                ])
+                                ->label('Quantity missing')
+                                ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                ->hint(fn($record) => "Quantity in possession: " . $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
+                                ->required(),
 
-                                    Textarea::make('description')
-                                        ->rules([
-                                            'string',
-                                            'regex:/[a-zA-Z]/',
-                                        ])
-                                        ->extraAttributes(['class' => 'resize-none'])
-                                        ->columnSpan(2),
+                            TextInput::make('reported_by')
+                                ->rules([
+                                    'string',
+                                    'regex:/^[a-zA-Z\s]+$/',
+                                ])
+                                ->required(),
 
-
-                                ])->columns(2)
-                        ])->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
+                            Textarea::make('description')
+                                ->rules([
+                                    'string',
+                                    'regex:/[a-zA-Z]/',
+                                ])
+                                ->extraAttributes(['class' => 'resize-none']),
+                        ])
+                        ->requiresConfirmation()
+                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the equipment details record accordingly.')
+                        ->modalSubmitActionLabel('Submit')
+                        ->action(function (array $data, BorrowedEquipment $borrowedEquipment) {
                             $quantityMissing = $data['quantity_missing'];
                             try {
                                 DB::transaction(function () use ($quantityMissing, $data, $borrowedEquipment) {

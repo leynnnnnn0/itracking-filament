@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class DepartmentResource extends Resource
 {
@@ -45,7 +46,8 @@ class DepartmentResource extends Resource
                 TextColumn::make('name')
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -70,11 +72,15 @@ class DepartmentResource extends Resource
                     ->color('danger')
                     ->modalHeading('Delete Department')
                     ->modalDescription('Are you sure you\'d like to delete this deparmtnet?')
-                    ->modalSubmitActionLabel('Yes, Delete it')
+                    ->modalSubmitActionLabel('Yes, Delete it'),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

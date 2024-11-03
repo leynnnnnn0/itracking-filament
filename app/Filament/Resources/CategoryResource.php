@@ -3,18 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
-use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryResource extends Resource
 {
@@ -30,10 +28,10 @@ class CategoryResource extends Resource
                 Section::make('Category Details')
                     ->schema([
                         TextInput::make('name')
-                        ->rules([
-                            'string',
-                            'regex:/[a-zA-Z]/', 
-                        ])->maxLength(30)->required()
+                            ->rules([
+                                'string',
+                                'regex:/[a-zA-Z]/',
+                            ])->maxLength(30)->required()
                     ])->columns(2)
             ]);
     }
@@ -45,14 +43,20 @@ class CategoryResource extends Resource
                 TextColumn::make('name')
             ])
             ->filters([
-                //
+                TrashedFilter::make()
+                    ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
