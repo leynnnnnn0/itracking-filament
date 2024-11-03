@@ -12,4 +12,5 @@ class CreateDepartment extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = DepartmentResource::class;
+    protected static bool $canCreateAnother = false;
 }

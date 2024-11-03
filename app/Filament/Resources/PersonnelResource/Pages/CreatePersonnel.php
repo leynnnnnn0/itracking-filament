@@ -12,4 +12,5 @@ class CreatePersonnel extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = PersonnelResource::class;
+    protected static bool $canCreateAnother = false;
 }

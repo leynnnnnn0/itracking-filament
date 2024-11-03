@@ -17,6 +17,7 @@ class CreateMissingEquipment extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal, HasModelStatusIdentifier;
     protected static string $resource = MissingEquipmentResource::class;
+    protected static bool $canCreateAnother = false;
 
     protected function getCreateFormAction(): Actions\Action
     {
@@ -53,4 +54,5 @@ class CreateMissingEquipment extends CreateRecord
                 }
             });
     }
+    
 }

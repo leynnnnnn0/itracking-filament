@@ -63,17 +63,21 @@ class EditEquipment extends EditRecord
         // Access the form data
         $equipment = $this->record;
         $previousPersonnel = $this->data['previous_personnel'];
+        $previousAccountableOfficer = $this->data['previous_accountable_officer'];
         $newPersonnel = $equipment->personnel->full_name;
 
+        $newAccountableOfficer = $equipment->accountable_officer->full_name;
+  
+
         // Check if personnel changed
-        if ($previousPersonnel != $newPersonnel) {
+        if ($previousPersonnel != $newPersonnel || $previousAccountableOfficer != $newAccountableOfficer) {
             Notification::make()
                 ->title('Download PDF')
                 ->success()
-                ->body('Equipment Responsible Person Changed.')
+                ->body('Equipment details changed.')
                 ->actions([
                     NotifAction::make('download')
-                        ->url(route('equipment-pdf', [$equipment, $previousPersonnel]))
+                        ->url(route('equipment-pdf', [$equipment, $previousPersonnel, $previousAccountableOfficer]), true)
                 ])
                 ->duration(100000)
                 ->send();

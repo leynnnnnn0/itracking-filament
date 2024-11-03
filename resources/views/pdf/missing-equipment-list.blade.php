@@ -32,7 +32,7 @@
                 <td>{{ $report->description ?? 'N/a'}}</td>
                 <td>{{ $report->reported_by }}</td>
                 <td>{{ $report->reported_date ? $report->reported_date->format('F d, Y') : 'N/A' }}</td>
-                <td>{{ $report->is_condemend ? 'Yes' : 'No' }}</td>
+                <td>{{ $report->is_condemned ? 'Yes' : 'No' }}</td>
             </tr>
             @endforeach
         </tbody>

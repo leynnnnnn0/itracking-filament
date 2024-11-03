@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enum\Gender;
 use App\Filament\Resources\AccountingOfficerResource\Pages;
 use App\Models\AccountableOfficer;
+use App\Traits\HasAuthorizationCheck;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AccountingOfficerResource extends Resource
 {
+    use HasAuthorizationCheck;
     protected static ?string $model = AccountableOfficer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';

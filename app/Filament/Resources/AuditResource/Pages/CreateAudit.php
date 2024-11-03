@@ -9,4 +9,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAudit extends CreateRecord
 {
     protected static string $resource = AuditResource::class;
+    protected static bool $canCreateAnother = false;
 }

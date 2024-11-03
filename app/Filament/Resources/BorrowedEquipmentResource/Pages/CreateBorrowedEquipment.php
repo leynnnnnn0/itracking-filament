@@ -17,6 +17,7 @@ class CreateBorrowedEquipment extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = BorrowedEquipmentResource::class;
+    protected static bool $canCreateAnother = false;
 
     protected function afterCreate()
     {

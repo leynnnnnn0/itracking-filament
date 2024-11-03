@@ -53,6 +53,11 @@ class EquipmentResource extends Resource
                         return $state ?? $record?->personnel->full_name;
                     })->dehydrated(true),
 
+                Hidden::make('previous_accountable_officer')
+                    ->formatStateUsing(function ($state, $record) {
+                        return $state ?? $record?->accountable_officer->full_name;
+                    })->dehydrated(true),
+
                 TextInput::make('name')
                     ->rules([
                         'string',

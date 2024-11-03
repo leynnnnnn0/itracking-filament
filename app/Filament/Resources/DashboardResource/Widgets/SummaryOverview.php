@@ -18,8 +18,12 @@ class SummaryOverview extends BaseWidget
             Stat::make('Equipment Available', Equipment::where('quantity_available', '>', 0)->count())
                 ->description('Per type of equipment')
                 ->color('success'),
-            Stat::make('Active Borrow Log', BorrowedEquipment::whereNot('status',  BorrowStatus::RETURNED->value)
-                ->whereNot('status', BorrowStatus::MISSING->value)->count())
+            Stat::make(
+                'Active Borrow Log',
+                BorrowedEquipment::whereNot('status',  BorrowStatus::RETURNED->value)
+                    ->whereNot('status', BorrowStatus::MISSING->value)
+                    ->whereNot('status', BorrowStatus::RETURNED_WITH_MISSING->value)->count()
+            )
                 ->description('Not returned equipment')
                 ->color('warning'),
             Stat::make('Missing Equipment', MissingEquipment::where('is_condemned', false)

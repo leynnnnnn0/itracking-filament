@@ -101,6 +101,7 @@ class MissingEquipmentResource extends Resource
                 DatePicker::make('reported_date')
                     ->native(false)
                     ->default(today())
+                    ->beforeOrEqual('today')
                     ->required(),
 
                 Textarea::make('remarks')
@@ -235,8 +236,8 @@ class MissingEquipmentResource extends Resource
                                         'is_condemned' => true
                                     ]);
                                     $equipment =  $record->equipment;
-                                    $equipment->quantity_missing -= $record->quantity;
-                                    $equipment->quantity_condemned += $record->quantity;
+                                    $equipment->quantity_missing -= $record->quantity - $record->quantity_found;
+                                    $equipment->quantity_condemned += $record->quantity - $record->quantity_found;
                                     $equipment->status = self::getEquimentStatus($equipment);
                                     $equipment->save();
                                 });

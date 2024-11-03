@@ -13,4 +13,5 @@ class CreateAccountingOfficer extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = AccountingOfficerResource::class;
+    protected static bool $canCreateAnother = false;
 }

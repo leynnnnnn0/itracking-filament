@@ -8,9 +8,19 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
+                @if($newAccountableOfficer)
+                <th>Previous Accounting Officer</th>
+                <th>New Accounting Officer</th>
+                @else
                 <th>Accounting Officer</th>
+                @endif
+                @if($newResponsiblePerson)
                 <th>Previous Responsible Person</th>
                 <th>New Responsible Person</th>
+                @else
+                <th>Responsible Person</th>
+                @endif
+                
                 <th>Organization Unit</th>
                 <th>Operating Unit Project</th>
                 <th>Property Number</th>
@@ -26,11 +36,16 @@
             </tr>
         </thead>
         <tbody>
-        <tr>
+            <tr>
                 <td>{{ $equipment->id }}</td>
                 <td>{{ $equipment->name ?? 'N/a' }}</td>
+                @if($newAccountableOfficer)
+                <td>{{ $previousAccountableOfficer }}</td>
+                @endif
                 <td>{{ $equipment->accountable_officer->full_name ?? 'N/a' }}</td>
+                @if($newResponsiblePerson)
                 <td>{{ $previous_responsible_person ?? 'N/a' }}</td>
+                @endif
                 <td>{{ $equipment->personnel->full_name ?? 'N/a' }}</td>
                 <td>{{ $equipment->organization_unit->name  ?? 'N/a'}}</td>
                 <td>{{ $equipment->operating_unit_project->name ?? 'N/a' }}</td>

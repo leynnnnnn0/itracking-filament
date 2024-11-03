@@ -12,4 +12,5 @@ class CreateUnit extends CreateRecord
 {
     use HasConfirmationModal, HasRedirectUrl;
     protected static string $resource = UnitResource::class;
+    protected static bool $canCreateAnother = false;
 }

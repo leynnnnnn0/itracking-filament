@@ -14,5 +14,6 @@ class CreateUser extends CreateRecord
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = UserResource::class;
 
+    protected static bool $canCreateAnother = false;
     
 }

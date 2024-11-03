@@ -11,4 +11,5 @@ class CreateSupplyHistory extends CreateRecord
 {
 
     protected static string $resource = SupplyHistoryResource::class;
+    protected static bool $canCreateAnother = false;
 }

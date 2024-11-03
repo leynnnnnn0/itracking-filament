@@ -12,4 +12,5 @@ class CreateFund extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = FundResource::class;
+    protected static bool $canCreateAnother = false;
 }

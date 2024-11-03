@@ -12,4 +12,5 @@ class CreateCategory extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = CategoryResource::class;
+    protected static bool $canCreateAnother = false;
 }

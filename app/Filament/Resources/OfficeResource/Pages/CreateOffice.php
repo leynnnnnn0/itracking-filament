@@ -12,4 +12,5 @@ class CreateOffice extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = OfficeResource::class;
+    protected static bool $canCreateAnother = false;
 }

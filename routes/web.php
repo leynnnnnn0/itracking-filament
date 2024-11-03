@@ -11,7 +11,7 @@ Route::redirect('/', '/admin');
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
 
-Route::get('/equipment-pdf/{equipment}/{personnel}', EquipmentPdf::class)->name('equipment-pdf');
+Route::get('/equipment-pdf/{equipment}/{personnel}/{previousAccountableOfficer}', EquipmentPdf::class)->name('equipment-pdf');
 
 
 

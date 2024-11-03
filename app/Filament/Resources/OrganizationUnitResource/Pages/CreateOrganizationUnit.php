@@ -12,4 +12,5 @@ class CreateOrganizationUnit extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = OrganizationUnitResource::class;
+    protected static bool $canCreateAnother = false;
 }

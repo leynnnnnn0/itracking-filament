@@ -12,4 +12,5 @@ class CreatePosition extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = PositionResource::class;
+    protected static bool $canCreateAnother = false;
 }

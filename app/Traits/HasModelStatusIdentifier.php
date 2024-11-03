@@ -25,6 +25,7 @@ trait HasModelStatusIdentifier
 
         // Returned with missing items (no partial returns)
         if ($totalMissingQuantity > 0 && $borrowedQuantity === ($totalMissingQuantity + $totalReturnedQuantity)) {
+            $borrowedEquipment->returned_date = today()->format('Y-m-d');
             return BorrowStatus::RETURNED_WITH_MISSING->value;
         }
 
@@ -35,6 +36,7 @@ trait HasModelStatusIdentifier
 
         // Fully returned with no missing items
         if ($totalMissingQuantity === 0 && $totalReturnedQuantity === $borrowedQuantity) {
+            $borrowedEquipment->returned_date = today()->format('Y-m-d');
             return BorrowStatus::RETURNED->value;
         }
 

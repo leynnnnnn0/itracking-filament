@@ -12,4 +12,5 @@ class CreateOperatingUnitProject extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = OperatingUnitProjectResource::class;
+    protected static bool $canCreateAnother = false;
 }
