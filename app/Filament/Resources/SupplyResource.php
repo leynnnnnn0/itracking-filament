@@ -142,9 +142,10 @@ class SupplyResource extends Resource
                         ->color('success')
                         ->form([
                             TextInput::make('quantity')
-                                ->maxLength(30)
+                                ->integer()
+                                ->maxLength(10)
+                                ->minValue(1)
                                 ->live()
-                                ->numeric()
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                                 ])
@@ -174,9 +175,12 @@ class SupplyResource extends Resource
                         ->color('warning')
                         ->form([
                             TextInput::make('quantity')
-                                ->maxLength(30)
+                                ->integer()
+                                ->maxLength(10)
+                                ->hint(fn($record) => "Available: {$record->total}")
+                                ->minValue(1)
+                                ->maxValue(fn($record) => $record->total)
                                 ->live()
-                                ->numeric()
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                                 ])

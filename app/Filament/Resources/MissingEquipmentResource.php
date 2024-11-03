@@ -61,6 +61,7 @@ class MissingEquipmentResource extends Resource
                     ->required(),
 
                 TextInput::make('quantity')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->integer()
                     ->maxLength(7)
                     ->required()
@@ -82,6 +83,7 @@ class MissingEquipmentResource extends Resource
                     }),
 
                 Select::make('status')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->live()
                     ->native(false)
                     ->options(MissingStatus::values())
@@ -145,25 +147,7 @@ class MissingEquipmentResource extends Resource
                     ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\Action::make('pdf')
-                    ->label('PDF')
-                    ->color('success')
-                    ->icon('heroicon-o-arrow-down')
-                    ->action(function (Model $record) {
-                        return response()->streamDownload(function () use ($record) {
-                            echo Pdf::loadHtml(
-                                Blade::render('pdf.missing-equipment', ['equipment' => $record])
-                            )->stream();
-                        },  'missing-equipment.pdf');
-                    }),
-                Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ActionGroup::make([
-
                     Tables\Actions\Action::make('found')
                         ->visible(fn($record) => $record->status !== 'Found')
                         ->color('success')
@@ -209,7 +193,7 @@ class MissingEquipmentResource extends Resource
                                     ->warning()
                                     ->send();
                             }
-                        }),
+                        })->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
 
                     Tables\Actions\Action::make('reported_to_spmo')
                         ->label('Reported to SPMO')
@@ -228,7 +212,7 @@ class MissingEquipmentResource extends Resource
                                 ->body('Status Changed to Reported to SPMO.')
                                 ->success()
                                 ->send();
-                        })->visible(fn($record) => $record->status === MissingStatus::REPORTED->value),
+                        })->visible(fn($record) => $record->status === MissingStatus::REPORTED->value && $record->status !== 'Found' && !$record->is_condemned),
 
                     Tables\Actions\Action::make('condemned')
                         ->requiresConfirmation()
@@ -263,8 +247,26 @@ class MissingEquipmentResource extends Resource
                                     ->success()
                                     ->send();
                             }
-                        })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned),
-                ])->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned)
+                        })->visible(fn($record) => $record->status == MissingStatus::REPORTED_TO_SPMO->value && !$record->is_condemned && $record->status !== 'Found' && !$record->is_condemned),
+
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\Action::make('pdf')
+                        ->label('PDF')
+                        ->color('success')
+                        ->icon('heroicon-o-arrow-down')
+                        ->action(function (Model $record) {
+                            return response()->streamDownload(function () use ($record) {
+                                echo Pdf::loadHtml(
+                                    Blade::render('pdf.missing-equipment', ['equipment' => $record])
+                                )->stream();
+                            },  'missing-equipment.pdf');
+                        }),
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
