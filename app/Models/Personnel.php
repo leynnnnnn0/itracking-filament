@@ -27,7 +27,6 @@ class Personnel extends Model implements Auditable
         'start_date',
         'end_date',
         'remarks',
-        'role'
     ];
 
     protected $table = 'personnel';

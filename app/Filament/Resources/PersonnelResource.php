@@ -129,6 +129,7 @@ class PersonnelResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('full_name')
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('office.name'),
@@ -186,6 +187,7 @@ class PersonnelResource extends Resource
     {
         return $infolist
             ->schema([
+                TextEntry::make('id'),
                 TextEntry::make('office.name')
                     ->label('Office'),
 

@@ -106,6 +106,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('full_name')->searchable(['first_name', 'last_name']),
                 TextColumn::make('email'),
                 TextColumn::make('phone_number'),
@@ -143,6 +144,8 @@ class UserResource extends Resource
     {
         return $infolist
             ->schema([
+                TextEntry::make('id'),
+
                 TextEntry::make('first_name'),
 
                 TextEntry::make('middle_name'),

@@ -41,6 +41,7 @@ class SupplyResource extends Resource
     protected static ?string $navigationGroup = 'Supply';
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
     {
@@ -230,6 +231,7 @@ class SupplyResource extends Resource
     {
         return $infolist
             ->schema([
+                TextEntry::make('id'),
                 TextEntry::make('description'),
                 TextEntry::make('unit'),
                 TextEntry::make('quantity'),
