@@ -102,6 +102,8 @@ class AuditResource extends Resource
     {
         return $infolist
             ->schema([
+                TextEntry::make('id')
+                    ->label('Audit id'),
                 TextEntry::make('user.full_name'),
 
                 TextEntry::make('auditable_type')

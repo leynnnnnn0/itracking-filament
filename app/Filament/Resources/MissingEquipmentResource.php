@@ -187,6 +187,7 @@ class MissingEquipmentResource extends Resource
                                     $equipment->status = self::getEquimentStatus($equipment);
                                     $record->save();
                                     $equipment->save();
+                             
                                 });
                                 Notification::make()
                                     ->title('Success')

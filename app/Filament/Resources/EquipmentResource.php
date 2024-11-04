@@ -110,6 +110,7 @@ class EquipmentResource extends Resource
                     ->placeholder('PN****************')
                     ->regex('/^PN[a-zA-Z0-9]{14,18}$/')
                     ->maxLength(20)
+                    ->unique('equipment', 'property_number')
                     ->minLength(16),
 
                 Select::make('unit')

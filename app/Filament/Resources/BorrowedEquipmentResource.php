@@ -319,7 +319,8 @@ class BorrowedEquipmentResource extends Resource
                             }
                         })->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value && $record->status !== BorrowStatus::MISSING->value),
                     Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value && $record->status !== BorrowStatus::MISSING->value),
                     Tables\Actions\DeleteAction::make()
                         ->visible(fn($record) => $record->status === BorrowStatus::RETURNED->value || $record->status === BorrowStatus::MISSING->value || $record->status === BorrowStatus::RETURNED_WITH_MISSING->value),
                     Tables\Actions\ForceDeleteAction::make(),

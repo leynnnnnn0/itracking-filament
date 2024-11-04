@@ -140,6 +140,8 @@ class SupplyResource extends Resource
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Add Quantity')
+                        ->requiresConfirmation()
+                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the supply details record accordingly.')
                         ->color('success')
                         ->form([
                             TextInput::make('quantity')
@@ -174,6 +176,9 @@ class SupplyResource extends Resource
 
                     Tables\Actions\Action::make('Record Usage')
                         ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the supply details record accordingly.')
+                        ->modalSubmitActionLabel('Submit')
                         ->form([
                             TextInput::make('quantity')
                                 ->integer()
