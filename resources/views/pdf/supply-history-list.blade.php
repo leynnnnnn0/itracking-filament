@@ -15,6 +15,7 @@
         <table class="print-table">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Description</th>
                     <th>Category</th>
                     <th>Quantity</th>
@@ -29,6 +30,7 @@
             <tbody>
                 @foreach ($supplies as $supply)
                 <tr>
+                    <td>{{ $supply->supply->id }}</td>
                     <td>{{ $supply->supply->description }}</td>
                     <td>{{ implode(',', $supply->supply->categories->pluck('name')->toArray())}}</td>
                     <td>{{ $supply->quantity }}</td>

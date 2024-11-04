@@ -37,7 +37,12 @@ class SupplyHistoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id'),
+                TextColumn::make('id')
+                    ->searchable(),
+
+                TextColumn::make('supply.id')
+                    ->label('Supply Id')
+                    ->searchable(),
 
                 TextColumn::make('supply.description')
                     ->searchable(),
@@ -71,15 +76,7 @@ class SupplyHistoryResource extends Resource
                         Forms\Components\DatePicker::make('created_until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
+                        return $query->monthlySummary($data['created_from'], $data['created_until']);
                     })
             ])
             ->actions([
