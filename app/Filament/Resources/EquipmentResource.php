@@ -147,6 +147,7 @@ class EquipmentResource extends Resource
                     ->maxLength(7)
                     ->numeric()
                     ->live()
+                    ->min(1)
                     ->required()
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -166,12 +167,14 @@ class EquipmentResource extends Resource
                 Hidden::make('quantity_available')
                     ->dehydrated(true)
                     ->live()
+                    ->min(1)
                     ->required()
                     ->live(),
 
                 TextInput::make('unit_price')
                     ->numeric()
                     ->live()
+                    ->min(1)
                     ->maxValue(99999999)
                     ->required()
                     ->live()
@@ -415,17 +418,12 @@ class EquipmentResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->deleted_at === null),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+
+                // ]),
             ]);
     }
 
