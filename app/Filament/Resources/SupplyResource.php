@@ -88,7 +88,14 @@ class SupplyResource extends Resource
                         Select::make('categories')
                             ->relationship('categories', 'name')
                             ->multiple()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->required(),
+                            ])
                             ->preload()
+                            ->createOptionUsing(function (array $data): string {
+                                return Category::create($data)->name;
+                            })
                             ->searchable()
                             ->required(),
 
