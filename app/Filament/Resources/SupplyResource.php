@@ -62,6 +62,7 @@ class SupplyResource extends Resource
                                 TextInput::make('name')
                                     ->required(),
                             ])
+                            ->preload()
                             ->createOptionUsing(function (array $data): string {
                                 return Unit::create($data)->name;
                             })

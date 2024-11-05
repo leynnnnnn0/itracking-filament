@@ -43,6 +43,20 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        DB::table('users')->insert([
+            'first_name' => 'Admin',
+            'middle_name' => null,
+            'last_name' => 'User',
+            'gender' => 'Male',
+            'email' => 'admin@example.com',
+            'phone_number' => '1234567890', 
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'),
+            'role' => 'admin', 
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

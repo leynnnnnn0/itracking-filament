@@ -5,7 +5,7 @@ namespace App;
 use Filament\Support\Contracts\HasColor;
 
 
-enum BorrowStatus: string implements HasColor
+enum BorrowStatus : string implements HasColor
 {
     case BORROWED = 'borrowed';
     case PARTIALLY_RETURNED = 'partially_returned';

@@ -36,14 +36,22 @@ class ListSupplyHistories extends ListRecords
             $this->applySortingToTableQuery($query);
             $filters = $this->tableFilters;
 
+            $from = $filters['created_at']['created_from'];
+            $until = $filters['created_at']['created_until'];
+
+            if ($from && $until) {
+                $query->monthlySummary($from, $until);
+            }
+
             $supplies = $query->get();
+
             return response()->streamDownload(
-                function () use ($supplies, $filters) {
+                function () use ($supplies, $from, $until) {
                     echo Pdf::loadHtml(
                         Blade::render('pdf.supply-history-list', [
                             'supplies' => $supplies,
-                            'from' => $filters['created_at']['created_from'],
-                            'until' => $filters['created_at']['created_until']
+                            'from' => $from,
+                            'until' => $until
                         ])
                     )
                         ->setPaper('a3', 'landscape')

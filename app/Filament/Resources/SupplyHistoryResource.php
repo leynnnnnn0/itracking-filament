@@ -7,17 +7,20 @@ use App\Filament\Resources\SupplyHistoryResource\RelationManagers;
 use App\Models\Supply;
 use App\Models\SupplyHistory;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SupplyHistoryResource extends Resource
 {
@@ -70,14 +73,31 @@ class SupplyHistoryResource extends Resource
                 SelectFilter::make('supply')
                     ->relationship('supply', 'description')
                     ->searchable(),
+
+                TernaryFilter::make('available')
+                    ->label('Available Equipment')
+                    ->queries(
+                        true: fn(Builder $query) => $query->monthlySummary('2024-11-01', '2024-11-31'),
+                        false: fn(Builder $query) => $query,
+                    ),
+
                 Filter::make('created_at')
                     ->form([
-                        Forms\Components\DatePicker::make('created_from'),
-                        Forms\Components\DatePicker::make('created_until'),
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->monthlySummary($data['created_from'], $data['created_until']);
-                    })
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
+
             ])
             ->actions([
                 Tables\Actions\DeleteAction::make(),
