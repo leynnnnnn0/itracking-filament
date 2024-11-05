@@ -42,6 +42,7 @@ class BorrowedEquipmentResource extends Resource
     protected static ?string $navigationLabel = 'Borrowed Equipment';
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
+
     public static function form(Form $form): Form
     {
         return $form

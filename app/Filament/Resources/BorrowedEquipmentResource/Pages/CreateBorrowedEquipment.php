@@ -18,6 +18,7 @@ class CreateBorrowedEquipment extends CreateRecord
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = BorrowedEquipmentResource::class;
     protected static bool $canCreateAnother = false;
+    protected static ?string $title = 'Borrow Equipment';
 
     protected function afterCreate()
     {
@@ -38,16 +39,14 @@ class CreateBorrowedEquipment extends CreateRecord
                 } else {
                     $status =  EquipmentStatus::PARTIALLY_BORROWED->value;
                 }
-
             }
-           
+
             $equipment->update([
                 'status' => $status,
                 'quantity_available' => $totalAvailableEquipment,
                 'quantity_borrowed' => $totalBorrowedEquipment,
                 'quantity_missing' => $totalMissingQuantity,
             ]);
-
         } catch (Exception $e) {
             Notification::make()
                 ->title('Error')

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Blade;
 class ListBorrowedEquipment extends ListRecords
 {
     protected static string $resource = BorrowedEquipmentResource::class;
+    protected static ?string $title = 'Borrow Equipment';
 
     protected function getHeaderActions(): array
     {
