@@ -347,6 +347,7 @@ class EquipmentResource extends Resource
 
                                 TextInput::make('borrower_email')
                                     ->email()
+                                    ->unique(ignoreRecord: true)
                                     ->required(),
 
                                 DatePicker::make('start_date')

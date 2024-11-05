@@ -49,10 +49,10 @@ class GetNotification
 
         foreach ($expiringSupplies as $supply) {
             $isExpired = $supply->expiry_date <= today();
-            
+
             $status = $isExpired ? 'EXPIRED' : 'Expiring ' . $supply->expiry_date->diffForHumans();
             $title = $isExpired ? 'Expired Supply' : 'Supply Expiring Soon';
-            
+
             Notification::make()
                 ->title("{$title}: {$supply->description}")
                 ->body("Status: {$status}\nID# {$supply->id}\n\nTake necessary action immediately.")
