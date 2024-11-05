@@ -138,7 +138,8 @@ class EquipmentResource extends Resource
                             ? Carbon::parse($record->estimated_useful_time)->format('Y-m')
                             : null
                     )
-                    ->required(),
+                    ->required()
+                    ->afterOrEqual('today'),
 
                 Hidden::make('previous_quantity')
                     ->dehydrated(true),
@@ -147,7 +148,7 @@ class EquipmentResource extends Resource
                     ->maxLength(7)
                     ->numeric()
                     ->live()
-                    ->min(1)
+                    ->minValue(1)
                     ->required()
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -167,14 +168,14 @@ class EquipmentResource extends Resource
                 Hidden::make('quantity_available')
                     ->dehydrated(true)
                     ->live()
-                    ->min(1)
+                    ->minValue(1)
                     ->required()
                     ->live(),
 
                 TextInput::make('unit_price')
                     ->numeric()
                     ->live()
-                    ->min(1)
+                    ->minValue(1)
                     ->maxValue(99999999)
                     ->required()
                     ->live()
