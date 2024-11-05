@@ -136,10 +136,14 @@ class EquipmentResource extends Resource
 
                 DatePicker::make('estimated_useful_time')
                     ->extraInputAttributes(['type' => 'month'])
-                    ->formatStateUsing(
-                        fn($record) => $record && $record->estimated_useful_time
-                            ? Carbon::parse($record->estimated_useful_time)->format('Y-m')
-                            : null
+                    ->afterStateHydrated(function ($component, $state) {
+                        if ($state) {
+                            $component->state(Carbon::parse($state)->format('Y-m'));
+                        }
+                    })
+                    ->dehydrateStateUsing(
+                        fn($state) =>
+                        $state ? Carbon::createFromFormat('Y-m', $state)->endOfMonth()->format('Y-m-d') : null
                     )
                     ->required(),
 
