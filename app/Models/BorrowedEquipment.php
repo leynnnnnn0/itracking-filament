@@ -24,7 +24,8 @@ class BorrowedEquipment extends Model implements Auditable
         'returned_date',
         'total_quantity_returned',
         'total_quantity_missing',
-        'status'
+        'status',
+        'remarks',
     ];
 
     public function casts()

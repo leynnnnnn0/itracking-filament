@@ -132,7 +132,15 @@ class BorrowedEquipmentResource extends Resource
                 Hidden::make('status')
                     ->default(BorrowStatus::BORROWED->value)
                     ->dehydrated(true)
-                    ->required()
+                    ->required(),
+
+
+                TextArea::make('remarks')
+                    ->rules([
+                        'string',
+                        'regex:/[a-zA-Z]/',
+                    ])
+                    ->extraAttributes(['class' => 'resize-none'])
             ]);
     }
 

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('total_quantity_returned')->default(0);
             $table->integer('total_quantity_missing')->default(0);
             $table->enum('status', BorrowStatus::values())->default(BorrowStatus::BORROWED->value);
+            $table->text('remarks')->nullable();
             $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
