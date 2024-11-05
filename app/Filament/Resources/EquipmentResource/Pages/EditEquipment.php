@@ -29,6 +29,7 @@ class EditEquipment extends EditRecord
             ->submit(null)
             ->requiresConfirmation()
             ->action(function () {
+                $this->closeActionModal();
                 $record = $this->record;
                 $data = $this->form->getState();
                 $previousQuantity = $data['previous_quantity'];
@@ -52,7 +53,6 @@ class EditEquipment extends EditRecord
 
                 $this->form->fill($data);
                 $this->record->status = self::getEquimentStatus($this->record);
-                $this->closeActionModal();
                 $this->save();
             });
     }
@@ -67,7 +67,7 @@ class EditEquipment extends EditRecord
         $newPersonnel = $equipment->personnel->full_name;
 
         $newAccountableOfficer = $equipment->accountable_officer->full_name;
-  
+
 
         // Check if personnel changed
         if ($previousPersonnel != $newPersonnel || $previousAccountableOfficer != $newAccountableOfficer) {

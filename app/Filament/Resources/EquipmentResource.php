@@ -107,11 +107,14 @@ class EquipmentResource extends Resource
 
                 TextInput::make('property_number')
                     ->required()
-                    ->placeholder('PN****************')
-                    ->regex('/^PN[a-zA-Z0-9]{14,18}$/')
-                    ->maxLength(20)
-                    ->unique('equipment', 'property_number')
-                    ->minLength(16),
+                    ->prefix('PN')
+                    ->maxLength(18)
+                    ->numeric()
+                    ->extraInputAttributes([
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                    ])
+                    ->unique('equipment', 'property_number', ignoreRecord: true)
+                    ->minLength(14),
 
                 Select::make('unit')
                     ->options(Unit::select('name')->pluck('name', 'name'))
@@ -138,8 +141,7 @@ class EquipmentResource extends Resource
                             ? Carbon::parse($record->estimated_useful_time)->format('Y-m')
                             : null
                     )
-                    ->required()
-                    ->afterOrEqual('today'),
+                    ->required(),
 
                 Hidden::make('previous_quantity')
                     ->dehydrated(true),
@@ -168,7 +170,6 @@ class EquipmentResource extends Resource
                 Hidden::make('quantity_available')
                     ->dehydrated(true)
                     ->live()
-                    ->minValue(1)
                     ->required()
                     ->live(),
 
@@ -191,6 +192,7 @@ class EquipmentResource extends Resource
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])
+                    ->minValue(1)
                     ->required(),
 
                 Select::make('status')

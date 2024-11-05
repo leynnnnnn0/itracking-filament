@@ -14,6 +14,4 @@ class CreateEquipment extends CreateRecord
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = EquipmentResource::class;
     protected static bool $canCreateAnother = false;
-        
-  
 }
