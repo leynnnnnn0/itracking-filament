@@ -23,4 +23,9 @@ class SupplyIncident extends Model
     {
         return $this->belongsTo(Supply::class);
     }
+
+    public function getSelectDisplayAttribute()
+    {
+        return "$this->description (ID# $this->id)";
+    }
 }

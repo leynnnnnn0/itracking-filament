@@ -18,8 +18,9 @@ return new class extends Migration
             $table->foreignIdFor(Supply::class)->constrained()->cascadeOnDelete();
             $table->enum('type', SupplyIncidents::values());
             $table->integer('quantity');
-            $table->text('remarks');
+            $table->text('remarks')->nullable();
             $table->date('incident_date');
+            $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
     }
