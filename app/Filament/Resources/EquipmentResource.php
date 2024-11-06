@@ -15,16 +15,20 @@ use Exception;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -439,12 +443,19 @@ class EquipmentResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->deleted_at === null),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Archive')
+                        ->successNotificationTitle('Archived'),
+                    Tables\Actions\RestoreAction::make()
                 ])
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->successNotificationTitle('Archived'),
+                    RestoreBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -489,6 +500,7 @@ class EquipmentResource extends Resource
                         ->badge()
                         ->color(fn(string $state): string => EquipmentStatus::from($state)->getColor()),
                 ])->columns(2),
+
                 Section::make('Others')->schema([
                     TextEntry::make('personnel.full_name'),
 
@@ -503,7 +515,25 @@ class EquipmentResource extends Resource
 
                 ])->columns(2),
 
-
+                Section::make('Equipment History')
+                    ->schema([
+                        RepeatableEntry::make('equipment_history')
+                            ->label('Historical Records')  // This will be the only label shown
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->label('Date Assigned')
+                                    ->date('F d, Y')
+                                    ->columnSpan(2),
+                                TextEntry::make('personnel.full_name')
+                                    ->label('Responsible Person'),
+                                TextEntry::make('accountable_officer.full_name')
+                                    ->label('Accountable Officer'),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull()
+                            ->grid(false)
+                    ])
+                    ->collapsible()
             ]);
     }
 
@@ -525,7 +555,8 @@ class EquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund'])->orderBy('quantity');
+        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund'])
+            ->orderBy('quantity');
     }
 
     protected function getHeaderActions(): array

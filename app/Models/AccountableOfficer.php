@@ -57,4 +57,11 @@ class AccountableOfficer extends Model implements Auditable
     {
         return $this->hasMacro(Equipment::class);
     }
+
+    public function equipment_history()
+    {
+        return $this->hasMany(EquipmentHistory::class);
+    }
+
+
 }

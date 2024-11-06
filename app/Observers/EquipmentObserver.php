@@ -26,8 +26,8 @@ class EquipmentObserver
     {
         $changes = $equipment->getChanges();
 
-        $responsible_person = isset($changes['personnel_id']) ?? null;
-        $accountable_officer = isset($changes['accountable_officer_id']) ?? null;
+        $responsible_person = isset($changes['personnel_id']) ? $equipment->personnel_id : null;
+        $accountable_officer = isset($changes['accountable_officer_id']) ? $equipment->accountable_officer_id : null;
 
         if ($responsible_person || $accountable_officer)
             EquipmentHistory::create([

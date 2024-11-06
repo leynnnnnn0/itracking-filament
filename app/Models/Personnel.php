@@ -54,4 +54,9 @@ class Personnel extends Model implements Auditable
     {
         return $this->belongsTo(Office::class);
     }
+
+    public function equipment_history()
+    {
+        return $this->hasMany(EquipmentHistory::class);
+    }
 }

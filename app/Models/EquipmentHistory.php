@@ -21,4 +21,13 @@ class EquipmentHistory extends Model
         return $this->belongsTo(Equipment::class);
     }
 
+    public function accountable_officer()
+    {
+        return $this->belongsTo(AccountableOfficer::class);
+    }
+
+    public function personnel()
+    {
+        return $this->belongsTo(Personnel::class);
+    }
 }
