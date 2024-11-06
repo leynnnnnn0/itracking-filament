@@ -242,7 +242,6 @@ class SupplyResource extends Resource
                         ->modalHeading('Archive Supplies')
                         ->successNotificationTitle('Archived'),
                     RestoreBulkAction::make(),
-                    // Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
