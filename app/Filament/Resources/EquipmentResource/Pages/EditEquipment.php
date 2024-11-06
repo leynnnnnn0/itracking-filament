@@ -3,15 +3,15 @@
 namespace App\Filament\Resources\EquipmentResource\Pages;
 
 use App\Filament\Resources\EquipmentResource;
+use App\Models\EquipmentHistory;
 use App\Traits\HasModelStatusIdentifier;
 use App\Traits\HasRedirectUrl;
 use App\Traits\HasUpdateConfirmationModal;
-use ErrorException;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Actions\Action as NotifAction;
-use PhpParser\Node\Expr\Throw_;
+use Illuminate\Support\Facades\DB;
 
 class EditEquipment extends EditRecord
 {
@@ -32,9 +32,9 @@ class EditEquipment extends EditRecord
                 $this->closeActionModal();
                 $record = $this->record;
                 $data = $this->form->getState();
-                $previousQuantity = $data['previous_quantity'];
-                $newQuantity = $data['quantity'];
-
+                $previousQuantity = $this->data['previous_quantity'];
+                $newQuantity = $this->data['quantity'];
+                
                 $totalQuantity =  $record->quantity_missing + $record->quantity_borrowed + $record->quantity_condemned;
                 if ($newQuantity < $totalQuantity) {
                     $this->closeActionModal();
@@ -45,14 +45,13 @@ class EditEquipment extends EditRecord
                         ->send();
 
                     $this->halt();
-                }
+                } else if ($previousQuantity !== $newQuantity)
+                    $data['quantity_available'] += $newQuantity - $previousQuantity;
 
-
-
-                $data['quantity_available'] += $newQuantity - $previousQuantity;
 
                 $this->form->fill($data);
                 $this->record->status = self::getEquimentStatus($this->record);
+
                 $this->save();
             });
     }

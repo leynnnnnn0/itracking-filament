@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Observers\EquipmentObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
+
+#[ObservedBy([EquipmentObserver::class])]
 class Equipment extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\EquipmentFactory> */
@@ -79,5 +83,10 @@ class Equipment extends Model implements Auditable
     public function missing_equipment()
     {
         return $this->hasMany(MissingEquipment::class);
+    }
+
+    public function equipment_history()
+    {
+        return $this->hasMany(EquipmentHistory::class);
     }
 }

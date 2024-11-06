@@ -53,9 +53,20 @@ class EquipmentResource extends Resource
                         return $state ?? $record?->personnel->full_name;
                     })->dehydrated(true),
 
+                Hidden::make('previous_personnel_id')
+                    ->formatStateUsing(function ($state, $record) {
+
+                        return $state ?? $record?->personnel->id;
+                    })->dehydrated(true),
+
                 Hidden::make('previous_accountable_officer')
                     ->formatStateUsing(function ($state, $record) {
                         return $state ?? $record?->accountable_officer->full_name;
+                    })->dehydrated(true),
+
+                Hidden::make('previous_accountable_officer_id')
+                    ->formatStateUsing(function ($state, $record) {
+                        return $state ?? $record?->accountable_officer->id;
                     })->dehydrated(true),
 
                 TextInput::make('name')
@@ -148,6 +159,9 @@ class EquipmentResource extends Resource
                     ->required(),
 
                 Hidden::make('previous_quantity')
+                    ->formatStateUsing(function ($state, $record) {
+                        return $state ?? $record?->quantity;
+                    })
                     ->dehydrated(true),
 
                 TextInput::make('quantity')
