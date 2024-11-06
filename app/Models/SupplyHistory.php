@@ -80,4 +80,9 @@ class SupplyHistory extends Model implements Auditable
             ])
             ->groupBy('supply_id');
     }
+
+    public function supply_incidents()
+    {
+        return $this->hasMany(SupplyIncident::class);
+    }
 }
