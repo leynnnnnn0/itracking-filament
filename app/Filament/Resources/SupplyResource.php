@@ -146,7 +146,9 @@ class SupplyResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Archive'),
+                    ->label('Archive')
+                    ->modalHeading('Archive Supply')
+                    ->successNotificationTitle('Archived'),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Add Quantity')
@@ -236,7 +238,9 @@ class SupplyResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Archive'),
+                        ->label('Archive')
+                        ->modalHeading('Archive Supplies')
+                        ->successNotificationTitle('Archived'),
                     RestoreBulkAction::make(),
                     // Tables\Actions\RestoreBulkAction::make(),
                 ]),

@@ -445,6 +445,7 @@ class EquipmentResource extends Resource
                         ->visible(fn($record) => $record->deleted_at === null),
                     Tables\Actions\DeleteAction::make()
                         ->label('Archive')
+                        ->modalHeading('Archive Equipment')
                         ->successNotificationTitle('Archived'),
                     Tables\Actions\RestoreAction::make()
                 ])
@@ -453,6 +454,7 @@ class EquipmentResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->label('Archive')
+                        ->modalHeading('Archive Equipment')
                         ->successNotificationTitle('Archived'),
                     RestoreBulkAction::make(),
                 ]),
