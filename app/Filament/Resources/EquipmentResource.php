@@ -148,7 +148,7 @@ class EquipmentResource extends Resource
                     ->required()
                     ->beforeOrEqual(function (string $operation, $record) {
                         if ($operation === 'edit') {
-                            return $record->date_acquired->endOfDay();  
+                            return $record->date_acquired->endOfDay();
                         }
                         return now()->endOfDay();
                     })
@@ -381,7 +381,6 @@ class EquipmentResource extends Resource
 
                                 TextInput::make('borrower_email')
                                     ->email()
-                                    ->unique(ignoreRecord: true)
                                     ->required(),
 
                                 DatePicker::make('start_date')
@@ -396,6 +395,12 @@ class EquipmentResource extends Resource
                                     ->closeOnDateSelection()
                                     ->required(),
 
+                                TextArea::make('remarks')
+                                    ->rules([
+                                        'string',
+                                        'regex:/[a-zA-Z]/',
+                                    ])
+                                    ->extraAttributes(['class' => 'resize-none']),
 
                                 Hidden::make('status')
                                     ->default(BorrowStatus::BORROWED->value)
@@ -415,6 +420,7 @@ class EquipmentResource extends Resource
                                     'borrower_email' => $data['borrower_email'],
                                     'start_date' => $data['start_date'],
                                     'end_date' => $data['end_date'],
+                                    'remarks' => $data['remarks']
                                 ]);
                                 $equipment = $borrowedEquipment->equipment;
 

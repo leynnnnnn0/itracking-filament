@@ -391,6 +391,7 @@ class BorrowedEquipmentResource extends Resource
                             ->date('F d, Y'),
                         TextEntry::make('end_date')
                             ->date('F d, Y'),
+                        TextEntry::make('remarks')
                     ])->columns(2),
 
                 \Filament\Infolists\Components\Section::make('Borrower Details')
