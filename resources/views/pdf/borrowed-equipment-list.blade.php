@@ -17,6 +17,7 @@
                 <th>End Date</th>
                 <th>Returned Date</th>
                 <th>Status</th>
+                <th>Remarks</th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@
                 <td>{{ $borrowedEquipment->end_date->format('M d, Y') }}</td>
                 <td>{{ $borrowedEquipment->returned_date ? $borrowedEquipment->returned_date->format('M d, Y') : 'Not yet returned' }}</td>
                 <td>{{ Str::replace('_', ' ', Str::title(App\BorrowStatus::from($borrowedEquipment->status)->name)) }}</td>
+                <td>{{ $borrowedEquipment->remarks }}</td>
             </tr>
             @endforeach
         </tbody>
