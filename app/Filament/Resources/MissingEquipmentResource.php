@@ -271,12 +271,13 @@ class MissingEquipmentResource extends Resource
                         }),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
-                    // Tables\Actions\DeleteAction::make()
-                    //     ->label('Archive')
-                    //     ->modalHeading('Archive Missing Equipment')
-                    //     ->successNotificationTitle('Archived')
-                    //     ->label('Archive'),
-                    // Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Missing Equipment')
+                        ->successNotificationTitle('Archived')
+                        ->label('Archive')
+                        ->visible(fn($record) => $record->is_condemned || $record->quantity === $record->quantity_found),
+                    Tables\Actions\RestoreAction::make(),
                 ])
             ])
             ->bulkActions([

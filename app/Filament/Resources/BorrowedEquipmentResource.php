@@ -347,22 +347,22 @@ class BorrowedEquipmentResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->status !== BorrowStatus::RETURNED->value && $record->status !== BorrowStatus::RETURNED_WITH_MISSING->value && $record->status !== BorrowStatus::MISSING->value),
-                    // Tables\Actions\DeleteAction::make()
-                    //     ->label('Archive')
-                    //     ->modalHeading('Archive Borrow Log')
-                    //     ->successNotificationTitle('Archived')
-                    //     ->visible(fn($record) => $record->status === BorrowStatus::RETURNED->value || $record->status === BorrowStatus::MISSING->value || $record->status === BorrowStatus::RETURNED_WITH_MISSING->value),
-                    // Tables\Actions\ForceDeleteAction::make(),
-                    // Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Borrow Log')
+                        ->successNotificationTitle('Archived')
+                        ->visible(fn($record) => $record->status === BorrowStatus::RETURNED->value || $record->status === BorrowStatus::MISSING->value || $record->status === BorrowStatus::RETURNED_WITH_MISSING->value),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
                 ]),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make()
-                    //     ->label('Archive')
-                    //     ->modalHeading('Archive Borrow Logs')
-                    //     ->successNotificationTitle('Archived'),
-                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                //     Tables\Actions\DeleteBulkAction::make()
+                //         ->label('Archive')
+                //         ->modalHeading('Archive Borrow Logs')
+                //         ->successNotificationTitle('Archived'),
+                //     Tables\Actions\ForceDeleteBulkAction::make(),
                 // ]),
             ]);
     }
