@@ -11,6 +11,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages;
+use Filament\Pages\Auth\PasswordReset\ResetPassword;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -37,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#0B592D',
             ])
+            ->passwordReset(ResetPassword::class)
             ->databaseNotifications()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

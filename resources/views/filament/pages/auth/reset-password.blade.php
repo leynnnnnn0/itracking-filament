@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    {{$this->table}}
+    test
 </x-filament-panels::page>
