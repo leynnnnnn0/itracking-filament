@@ -53,22 +53,22 @@ class UnitResource extends Resource
                     ->visible(Auth::user()->role === 'Admin'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => !$record->deleted_at),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Archive'),
-
-                Tables\Actions\ForceDeleteAction::make()
-                    ->requiresConfirmation()
-                    ->color('danger'),
-                Tables\Actions\RestoreAction::make()
-                    ->requiresConfirmation()
-                    ->color('warning'),
+                    ->label('Archive')
+                    ->modalHeading('Archive Unit')
+                    ->modalDescription('Are you sure you\'d like to archive this unit?')
+                    ->modalSubmitActionLabel('Yes, Archive it'),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->modalHeading('Archive Units')
+                        ->modalDescription('Are you sure you\'d like to archive these departments?')
+                        ->modalSubmitActionLabel('Yes, Archive it'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),

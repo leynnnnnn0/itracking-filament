@@ -72,7 +72,7 @@ class DepartmentResource extends Resource
                     ->modalIconColor('danger')
                     ->color('danger')
                     ->modalHeading('Delete Department')
-                    ->modalDescription('Are you sure you\'d like to delete this deparmtnet?')
+                    ->modalDescription('Are you sure you\'d like to delete this department?')
                     ->modalSubmitActionLabel('Yes, Delete it'),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),

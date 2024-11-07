@@ -37,7 +37,7 @@
                     <td>{{ $supply->used }}</td>
                     <td>{{ $supply->added }}</td>
                     <td>{{ $supply->total }}</td>
-                    <td>{{ $supply->expiry_date?->format('F d, Y') ?? 'N/A' }}</td>
+                    <td>{{ $supply->supply->expiry_date?->format('F d, Y') ?? 'N/A' }}</td>
                     <td>{{ $supply->is_consumable ? 'Yes' : 'No' }}</td>
                     <td>{{ $supply->created_at?->format('F d, Y') ?? 'N/A' }}</td>
                 </tr>
