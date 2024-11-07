@@ -483,6 +483,11 @@ class EquipmentResource extends Resource
                                 return false;
                             }
 
+                            Notification::make()
+                                ->title('Archived')
+                                ->success()
+                                ->send();
+
                             $record->delete();
                         }),
                     Tables\Actions\RestoreAction::make()
