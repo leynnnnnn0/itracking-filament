@@ -147,12 +147,10 @@ class EquipmentResource extends Resource
                     ->closeOnDateSelection()
                     ->required()
                     ->beforeOrEqual(function (string $operation, $record) {
-                        // If editing, use the original date_acquired
                         if ($operation === 'edit') {
-                            return $record->date_acquired;
+                            return $record->date_acquired->endOfDay();  // Add endOfDay()
                         }
-                        // If creating, use today
-                        return 'today';
+                        return now()->endOfDay();
                     })
                     ->native(false),
 
