@@ -160,6 +160,7 @@ class EquipmentResource extends Resource
                         fn($state) =>
                         $state ? Carbon::createFromFormat('Y-m', $state)->endOfMonth()->format('Y-m-d') : null
                     )
+                    ->after('today')
                     ->required(),
 
                 Hidden::make('previous_quantity')
@@ -486,10 +487,9 @@ class EquipmentResource extends Resource
                     TextEntry::make('quantity_condemned'),
 
                     TextEntry::make('date_acquired')
-
                         ->date('F d, Y'),
-                    TextEntry::make('estimated_useful_time')
 
+                    TextEntry::make('estimated_useful_time')
                         ->date('Y-m'),
 
                     TextEntry::make('unit_price'),
