@@ -8,6 +8,7 @@ use App\Filament\Resources\EquipmentResource\Pages;
 use App\Models\AccountableOfficer;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
+use App\Models\MissingEquipment;
 use App\Models\Personnel;
 use App\Models\Unit;
 use Carbon\Carbon;
@@ -36,6 +37,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -455,19 +457,43 @@ class EquipmentResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->deleted_at === null),
+
                     Tables\Actions\DeleteAction::make()
                         ->label('Archive')
                         ->modalHeading('Archive Equipment')
-                        ->successNotificationTitle('Archived'),
+                        ->successNotificationTitle('Archived')
+                        ->action(function (Model $record) {
+                            $hasBorrowedEquipment = BorrowedEquipment::where('equipment_id', $record->id)->exists();
+                            if ($hasBorrowedEquipment) {
+                                Notification::make()
+                                    ->title('Unable to Archive Equipment')
+                                    ->body('This equipment cannot be archived because it is currently associated with borrowed equipment.')
+                                    ->danger()
+                                    ->send();
+                                return false;
+                            }
+
+                            $hasMissingEquipment = MissingEquipment::where('equipment_id', $record->id)->exists();
+                            if ($hasMissingEquipment) {
+                                Notification::make()
+                                    ->title('Unable to Archive Equipment')
+                                    ->body('This equipment cannot be archived because it is currently marked as missing.')
+                                    ->danger()
+                                    ->send();
+                                return false;
+                            }
+
+                            $record->delete();
+                        }),
                     Tables\Actions\RestoreAction::make()
                 ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->label('Archive')
-                        ->modalHeading('Archive Equipment')
-                        ->successNotificationTitle('Archived'),
+                    // DeleteBulkAction::make()
+                    //     ->label('Archive')
+                    //     ->modalHeading('Archive Equipment')
+                    //     ->successNotificationTitle('Archived'),
                     RestoreBulkAction::make(),
                 ]),
             ]);
