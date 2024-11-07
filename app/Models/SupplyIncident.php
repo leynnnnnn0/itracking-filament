@@ -19,6 +19,10 @@ class SupplyIncident extends Model
         'incident_date'
     ];
 
+    protected $casts = [
+        'incident_date' => 'date'
+    ];
+
     public function supply()
     {
         return $this->belongsTo(Supply::class);

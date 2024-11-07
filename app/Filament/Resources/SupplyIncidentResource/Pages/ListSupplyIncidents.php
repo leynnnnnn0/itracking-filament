@@ -3,17 +3,17 @@
 namespace App\Filament\Resources\SupplyIncidentResource\Pages;
 
 use App\Filament\Resources\SupplyIncidentResource;
+use App\Traits\HasPdfDownload;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListSupplyIncidents extends ListRecords
 {
+    use HasPdfDownload;
     protected static string $resource = SupplyIncidentResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getViewName(): string
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return 'supply-incidents-list';
     }
 }
