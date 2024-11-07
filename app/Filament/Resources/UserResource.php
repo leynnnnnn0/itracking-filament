@@ -7,6 +7,7 @@ use App\Enum\UserRole;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use App\Traits\HasAuthorizationCheck;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use HasAuthorizationCheck;
     protected static ?string $model = User::class;
     protected static ?string $navigationGroup = 'People';
 
