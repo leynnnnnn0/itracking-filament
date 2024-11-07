@@ -168,6 +168,7 @@ class AccountingOfficerResource extends Resource
 
                             $record->delete();
                         })
+                        ->label('Archive')
                         ->requiresConfirmation()
                         ->modalIconColor('danger')
                         ->color('danger')
@@ -176,14 +177,14 @@ class AccountingOfficerResource extends Resource
                         ->modalSubmitActionLabel('Yes, Delete it'),
                     Tables\Actions\ForceDeleteAction::make(),
                     Tables\Actions\RestoreAction::make(),
-
-                    Tables\Actions\ForceDeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Accountable Officers')
+                        ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),

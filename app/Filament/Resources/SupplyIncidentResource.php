@@ -105,10 +105,18 @@ class SupplyIncidentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Archive')
+                    ->modalHeading('Archive Supply')
+                    ->successNotificationTitle('Archived'),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Supply Incidents')
+                        ->successNotificationTitle('Archived'),
                 ]),
             ]);
     }

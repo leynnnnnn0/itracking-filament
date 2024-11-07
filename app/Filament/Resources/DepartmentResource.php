@@ -67,6 +67,7 @@ class DepartmentResource extends Resource
                         // If no associated personnel, proceed with deletion
                         $record->delete(); // Delete the record
                     })
+                    ->label('Archive')
                     ->requiresConfirmation()
                     ->modalIconColor('danger')
                     ->color('danger')
@@ -78,7 +79,10 @@ class DepartmentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Departments')
+                        ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),

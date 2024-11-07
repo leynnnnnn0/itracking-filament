@@ -146,7 +146,14 @@ class EquipmentResource extends Resource
                 DatePicker::make('date_acquired')
                     ->closeOnDateSelection()
                     ->required()
-                    ->beforeOrEqual('today')
+                    ->beforeOrEqual(function (string $operation, $record) {
+                        // If editing, use the original date_acquired
+                        if ($operation === 'edit') {
+                            return $record->date_acquired;
+                        }
+                        // If creating, use today
+                        return 'today';
+                    })
                     ->native(false),
 
                 DatePicker::make('estimated_useful_time')

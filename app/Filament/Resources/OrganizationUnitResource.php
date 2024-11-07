@@ -80,7 +80,10 @@ class OrganizationUnitResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->label('Archive')
+                    ->modalHeading('Archive Organization Units')
+                    ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),

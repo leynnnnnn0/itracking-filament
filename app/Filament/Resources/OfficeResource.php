@@ -68,6 +68,7 @@ class OfficeResource extends Resource
                         // If no associated personnel, proceed with deletion
                         $record->delete(); // Delete the record
                     })
+                    ->label('Archive')
                     ->requiresConfirmation()
                     ->modalIconColor('danger')
                     ->color('danger')
@@ -79,7 +80,10 @@ class OfficeResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Positions')
+                        ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),

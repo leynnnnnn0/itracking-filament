@@ -187,7 +187,6 @@ class MissingEquipmentResource extends Resource
                                     $equipment->status = self::getEquimentStatus($equipment);
                                     $record->save();
                                     $equipment->save();
-                             
                                 });
                                 Notification::make()
                                     ->title('Success')
@@ -272,15 +271,20 @@ class MissingEquipmentResource extends Resource
                         }),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->status !== 'Found' && !$record->is_condemned),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Missing Equipment')
+                        ->successNotificationTitle('Archived')
+                        ->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                 ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Missing Equipment')
+                        ->successNotificationTitle('Archived'),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);

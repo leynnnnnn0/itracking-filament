@@ -174,6 +174,7 @@ class PersonnelResource extends Resource
 
                             $record->delete();
                         })
+                        ->label('Archive')
                         ->requiresConfirmation()
                         ->modalIconColor('danger')
                         ->color('danger')
@@ -188,7 +189,10 @@ class PersonnelResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Archive')
+                        ->modalHeading('Archive Personnel')
+                        ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
