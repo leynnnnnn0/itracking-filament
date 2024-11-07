@@ -13,8 +13,5 @@ class EditPosition extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = PositionResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [];
-    }
+
 }

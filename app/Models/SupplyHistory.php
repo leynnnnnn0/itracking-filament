@@ -19,6 +19,8 @@ class SupplyHistory extends Model implements Auditable
         'supply_id',
         'quantity',
         'used',
+        'missing',
+        'expired',
         'added',
         'total',
         'created_at'
@@ -79,10 +81,5 @@ class SupplyHistory extends Model implements Auditable
                 DB::raw('MAX(created_at) as created_at')
             ])
             ->groupBy('supply_id');
-    }
-
-    public function supply_incidents()
-    {
-        return $this->hasMany(SupplyIncident::class);
     }
 }

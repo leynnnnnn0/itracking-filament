@@ -13,10 +13,5 @@ class EditDepartment extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = DepartmentResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
 
-        ];
-    }
 }

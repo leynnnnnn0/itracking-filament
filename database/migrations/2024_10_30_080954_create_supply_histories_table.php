@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignIdFor(Supply::class)->constrained()->cascadeOnDelete();
             $table->integer('quantity');
             $table->integer('used');
+            $table->integer('missing');
+            $table->integer('expired');
             $table->integer('added');
             $table->integer('total');
             $table->softDeletes('deleted_at', precision: 0);

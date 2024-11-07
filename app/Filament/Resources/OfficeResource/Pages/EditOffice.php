@@ -13,10 +13,5 @@ class EditOffice extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = OfficeResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
 
-        ];
-    }
 }

@@ -38,6 +38,8 @@ class SupplyObserver
             SupplyHistory::create([
                 'supply_id' => $supply->id,
                 'quantity' => $supply->quantity,
+                'missing' => $supply->missing,
+                'expired' => $supply->expired,
                 'used' => $supply->used,
                 'added' => $supply->recently_added ?? 0,
                 'total' => $supply->total

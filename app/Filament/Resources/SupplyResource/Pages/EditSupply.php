@@ -13,10 +13,5 @@ class EditSupply extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = SupplyResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+
 }

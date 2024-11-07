@@ -44,6 +44,7 @@ class SupplyIncidentResource extends Resource
                     ->required(),
 
                 Select::make('type')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->options(SupplyIncidents::values())
                     ->required(),
 
@@ -120,8 +121,7 @@ class SupplyIncidentResource extends Resource
                     ->label('incident Id'),
                 TextEntry::make('supply.description')
                     ->label('Supply'),
-                TextEntry::make('type')
-                    ->badge(),
+                TextEntry::make('type'),
                 TextEntry::make('quantity')
                     ->label('Quantity'),
                 TextEntry::make('incident_date')

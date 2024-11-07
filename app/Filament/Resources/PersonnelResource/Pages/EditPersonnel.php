@@ -12,11 +12,4 @@ class EditPersonnel extends EditRecord
 {
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = PersonnelResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
 }

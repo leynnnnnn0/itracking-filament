@@ -16,6 +16,8 @@ return new class extends Migration
             $table->text('description');
             $table->string('unit');
             $table->integer('quantity');
+            $table->integer('missing')->default(0);
+            $table->integer('expired')->default(0);
             $table->integer('used')->default(0);
             $table->integer('recently_added')->default(0);
             $table->integer('total')->default(0);

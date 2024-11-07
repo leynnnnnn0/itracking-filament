@@ -12,11 +12,4 @@ class EditMissingEquipment extends EditRecord
 {
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = MissingEquipmentResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
 }

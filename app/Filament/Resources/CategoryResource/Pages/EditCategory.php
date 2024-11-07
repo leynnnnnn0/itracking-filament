@@ -13,10 +13,5 @@ class EditCategory extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = CategoryResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+
 }

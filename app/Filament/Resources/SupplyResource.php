@@ -7,6 +7,7 @@ use App\Filament\Resources\SupplyResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Supply;
 use App\Models\SupplyHistory;
+use App\Models\SupplyIncident;
 use App\Models\Unit;
 use Exception;
 use Filament\Forms;
@@ -254,6 +255,8 @@ class SupplyResource extends Resource
                 TextEntry::make('description'),
                 TextEntry::make('unit'),
                 TextEntry::make('quantity'),
+                TextEntry::make('missing'),
+                TextEntry::make('expired'),
                 TextEntry::make('used'),
                 TextEntry::make('recently_added'),
                 TextEntry::make('total'),
@@ -286,6 +289,6 @@ class SupplyResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['categories'])->orderBy('total');
+        return parent::getEloquentQuery()->with(['categories', 'supply_incidents'])->orderBy('total');
     }
 }

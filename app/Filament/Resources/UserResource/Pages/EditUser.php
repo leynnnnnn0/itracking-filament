@@ -12,11 +12,4 @@ class EditUser extends EditRecord
 {
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = UserResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
 }

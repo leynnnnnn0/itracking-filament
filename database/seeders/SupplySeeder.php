@@ -17,9 +17,6 @@ class SupplySeeder extends Seeder
     public function run(): void
     {
         Supply::factory(100)
-            ->afterCreating(function ($supply) {
-                $this->createSupplyHistory($supply);
-            })
             ->create();
     }
 

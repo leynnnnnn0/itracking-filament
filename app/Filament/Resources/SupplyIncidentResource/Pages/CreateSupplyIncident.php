@@ -21,6 +21,11 @@ class CreateSupplyIncident extends CreateRecord
     {
         $supply = Supply::find($this->record->supply_id);
         $supply->total -= $this->record->quantity;
+        if ($this->record->type === 'missing') {
+            $supply->missing += $this->record->quantity;
+        } else {
+            $supply->expired += $this->record->quantity;
+        }
         $supply->save();
     }
 }

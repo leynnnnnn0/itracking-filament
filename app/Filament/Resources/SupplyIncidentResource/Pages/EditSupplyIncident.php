@@ -9,11 +9,4 @@ use Filament\Resources\Pages\EditRecord;
 class EditSupplyIncident extends EditRecord
 {
     protected static string $resource = SupplyIncidentResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
 }

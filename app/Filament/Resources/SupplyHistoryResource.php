@@ -52,6 +52,10 @@ class SupplyHistoryResource extends Resource
 
                 TextColumn::make('quantity'),
 
+                TextColumn::make('missing'),
+
+                TextColumn::make('expired'),
+
                 TextColumn::make('used'),
 
                 TextColumn::make('added'),

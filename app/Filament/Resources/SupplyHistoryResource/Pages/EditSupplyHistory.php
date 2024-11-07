@@ -10,10 +10,5 @@ class EditSupplyHistory extends EditRecord
 {
     protected static string $resource = SupplyHistoryResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  
 }

@@ -12,8 +12,5 @@ class EditUnit extends EditRecord
 {
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = UnitResource::class;
-    protected function getHeaderActions(): array
-    {
-        return [];
-    }
+
 }

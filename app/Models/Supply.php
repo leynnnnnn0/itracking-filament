@@ -21,6 +21,8 @@ class Supply extends Model implements Auditable
         'description',
         'unit',
         'quantity',
+        'missing',
+        'expired',
         'used',
         'recently_added',
         'total',
@@ -36,10 +38,16 @@ class Supply extends Model implements Auditable
         'total' => 'integer'
     ];
 
-    public function supplyHistory()
+    public function supply_history()
     {
         return $this->hasMany(SupplyHistory::class);
     }
+
+    public function supply_incidents()
+    {
+        return $this->hasMany(SupplyIncident::class);
+    }
+
 
     public function categories()
     {

@@ -13,10 +13,5 @@ class EditOperatingUnitProject extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = OperatingUnitProjectResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
 
-        ];
-    }
 }

@@ -13,10 +13,5 @@ class EditBorrowedEquipment extends EditRecord
     use HasRedirectUrl, HasUpdateConfirmationModal;
     protected static string $resource = BorrowedEquipmentResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+   
 }
