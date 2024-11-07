@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\SupplyIncidentStatus;
 use App\Filament\Resources\SupplyIncidentResource\Pages;
 use App\Filament\Resources\SupplyIncidentResource\RelationManagers;
 use App\Models\Supply;
 use App\Models\SupplyIncident;
 use App\SupplyIncidents;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -15,12 +17,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class SupplyIncidentResource extends Resource
 {
@@ -93,11 +97,14 @@ class SupplyIncidentResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->label('Incident Id'),
+                TextColumn::make('supply.id')
+                    ->label('Supply Id'),
                 TextColumn::make('supply.description')
                     ->label('Supply'),
                 TextColumn::make('type')
                     ->badge(),
                 TextColumn::make('quantity'),
+                TextColumn::make('status'),
                 TextColumn::make('incident_date')
                     ->date('F d, Y')
             ])
@@ -107,8 +114,37 @@ class SupplyIncidentResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->label('Archive')
+                    ->label('Archive')
                     ->modalHeading('Archive Supply')
                     ->successNotificationTitle('Archived'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('found')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            try {
+                                DB::transaction(function () use ($record) {
+                                    $record->status = SupplyIncidentStatus::FOUND->value;
+                                    $supply = $record->supply;
+                                    $supply->missing -= $record->quantity;
+                                    $supply->total += $record->quantity;
+
+                                    $supply->save();
+                                    $record->save();
+                                });
+                                Notification::make()
+                                    ->title('Updated Successfully.')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                ])->visible(fn($record) => $record->type === 'missing' && $record->status = 'active')
 
             ])
             ->bulkActions([
@@ -134,6 +170,7 @@ class SupplyIncidentResource extends Resource
                     ->label('Quantity'),
                 TextEntry::make('incident_date')
                     ->date('F d, Y'),
+                TextEntry::make('status'),
                 TextEntry::make('remarks'),
             ]);
     }

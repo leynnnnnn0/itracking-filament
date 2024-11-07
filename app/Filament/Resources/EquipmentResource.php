@@ -148,7 +148,7 @@ class EquipmentResource extends Resource
                     ->required()
                     ->beforeOrEqual(function (string $operation, $record) {
                         if ($operation === 'edit') {
-                            return $record->date_acquired->endOfDay();  // Add endOfDay()
+                            return $record->date_acquired->endOfDay();  
                         }
                         return now()->endOfDay();
                     })

@@ -16,7 +16,8 @@ class SupplyIncident extends Model
         'type',
         'quantity',
         'remarks',
-        'incident_date'
+        'incident_date',
+        'status'
     ];
 
     protected $casts = [

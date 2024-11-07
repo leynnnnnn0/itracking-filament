@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\SupplyIncidentStatus;
 use App\Models\Supply;
 use App\SupplyIncidents;
 use Illuminate\Database\Migrations\Migration;
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->text('remarks')->nullable();
             $table->date('incident_date');
+            $table->enum('status', SupplyIncidentStatus::values())->default(SupplyIncidentStatus::ACTIVE->value);
             $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
