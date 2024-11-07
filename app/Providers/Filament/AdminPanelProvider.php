@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\ResetPassword as AuthResetPassword;
 use App\Filament\Resources\DashboardResource\Widgets\LowStockSuppy;
 use App\Filament\Resources\DashboardResource\Widgets\SummaryOverview;
 use App\Filament\Resources\EquipmentResource\Pages\ListEquipment;
@@ -38,7 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#0B592D',
             ])
-            ->passwordReset(ResetPassword::class)
+            ->passwordReset()
             ->databaseNotifications()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

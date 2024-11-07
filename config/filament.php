@@ -1,5 +1,7 @@
 <?php
 
+use App\Filament\Pages\Auth\ResetPassword;
+
 return [
 
     /*
@@ -84,5 +86,9 @@ return [
     */
 
     'livewire_loading_delay' => 'default',
+
+    'pages' => [
+        'password-reset.request' => ResetPassword::class,
+    ],
 
 ];
