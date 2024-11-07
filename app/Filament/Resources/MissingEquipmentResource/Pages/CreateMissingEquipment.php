@@ -26,33 +26,24 @@ class CreateMissingEquipment extends CreateRecord
             ->requiresConfirmation()
             ->action(function () {
                 $this->closeActionModal();
-                try {
-                    DB::transaction(function () {
-                        $this->create();
+                DB::transaction(function () {
+                    $this->create();
 
-                        $missingEquipment = $this->record;
-                        $equipment = $missingEquipment->equipment;
+                    $missingEquipment = $this->record;
+                    $equipment = $missingEquipment->equipment;
 
-                        $totalAvaibleEquipment = $equipment->quantity_available - $missingEquipment->quantity;
-                        if ($missingEquipment->is_condemned) {
-                            $totalCondemnedEquipment = $equipment->total_quantity_condemned + $missingEquipment->quantity;
-                            $equipment->quantity_condemned = $totalCondemnedEquipment;
-                        } else {
-                            $totalMissingEquipment = $equipment->quantity_missing + $missingEquipment->quantity;
-                            $equipment->quantity_missing = $totalMissingEquipment;
-                        }
-                        $equipment->quantity_available = $totalAvaibleEquipment;
-                        $equipment->status = self::getEquimentStatus($equipment);
-                        $equipment->save();
-                    });
-                } catch (Exception $e) {
-                    Notification::make()
-                        ->title('Error')
-                        ->body($e->getMessage())
-                        ->success()
-                        ->send();
-                }
+                    $totalAvaibleEquipment = $equipment->quantity_available - $missingEquipment->quantity;
+                    if ($missingEquipment->is_condemned) {
+                        $totalCondemnedEquipment = $equipment->total_quantity_condemned + $missingEquipment->quantity;
+                        $equipment->quantity_condemned = $totalCondemnedEquipment;
+                    } else {
+                        $totalMissingEquipment = $equipment->quantity_missing + $missingEquipment->quantity;
+                        $equipment->quantity_missing = $totalMissingEquipment;
+                    }
+                    $equipment->quantity_available = $totalAvaibleEquipment;
+                    $equipment->status = self::getEquimentStatus($equipment);
+                    $equipment->save();
+                });
             });
     }
-    
 }

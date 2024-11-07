@@ -15,21 +15,12 @@ class CreateSupplyIncident extends CreateRecord
 {
     use HasAuthorizationCheck, HasConfirmationModal, HasRedirectUrl;
     protected static string $resource = SupplyIncidentResource::class;
+    protected static bool $canCreateAnother = false;
 
-    protected function getCreateFormAction(): Actions\Action
+    public function afterCreate()
     {
-        return parent::getCreateFormAction()
-            ->submit(null)
-            ->requiresConfirmation()
-            ->action(function () {
-                $this->closeActionModal();
-
-                DB::transaction(function () {
-                    $supply = Supply::findOrFail($this->data['supply_id']);
-                    $supply->total -= $this->data['quantity'];
-                    $supply->save();
-                    $this->create();
-                });
-            });
+        $supply = Supply::find($this->record->supply_id);
+        $supply->total -= $this->record->quantity;
+        $supply->save();
     }
 }

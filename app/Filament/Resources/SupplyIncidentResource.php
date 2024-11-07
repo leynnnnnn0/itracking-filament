@@ -13,8 +13,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -61,14 +64,15 @@ class SupplyIncidentResource extends Resource
                     ->minValue(1)
                     ->maxValue(function (callable $get) {
                         $supplyId = $get('supply_id');
-                        $supplyAvailable = Supply::find($supplyId);
-
-                        return  $supplyAvailable->total ?? 0;
+                        $supplyAvailable = Supply::find($supplyId)?->total;
+                        return $supplyAvailable;
                     }),
 
                 DatePicker::make('incident_date')
                     ->native(false)
                     ->closeOnDateSelection()
+                    ->default(today())
+                    ->beforeOrEqual('today')
                     ->required(),
 
                 Textarea::make('remarks')
@@ -85,17 +89,44 @@ class SupplyIncidentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([])
-            ->filters([
-                //
+            ->columns([
+                TextColumn::make('id')
+                    ->label('Incident Id'),
+                TextColumn::make('supply.description')
+                    ->label('Supply'),
+                TextColumn::make('type')
+                    ->badge(),
+                TextColumn::make('quantity'),
+                TextColumn::make('incident_date')
+                    ->date('F d, Y')
             ])
+            ->filters([])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('id')
+                    ->label('incident Id'),
+                TextEntry::make('supply.description')
+                    ->label('Supply'),
+                TextEntry::make('type')
+                    ->badge(),
+                TextEntry::make('quantity')
+                    ->label('Quantity'),
+                TextEntry::make('incident_date')
+                    ->date('F d, Y'),
+                TextEntry::make('remarks'),
             ]);
     }
 
