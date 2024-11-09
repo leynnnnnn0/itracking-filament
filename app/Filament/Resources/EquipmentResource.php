@@ -9,6 +9,7 @@ use App\Models\AccountableOfficer;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
+use App\Models\OfficeAgency;
 use App\Models\Personnel;
 use App\Models\Unit;
 use Carbon\Carbon;
@@ -341,6 +342,19 @@ class EquipmentResource extends Resource
                                     ->default(fn($record) => $record->id)
                                     ->required(),
 
+                                Select::make('office_agency_id')
+                                    ->label('Office/Agency')
+                                    ->options(OfficeAgency::select(['name', 'id'])->pluck('name', 'id'))
+                                    ->native(false)
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function (array $data): string {
+                                        return OfficeAgency::create($data)->id;
+                                    })
+                                    ->required(),
+
                                 TextInput::make('quantity')
                                     ->integer()
                                     ->maxLength(7)
@@ -414,6 +428,7 @@ class EquipmentResource extends Resource
                         try {
                             DB::transaction(function () use ($data) {
                                 $borrowedEquipment = BorrowedEquipment::create([
+                                    'office_agency_id' => $data['office_agency_id'],
                                     'equipment_id' => $data['equipment_id'],
                                     'quantity' => $data['quantity'],
                                     'borrower_first_name' => $data['borrower_first_name'],
