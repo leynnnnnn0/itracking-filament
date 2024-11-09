@@ -8,6 +8,7 @@ use App\Filament\Resources\BorrowedEquipmentResource\Pages;
 use App\Models\BorrowedEquipment;
 use App\Models\Equipment;
 use App\Models\MissingEquipment;
+use App\Models\OfficeAgency;
 use App\Traits\HasModelStatusIdentifier;
 use Exception;
 use Filament\Forms\Components\DatePicker;
@@ -55,6 +56,19 @@ class BorrowedEquipmentResource extends Resource
                     ->getSearchResultsUsing(fn(string $search): array => Equipment::select('name', 'property_number', 'id')->whereAny(['name', 'property_number'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
                     ->searchable()
                     ->live() // Make this field reactive
+                    ->required(),
+
+                Select::make('office_agency_id')
+                    ->label('Office/Agency')
+                    ->options(OfficeAgency::select(['name', 'id'])->pluck('name', 'id'))
+                    ->native(false)
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data): string {
+                        return OfficeAgency::create($data)->id;
+                    })
                     ->required(),
 
                 TextInput::make('quantity')
@@ -396,6 +410,7 @@ class BorrowedEquipmentResource extends Resource
 
                 \Filament\Infolists\Components\Section::make('Borrower Details')
                     ->schema([
+                        TextEntry::make('office_agency.name'),
                         TextEntry::make('borrower_first_name'),
 
                         TextEntry::make('borrower_last_name'),
@@ -428,6 +443,6 @@ class BorrowedEquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('equipment')->latest();
+        return parent::getEloquentQuery()->with(['equipment', 'office_agency'])->latest();
     }
 }

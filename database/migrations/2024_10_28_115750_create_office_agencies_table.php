@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('personal_protective_equipment', function (Blueprint $table) {
+        Schema::create('office_agencies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('personal_protective_equipment');
+        Schema::dropIfExists('office_agencies');
     }
 };

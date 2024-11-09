@@ -10,7 +10,6 @@ use App\Models\Fund;
 use App\Models\Office;
 use App\Models\OperatingUnitProject;
 use App\Models\OrganizationUnit;
-use App\Models\PersonalProtectiveEquipment;
 use App\Models\Personnel;
 use App\Models\Position;
 use App\Models\SupplyCategory;
@@ -40,7 +39,6 @@ class DatabaseSeeder extends Seeder
         Unit::factory(5)->create();
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
-        PersonalProtectiveEquipment::factory(5)->create();
         AccountableOfficer::factory(100)->create();
         Personnel::factory(100)->create();
         Equipment::factory(100)->create();

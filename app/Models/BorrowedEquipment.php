@@ -13,6 +13,7 @@ class BorrowedEquipment extends Model implements Auditable
     use HasFactory, SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
+        'office_agency_id',
         'equipment_id',
         'quantity',
         'borrower_first_name',
@@ -56,5 +57,10 @@ class BorrowedEquipment extends Model implements Auditable
     public function missing_equipment()
     {
         return $this->hasMany(MissingEquipment::class);
+    }
+
+    public function office_agency()
+    {
+        return $this->belongsTo(OfficeAgency::class);
     }
 }
