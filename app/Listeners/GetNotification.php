@@ -28,20 +28,26 @@ class GetNotification
 
     private function checkLowStockSupplies($recipient): void
     {
-        $lowStockSupplies = Supply::where('total', '<', 10)
+        $lowStockSupplies = Supply::where('quantity', '>', 0)
+            ->whereRaw('total <= (quantity * 0.15)')
             ->orderBy('total', 'asc')
             ->get();
 
         foreach ($lowStockSupplies as $supply) {
+            $percentageLeft = ($supply->total / $supply->quantity) * 100;
+
             Notification::make()
                 ->title("Low Stock Alert: {$supply->description}")
-                ->body("Only {$supply->total} {$supply->unit} remaining (ID# {$supply->id})\n\nPlease restock immediately.")
+                ->body(
+                    "Only {$supply->total} {$supply->unit} remaining (" . number_format($percentageLeft, 1) . "% of total stock)\n" .
+                        "ID# {$supply->id}\n\n" .
+                        "Please restock immediately."
+                )
                 ->danger()
                 ->persistent()
                 ->sendToDatabase($recipient);
         }
     }
-
     private function checkSupplyExpirations($recipient): void
     {
         $expiringSupplies = Supply::where('expiry_date', '<', now()->addWeek())

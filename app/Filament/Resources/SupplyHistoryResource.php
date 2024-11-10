@@ -78,13 +78,6 @@ class SupplyHistoryResource extends Resource
                     ->relationship('supply', 'description')
                     ->searchable(),
 
-                TernaryFilter::make('available')
-                    ->label('Available Equipment')
-                    ->queries(
-                        true: fn(Builder $query) => $query->monthlySummary('2024-11-01', '2024-11-31'),
-                        false: fn(Builder $query) => $query,
-                    ),
-
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_from'),
