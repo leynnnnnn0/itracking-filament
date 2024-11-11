@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->enum('gender', ['Male', 'Female']);
+            $table->enum('sex', ['Male', 'Female']);
             $table->string('email')->unique()->nullable();
             $table->string('phone_number');
             $table->timestamp('email_verified_at')->nullable();
@@ -48,12 +48,12 @@ return new class extends Migration
             'first_name' => 'Admin',
             'middle_name' => null,
             'last_name' => 'User',
-            'gender' => 'Male',
+            'sex' => 'Male',
             'email' => 'admin@example.com',
-            'phone_number' => '1234567890', 
+            'phone_number' => '1234567890',
             'email_verified_at' => now(),
             'password' => bcrypt('password'),
-            'role' => 'admin', 
+            'role' => 'admin',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -81,7 +81,7 @@ class AccountingOfficerResource extends Resource
                     ->maxLength(30)
                     ->required(),
 
-                Select::make('gender')
+                Select::make('sex')
                     ->options(Gender::class)
                     ->enum(Gender::class)
                     ->required(),
@@ -211,7 +211,7 @@ class AccountingOfficerResource extends Resource
 
                 TextEntry::make('last_name'),
 
-                TextEntry::make('gender'),
+                TextEntry::make('sex'),
 
                 TextEntry::make('email'),
 

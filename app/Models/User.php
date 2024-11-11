@@ -26,7 +26,7 @@ class User extends Authenticatable implements HasName, Auditable
         'first_name',
         'middle_name',
         'last_name',
-        'gender',
+        'sex',
         'phone_number',
         'email',
         'password',
@@ -60,5 +60,4 @@ class User extends Authenticatable implements HasName, Auditable
     {
         return $this->first_name ?? '';
     }
-
 }

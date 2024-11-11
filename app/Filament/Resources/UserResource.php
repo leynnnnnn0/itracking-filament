@@ -65,7 +65,7 @@ class UserResource extends Resource
                             ->maxLength(30)
                             ->required(),
 
-                        Select::make('gender')
+                        Select::make('sex')
                             ->native(false)
                             ->options(Gender::values())
                             ->required(),
@@ -160,7 +160,7 @@ class UserResource extends Resource
 
                 TextEntry::make('last_name'),
 
-                TextEntry::make('gender'),
+                TextEntry::make('sex'),
 
                 TextEntry::make('email'),
 

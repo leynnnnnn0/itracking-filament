@@ -21,7 +21,7 @@ class AccountableOfficer extends Model implements Auditable
         'first_name',
         'middle_name',
         'last_name',
-        'gender',
+        'sex',
         'phone_number',
         'email',
         'start_date',
@@ -62,6 +62,4 @@ class AccountableOfficer extends Model implements Auditable
     {
         return $this->hasMany(EquipmentHistory::class);
     }
-
-
 }

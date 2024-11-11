@@ -22,7 +22,7 @@
             @foreach ($model as $personnel)
             <tr>
                 <td>{{ $personnel->full_name }}</td>
-                <td>{{ $personnel->gender }}</td>
+                <td>{{ $personnel->sex }}</td>
                 <td>{{ $personnel->phone_number }}</td>
                 <td>{{ $personnel->email }}</td>
                 <td>{{ $personnel->department->name }}</td>
