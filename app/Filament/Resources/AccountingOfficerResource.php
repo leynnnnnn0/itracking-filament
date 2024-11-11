@@ -156,11 +156,10 @@ class AccountingOfficerResource extends Resource
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()
                         ->action(function (Model $record) {
-                            dd($record);
                             if ($record->equipment()->exists()) {
                                 Notification::make()
-                                    ->title('Deletion Failed')
-                                    ->body('Cannot delete this accountable officer because it has associated equipment.')
+                                    ->title('Archive Failed')
+                                    ->body('Cannot Archive this accountable officer because it has associated equipment.')
                                     ->danger()
                                     ->send();
 
@@ -173,9 +172,9 @@ class AccountingOfficerResource extends Resource
                         ->requiresConfirmation()
                         ->modalIconColor('danger')
                         ->color('danger')
-                        ->modalHeading('Delete accountable officer')
+                        ->modalHeading('Archive accountable officer')
                         ->modalDescription('Are you sure you\'d like to delete this accountable officer?')
-                        ->modalSubmitActionLabel('Yes, Delete it'),
+                        ->modalSubmitActionLabel('Yes, Archive it'),
                     Tables\Actions\ForceDeleteAction::make(),
                     Tables\Actions\RestoreAction::make(),
                 ]),
