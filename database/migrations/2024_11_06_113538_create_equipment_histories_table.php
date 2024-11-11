@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('equipment_id')->constrained('equipment')->cascadeOnDelete();
             $table->foreignId('accountable_officer_id')->nullable()->constrained('accountable_officers')->nullOnDelete();
             $table->foreignId('personnel_id')->nullable()->constrained('personnel')->nullOnDelete();
+            $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();
         });
     }

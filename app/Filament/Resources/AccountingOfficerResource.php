@@ -156,6 +156,7 @@ class AccountingOfficerResource extends Resource
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()
                         ->action(function (Model $record) {
+                            dd($record);
                             if ($record->equipment()->exists()) {
                                 Notification::make()
                                     ->title('Deletion Failed')
@@ -246,6 +247,6 @@ class AccountingOfficerResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['position', 'department', 'office']);
+        return parent::getEloquentQuery()->with(['position', 'department', 'office', 'equipment']);
     }
 }
