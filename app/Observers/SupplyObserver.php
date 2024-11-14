@@ -32,6 +32,7 @@ class SupplyObserver
     {
         // Get the changed attributes
         $changes = $supply->getChanges();
+        $recipient = Auth::user();
 
         // Check if quantity, used, or total were changed
         if (isset($changes['quantity']) || isset($changes['used']) || isset($changes['total'])) {
@@ -44,6 +45,21 @@ class SupplyObserver
                 'added' => $supply->recently_added ?? 0,
                 'total' => $supply->total
             ]);
+
+            $percentageLeft = ($supply->total / $supply->quantity) * 100;
+
+            if ($percentageLeft <= 15) {
+                Notification::make()
+                    ->title("Low Stock Alert: {$supply->description}")
+                    ->body(
+                        "Only {$supply->total} {$supply->unit} remaining (" . number_format($percentageLeft, 1) . "% of total stock)\n" .
+                            "ID# {$supply->id}\n\n" .
+                            "Please restock immediately."
+                    )
+                    ->danger()
+                    ->persistent()
+                    ->sendToDatabase($recipient);
+            }
         }
     }
 }
