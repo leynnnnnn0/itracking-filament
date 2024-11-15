@@ -139,6 +139,7 @@ class EquipmentResource extends Resource
                     ->native(false)
                     ->createOptionForm([
                         TextInput::make('name')
+                            ->unique('units', 'name')
                             ->required(),
                     ])
                     ->createOptionUsing(function (array $data): string {

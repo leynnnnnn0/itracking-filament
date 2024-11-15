@@ -33,6 +33,7 @@ class OperatingUnitProjectResource extends Resource
                 Section::make('Operating Unit/Project Details')
                     ->schema([
                         TextInput::make('name')
+                        ->unique()
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',

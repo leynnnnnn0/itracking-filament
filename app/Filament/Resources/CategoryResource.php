@@ -30,6 +30,7 @@ class CategoryResource extends Resource
                 Section::make('Category Details')
                     ->schema([
                         TextInput::make('name')
+                            ->unique('categories', 'name')
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',

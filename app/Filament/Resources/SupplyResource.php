@@ -63,6 +63,7 @@ class SupplyResource extends Resource
                             ->native(false)
                             ->createOptionForm([
                                 TextInput::make('name')
+                                ->unique('units', 'name')
                                     ->required(),
                             ])
                             ->preload()

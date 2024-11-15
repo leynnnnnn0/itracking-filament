@@ -31,6 +31,7 @@ class PositionResource extends Resource
                 Section::make('Department Details')
                     ->schema([
                         TextInput::make('name')
+                        ->unique()
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',

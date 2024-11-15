@@ -32,6 +32,7 @@ class OfficeResource extends Resource
                 Section::make('Office Details')
                     ->schema([
                         TextInput::make('name')
+                        ->unique()
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',

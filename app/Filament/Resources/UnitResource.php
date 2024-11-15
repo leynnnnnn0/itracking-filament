@@ -34,6 +34,7 @@ class UnitResource extends Resource
                 Section::make('Unit Details')
                     ->schema([
                         TextInput::make('name')
+                        ->unique()
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',
