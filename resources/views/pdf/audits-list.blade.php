@@ -19,7 +19,7 @@
             @foreach ($model as $audit)
             <tr>
                 <td>{{ $audit->id }}</td>
-                <td>{{ $audit->user->full_name }}</td>
+                <td>{{ $audit->user?->full_name ?? 'N/a' }}</td>
                 <td>{{ $audit->event }}</td>
                 <td>{{ Str::afterLast($audit->auditable_type, '\\') }}</td>
                 <td>{{ json_encode($audit->old_values) }}</td>
