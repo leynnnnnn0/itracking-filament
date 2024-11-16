@@ -131,6 +131,7 @@ class EquipmentResource extends Resource
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
                     ])
+
                     ->unique('equipment', 'property_number', ignoreRecord: true)
                     ->minLength(14),
 
