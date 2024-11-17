@@ -17,6 +17,8 @@ class SupplyObserver
             SupplyHistory::create([
                 'supply_id' => $supply->id,
                 'quantity' => $supply->quantity,
+                'missing' => 0,
+                'expired' => 0,
                 'used' => 0,
                 'added' => 0,
                 'total' => $supply->total,

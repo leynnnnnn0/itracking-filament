@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\SupplyHistoryResource\Pages;
 
 use App\Filament\Resources\SupplyHistoryResource;
+use App\Models\Supply;
+use App\Models\SupplyHistory;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Notifications\Notification;
@@ -29,8 +31,8 @@ class ListSupplyHistories extends ListRecords
     public function export()
     {
         try {
-            ini_set('memory_limit', '1024M');  // Increased to 4GB
-            set_time_limit(300);  // Add 5 minutes timeout just in case
+            ini_set('memory_limit', '1024M');
+            set_time_limit(300);
 
             $query = $this->getFilteredTableQuery();
             $this->applySortingToTableQuery($query);
@@ -39,11 +41,29 @@ class ListSupplyHistories extends ListRecords
             $from = $filters['created_at']['created_from'];
             $until = $filters['created_at']['created_until'];
 
+            $suppliesWithHistory = $query->pluck('supply_id')->unique();
+
+            $suppliesWithoutHistory = Supply::whereNotIn('id', $suppliesWithHistory)->get();
+
+
+            foreach ($suppliesWithoutHistory as $supply) {
+                SupplyHistory::create([
+                    'supply_id' => $supply->id,
+                    'quantity' => $supply->quantity,
+                    'missing' => $supply->missing,
+                    'expired' => $supply->expired,
+                    'used' => $supply->used,
+                    'added' => 0,
+                    'total' => $supply->total,
+                ]);
+            }
+
+
             if ($from && $until) {
                 $query->monthlySummary($from, $until);
             }
 
-            $supplies = $query->get();
+            $supplies = $query->orderBy('created_at', 'desc')->get();
 
             return response()->streamDownload(
                 function () use ($supplies, $from, $until) {
