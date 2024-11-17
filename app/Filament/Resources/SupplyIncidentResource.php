@@ -40,12 +40,18 @@ class SupplyIncidentResource extends Resource
             ->schema([
                 Select::make('supply_id')
                     ->native(false)
+                    ->relationship('supply')
                     ->label('Supply')
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
-                    ->getSearchResultsUsing(fn(string $search): array => Supply::select('description', 'id')->whereAny(['description', 'id'], 'like', "%{$search}%")->limit(20)->get()->pluck('select_display', 'id')->toArray())
+                    ->getSearchResultsUsing(fn(string $search): array => Supply::select('description', 'id')
+                        ->whereAny(['description', 'id'], 'like', "%{$search}%")
+                        ->limit(20)
+                        ->get()
+                        ->pluck('select_display', 'id')
+                        ->toArray())
+                    ->getOptionLabelUsing(fn($value): ?string => Supply::find($value)?->select_display)
                     ->searchable()
                     ->live()
-                    ->preload()
                     ->required(),
 
                 Select::make('type')
