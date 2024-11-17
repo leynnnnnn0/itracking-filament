@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Blade;
 class ListMissingEquipment extends ListRecords
 {
     protected static string $resource = MissingEquipmentResource::class;
+    protected static ?string $title = 'Missing Equipment';
 
     protected function getHeaderActions(): array
     {

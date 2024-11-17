@@ -11,6 +11,7 @@ class ListPersonnels extends ListRecords
 {
     use HasPdfDownload;
     protected static string $resource = PersonnelResource::class;
+    protected static ?string $title = 'Personnel';
 
     protected function getViewName(): string
     {
