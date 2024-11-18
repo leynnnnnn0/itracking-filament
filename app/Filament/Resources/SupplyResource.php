@@ -63,7 +63,7 @@ class SupplyResource extends Resource
                             ->native(false)
                             ->createOptionForm([
                                 TextInput::make('name')
-                                ->unique('units', 'name')
+                                    ->unique('units', 'name')
                                     ->required(),
                             ])
                             ->preload()
@@ -74,6 +74,7 @@ class SupplyResource extends Resource
 
                         TextInput::make('quantity')
                             ->maxLength(30)
+                            ->numeric()
                             ->live()
                             ->extraInputAttributes([
                                 'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
@@ -90,17 +91,18 @@ class SupplyResource extends Resource
                             ->native(false),
 
                         Select::make('categories')
-                            ->relationship('categories', 'name')
+                            ->options(Unit::select('name')->pluck('name', 'name'))
+                            ->native(false)
                             ->multiple()
                             ->createOptionForm([
                                 TextInput::make('name')
+                                    ->unique('categories', 'name')
                                     ->required(),
                             ])
                             ->preload()
                             ->createOptionUsing(function (array $data): string {
                                 return Category::create($data)->name;
                             })
-                            ->searchable()
                             ->required(),
 
                         Radio::make('is_consumable')
