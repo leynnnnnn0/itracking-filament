@@ -70,8 +70,8 @@ class GetNotification
 
     private function checkAccountableOfficerExpirations($recipient): void
     {
-        $endingContracts = AccountableOfficer::where('end_date', '<', now()->addWeek())
-            ->where('end_date', '>', today())
+        $endingContracts = AccountableOfficer::where('end_date', '>=', today())
+            ->where('end_date', '<', now()->addWeek())
             ->get();
 
         foreach ($endingContracts as $contract) {
@@ -87,8 +87,8 @@ class GetNotification
 
     private function checkPersonnelExpirations($recipient): void
     {
-        $endingContracts = Personnel::where('end_date', '<', now()->addWeek())
-            ->where('end_date', '>', today())
+        $endingContracts = Personnel::where('end_date', '>=', today())
+            ->where('end_date', '<', now()->addWeek())
             ->get();
 
         foreach ($endingContracts as $contract) {
