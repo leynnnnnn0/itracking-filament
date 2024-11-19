@@ -4,7 +4,7 @@ namespace App\Enum;
 
 enum AccountStatus : string {
     case ACTIVE = 'active';
-    case INACTIVE = 'deactivated';
+    case DEACTIVATED = 'deactivated';
 
     public static function values()
     {

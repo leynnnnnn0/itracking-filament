@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\AccountStatus;
 use App\Enum\Gender;
 use App\Enum\UserRole;
 use App\Filament\Resources\UserResource\Pages;
@@ -22,6 +23,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +44,7 @@ class UserResource extends Resource
                 Section::make('User Details')
                     ->schema([
                         TextInput::make('first_name')
-                        ->disabled(fn(string $operation): bool => $operation === 'edit')
+                            ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -51,7 +53,7 @@ class UserResource extends Resource
                             ->required(),
 
                         TextInput::make('middle_name')
-                        ->disabled(fn(string $operation): bool => $operation === 'edit')
+                            ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -60,7 +62,7 @@ class UserResource extends Resource
                             ->nullable(),
 
                         TextInput::make('last_name')
-                        ->disabled(fn(string $operation): bool => $operation === 'edit')
+                            ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -69,7 +71,7 @@ class UserResource extends Resource
                             ->required(),
 
                         Select::make('sex')
-                        ->disabled(fn(string $operation): bool => $operation === 'edit')
+                            ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->native(false)
                             ->options(Gender::values())
                             ->required(),
@@ -139,6 +141,46 @@ class UserResource extends Resource
                         ->successNotificationTitle('Archived'),
                     Tables\Actions\ForceDeleteAction::make(),
                     Tables\Actions\RestoreAction::make(),
+
+                    Tables\Actions\Action::make('Activate Account')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            $record->status = AccountStatus::ACTIVE->value;
+                            $record->save();
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Account activated successfully.')
+                                ->success()
+                                ->send();
+                        })->visible(fn($record) => $record->status === AccountStatus::DEACTIVATED->value  && Auth::user()->role === UserRole::ADMIN->value && Auth::user()->id !== $record->id),
+
+                    Tables\Actions\Action::make('Deactivate Account')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            $result = User::where('status', AccountStatus::ACTIVE->value)->first();
+                            if (!$result) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body('Account deactivation failed because at least one user account must be active.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            $record->status = AccountStatus::DEACTIVATED->value;
+                            $record->save();
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Account deactivated successfully.')
+                                ->success()
+                                ->send();
+                        })->visible(fn($record) => $record->status === AccountStatus::ACTIVE->value  && Auth::user()->role === UserRole::ADMIN->value && Auth::user()->id !== $record->id),
+
+
                 ])
             ])
             ->bulkActions([
