@@ -21,6 +21,8 @@
                     <th>Quantity</th>
                     <th>Used</th>
                     <th>Added</th>
+                    <th>Missing</th>
+                    <th>Expired</th>
                     <th>Total</th>
                     <th>Expiry Date</th>
                     <th>Is Consumable?</th>
@@ -36,6 +38,8 @@
                     <td>{{ $supply->quantity }}</td>
                     <td>{{ $supply->used }}</td>
                     <td>{{ $supply->added }}</td>
+                    <td>{{ $supply->missing }}</td>
+                    <td>{{ $supply->expired }}</td>
                     <td>{{ $supply->total }}</td>
                     <td>{{ $supply->supply->expiry_date?->format('F d, Y') ?? 'N/A' }}</td>
                     <td>{{ $supply->is_consumable ? 'Yes' : 'No' }}</td>

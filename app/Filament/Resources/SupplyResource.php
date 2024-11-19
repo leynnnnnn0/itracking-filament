@@ -91,7 +91,8 @@ class SupplyResource extends Resource
                             ->native(false),
 
                         Select::make('categories')
-                            ->options(Category::select('name')->pluck('name', 'name'))
+                            ->relationship('categories', 'id')
+                            ->options(Category::select(['name', 'id'])->pluck('name', 'id'))
                             ->native(false)
                             ->multiple()
                             ->createOptionForm([
@@ -99,10 +100,10 @@ class SupplyResource extends Resource
                                     ->unique('categories', 'name')
                                     ->required(),
                             ])
-                            ->preload()
                             ->createOptionUsing(function (array $data): string {
-                                return Category::create($data)->name;
+                                return Category::create($data)->id;
                             })
+                            ->preload()
                             ->required(),
 
                         Radio::make('is_consumable')
