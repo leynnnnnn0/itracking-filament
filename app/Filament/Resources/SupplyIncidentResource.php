@@ -65,7 +65,7 @@ class SupplyIncidentResource extends Resource
                     ->maxLength(7)
                     ->required()
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->hint(function (callable $get) {
                         $supplyId = $get('supply_id');

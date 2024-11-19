@@ -181,12 +181,11 @@ class EquipmentResource extends Resource
 
                 TextInput::make('quantity')
                     ->maxLength(7)
-                    ->numeric()
-                    ->live()
                     ->minValue(1)
                     ->required()
+                    ->numeric()
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->live()
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
@@ -214,7 +213,7 @@ class EquipmentResource extends Resource
                     ->required()
                     ->live()
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->afterStateUpdated(function ($state, $set, $get) {
                         $set('total_amount', (float)($get('quantity') ?? 0)  * (float)($state ?? 0));
@@ -223,7 +222,7 @@ class EquipmentResource extends Resource
                 TextInput::make('total_amount')
                     ->numeric()
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->minValue(1)
                     ->required(),
@@ -362,7 +361,7 @@ class EquipmentResource extends Resource
                                     ->maxLength(7)
                                     ->required()
                                     ->extraInputAttributes([
-                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                     ])
                                     ->hint(function (callable $get) {
                                         $equipmentId = $get('equipment_id');
@@ -392,7 +391,7 @@ class EquipmentResource extends Resource
                                     ->numeric()
                                     ->regex('/^09\d{9}$/')
                                     ->extraInputAttributes([
-                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                     ])
                                     ->maxLength(11),
 

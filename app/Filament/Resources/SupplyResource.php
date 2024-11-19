@@ -34,9 +34,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class SupplyResource extends Resource
 {
@@ -77,7 +75,7 @@ class SupplyResource extends Resource
                             ->numeric()
                             ->live()
                             ->extraInputAttributes([
-                                'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                             ])
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 $set('total', $state ?? 0);
@@ -167,7 +165,7 @@ class SupplyResource extends Resource
                                 ->minValue(1)
                                 ->live()
                                 ->extraInputAttributes([
-                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
                                 ->required()
                         ])
@@ -205,7 +203,7 @@ class SupplyResource extends Resource
                                 ->maxValue(fn($record) => $record->total)
                                 ->live()
                                 ->extraInputAttributes([
-                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
                                 ->required()
                         ])

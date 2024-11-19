@@ -77,7 +77,7 @@ class BorrowedEquipmentResource extends Resource
                     ->maxLength(7)
                     ->required()
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->hint(function (callable $get, string $operation, $record) {
                         $equipmentId = $get('equipment_id');
@@ -117,7 +117,7 @@ class BorrowedEquipmentResource extends Resource
                     ->numeric()
                     ->regex('/^09\d{9}$/')
                     ->extraInputAttributes([
-                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                     ])
                     ->maxLength(11),
 
@@ -242,7 +242,7 @@ class BorrowedEquipmentResource extends Resource
                             TextInput::make('quantity_returned')
                                 ->integer()
                                 ->extraInputAttributes([
-                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
                                 ->label('Quantity to return')
                                 ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
@@ -296,7 +296,7 @@ class BorrowedEquipmentResource extends Resource
                             TextInput::make('quantity_missing')
                                 ->integer()
                                 ->extraInputAttributes([
-                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
                                 ->label('Quantity missing')
                                 ->maxValue(fn($record) => $record->quantity - ($record->total_quantity_returned + $record->total_quantity_missing))
