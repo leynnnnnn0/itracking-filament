@@ -37,7 +37,7 @@ class OrganizationUnitResource extends Resource
                             ->rules([
                                 'string',
                                 'regex:/[a-zA-Z]/',
-                            ])->maxLength(30)->required()
+                            ])->required()
                     ])->columns(2)
             ]);
     }
