@@ -3,6 +3,7 @@
 use App\Filament\Resources\EquipmentResource\Pages\ListEquipment;
 use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\Pdf\EquipmentPdf;
+use App\Http\Controllers\UserManualController;
 use App\Livewire\DeleteArchive;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,10 @@ Route::get('/equipment-pdf/{equipment}/{personnel}/{previousAccountableOfficer}'
 
 Route::get('/database-backup', [DatabaseBackupController::class, 'backup'])
     ->name('database.backup')
+    ->middleware(['auth']);
+
+Route::get('/user-manual', UserManualController::class)
+    ->name('user-manual')
     ->middleware(['auth']);
 
 
