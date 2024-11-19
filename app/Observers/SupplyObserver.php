@@ -36,6 +36,20 @@ class SupplyObserver
         $changes = $supply->getChanges();
         $recipient = Auth::user();
 
+        if ($supply->expiry_date <= today()->addWeek()) {
+            $isExpired = $supply->expiry_date <= today();
+
+            $status = $isExpired ? 'EXPIRED' : 'Expiring ' . $supply->expiry_date->diffForHumans();
+            $title = $isExpired ? 'Expired Supply' : 'Supply Expiring Soon';
+
+            Notification::make()
+                ->title("{$title}: {$supply->description}")
+                ->body("Status: {$status}\nID# {$supply->id}\n\nTake necessary action immediately.")
+                ->when($isExpired, fn($notification) => $notification->danger(), fn($notification) => $notification->warning())
+                ->persistent()
+                ->sendToDatabase($recipient);
+        }
+
         // Check if quantity, used, or total were changed
         if (isset($changes['quantity']) || isset($changes['used']) || isset($changes['total'])) {
             SupplyHistory::create([
