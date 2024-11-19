@@ -91,7 +91,7 @@ class SupplyResource extends Resource
                             ->native(false),
 
                         Select::make('categories')
-                            ->options(Unit::select('name')->pluck('name', 'name'))
+                            ->options(Category::select('name')->pluck('name', 'name'))
                             ->native(false)
                             ->multiple()
                             ->createOptionForm([
