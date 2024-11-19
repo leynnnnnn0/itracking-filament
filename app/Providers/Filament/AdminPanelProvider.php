@@ -10,17 +10,20 @@ use App\Livewire\DeleteArchive;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Pages\Auth\PasswordReset\ResetPassword;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -35,6 +38,13 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(Vite::asset('resources/images/iTrackLogo.png'))
             ->brandLogoHeight('100px')
             ->login()
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Database Backup')
+                    ->url('/database-backup')
+                    ->icon('heroicon-o-arrow-down-tray')
+                // Add more menu items...
+            ])
             ->brandName('iTracking')
             ->colors([
                 'primary' => '#0B592D',
