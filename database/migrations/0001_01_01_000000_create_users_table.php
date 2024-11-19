@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\AccountStatus;
 use App\Enum\UserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', UserRole::values());
+            $table->enum('status', AccountStatus::values())->default('active');
             $table->softDeletes('deleted_at', precision: 0);
             $table->rememberToken();
             $table->timestamps();
@@ -54,6 +56,7 @@ return new class extends Migration
             'email_verified_at' => now(),
             'password' => bcrypt('password'),
             'role' => 'admin',
+            'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

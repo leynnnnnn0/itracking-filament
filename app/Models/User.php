@@ -30,7 +30,8 @@ class User extends Authenticatable implements HasName, Auditable
         'phone_number',
         'email',
         'password',
-        'role'
+        'role',
+        'status'
     ];
 
     /**

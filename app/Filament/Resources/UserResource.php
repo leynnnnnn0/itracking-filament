@@ -42,6 +42,7 @@ class UserResource extends Resource
                 Section::make('User Details')
                     ->schema([
                         TextInput::make('first_name')
+                        ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -50,6 +51,7 @@ class UserResource extends Resource
                             ->required(),
 
                         TextInput::make('middle_name')
+                        ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -58,6 +60,7 @@ class UserResource extends Resource
                             ->nullable(),
 
                         TextInput::make('last_name')
+                        ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->rules([
                                 'string',
                                 'regex:/^[a-zA-Z\s]+$/',
@@ -66,6 +69,7 @@ class UserResource extends Resource
                             ->required(),
 
                         Select::make('sex')
+                        ->disabled(fn(string $operation): bool => $operation === 'edit')
                             ->native(false)
                             ->options(Gender::values())
                             ->required(),
@@ -100,7 +104,8 @@ class UserResource extends Resource
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(fn($state) => Hash::make($state))
                             ->required(fn(string $operation): bool => $operation === 'create')
-                            ->revealable(),
+                            ->revealable()
+                            ->visible(Auth::user()->role === UserRole::ADMIN->value),
                     ])->columns(2)
             ]);
     }
