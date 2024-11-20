@@ -122,12 +122,14 @@ class SupplyReportResource extends Resource
                 TextColumn::make('action'),
 
                 TextColumn::make('date_acquired')
-                    ->label('Date'),
+                    ->label('Date')
+                    ->date('F d, Y'),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

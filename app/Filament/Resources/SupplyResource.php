@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\SupplyReportAction;
 use App\Filament\Resources\SupplyResource\Pages;
 use App\Filament\Resources\SupplyResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Supply;
 use App\Models\SupplyHistory;
 use App\Models\SupplyIncident;
+use App\Models\SupplyReport;
 use App\Models\Unit;
 use Exception;
 use Filament\Forms;
@@ -16,6 +18,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
@@ -35,6 +38,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SupplyResource extends Resource
 {
@@ -153,10 +157,11 @@ class SupplyResource extends Resource
                     ->modalHeading('Archive Supply')
                     ->successNotificationTitle('Archived'),
                 Tables\Actions\RestoreAction::make(),
+
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Add Quantity')
                         ->requiresConfirmation()
-                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the supply details record accordingly.')
+                        ->modalDescription('Please confirm that the details provided is accurate before proceeding. This action will update the supply details record accordingly.')
                         ->color('success')
                         ->form([
                             TextInput::make('quantity')
@@ -167,14 +172,54 @@ class SupplyResource extends Resource
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
+                                ->required(),
+
+                            TextInput::make('handler')
+                                ->rules([
+                                    'string',
+                                    'regex:/^[a-zA-Z\s]+$/',
+                                ])
+                                ->maxLength(30)
+                                ->required(),
+
+                            Textarea::make('remarks')
+                                ->rules([
+                                    'string',
+                                    'regex:/[a-zA-Z]/',
+                                ])
+                                ->extraAttributes(['class' => 'resize-none']),
+
+                            DatePicker::make('date_acquired')
+                                ->label('Date')
+                                ->closeOnDateSelection()
                                 ->required()
+                                ->default(today())
+                                ->beforeOrEqual(function (string $operation, $record) {
+                                    if ($operation === 'edit') {
+                                        return $record->date_acquired->endOfDay();
+                                    }
+                                    return now()->endOfDay();
+                                })
+                                ->native(false),
                         ])
                         ->action(function ($data, $record) {
                             try {
-                                $record->quantity += $data['quantity'];
-                                $record->total += $data['quantity'];
-                                $record->recently_added = $data['quantity'];
-                                $record->save();
+                                DB::transaction(function () use ($data, $record) {
+                                    $record->quantity += $data['quantity'];
+                                    $record->total += $data['quantity'];
+                                    $record->recently_added = $data['quantity'];
+
+                                    SupplyReport::create([
+                                        'supply_id' => $record->id,
+                                        'handler' => $data['handler'],
+                                        'quantity' => $data['quantity'],
+                                        'remarks' => $data['remarks'],
+                                        'action' => SupplyReportAction::ADD->value,
+                                        'date_acquired' => $data['date_acquired']
+                                    ]);
+
+                                    $record->save();
+                                });
                                 Notification::make()
                                     ->title("$record->description (ID: $record->id)")
                                     ->body('Quantity Updated')
@@ -192,7 +237,7 @@ class SupplyResource extends Resource
                     Tables\Actions\Action::make('Record Usage')
                         ->color('warning')
                         ->requiresConfirmation()
-                        ->modalDescription('Please confirm that the quantity provided is accurate before proceeding. This action will update the supply details record accordingly.')
+                        ->modalDescription('Please confirm that the information provided is accurate before proceeding. This action will update the supply details record accordingly.')
                         ->modalSubmitActionLabel('Submit')
                         ->form([
                             TextInput::make('quantity')
@@ -205,24 +250,63 @@ class SupplyResource extends Resource
                                 ->extraInputAttributes([
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
+                                ->required(),
+
+                            TextInput::make('handler')
+                                ->rules([
+                                    'string',
+                                    'regex:/^[a-zA-Z\s]+$/',
+                                ])
+                                ->maxLength(30)
+                                ->required(),
+
+                            Textarea::make('remarks')
+                                ->rules([
+                                    'string',
+                                    'regex:/[a-zA-Z]/',
+                                ])
+                                ->extraAttributes(['class' => 'resize-none']),
+
+                            DatePicker::make('date_acquired')
+                                ->label('Date')
+                                ->closeOnDateSelection()
                                 ->required()
+                                ->default(today())
+                                ->beforeOrEqual(function (string $operation, $record) {
+                                    if ($operation === 'edit') {
+                                        return $record->date_acquired->endOfDay();
+                                    }
+                                    return now()->endOfDay();
+                                })
+                                ->native(false),
                         ])
                         ->action(function ($data, $record) {
                             try {
-                                $quantityUsed = $data['quantity'];
-                                if ($quantityUsed > $record->total) {
-                                    Notification::make()
-                                        ->title('Quantity Used Exceeded.')
-                                        ->body("Quantiy used should not be greater than $record->description (ID: $record->id) quantity")
-                                        ->danger()
-                                        ->send()
-                                        ->duration(100000);
-                                    return;
-                                }
-                                $record->used += $quantityUsed;
-                                $record->total -= $quantityUsed;
-                                $record->recently_added = 0;
-                                $record->save();
+                                DB::transaction(function () use ($record, $data) {
+                                    $quantityUsed = $data['quantity'];
+                                    if ($quantityUsed > $record->total) {
+                                        Notification::make()
+                                            ->title('Quantity Used Exceeded.')
+                                            ->body("Quantiy used should not be greater than $record->description (ID: $record->id) quantity")
+                                            ->danger()
+                                            ->send()
+                                            ->duration(100000);
+                                        return;
+                                    }
+                                    $record->used += $quantityUsed;
+                                    $record->total -= $quantityUsed;
+                                    $record->recently_added = 0;
+                                    $record->save();
+
+                                    SupplyReport::create([
+                                        'supply_id' => $record->id,
+                                        'handler' => $data['handler'],
+                                        'quantity' => $data['quantity'],
+                                        'remarks' => $data['remarks'],
+                                        'action' => SupplyReportAction::DISPENSE->value,
+                                        'date_acquired' => $data['date_acquired']
+                                    ]);
+                                });
                                 Notification::make()
                                     ->title("$record->description (ID: $record->id)")
                                     ->body('Supply Usage Updated.')
