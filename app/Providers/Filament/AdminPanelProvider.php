@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('Database Backup')
                     ->url('/database-backup')
-                    ->icon('heroicon-o-arrow-down-tray'),
+                    ->icon('heroicon-o-cog'),
                 MenuItem::make()
                     ->label('User Manual')
                     ->url('/user-manual')

@@ -42,7 +42,7 @@ class SupplyResource extends Resource
     protected static ?string $navigationGroup = 'Supply';
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

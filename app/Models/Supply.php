@@ -58,4 +58,9 @@ class Supply extends Model implements Auditable
     {
         return "$this->description (ID# $this->id)";
     }
+
+    public function supply_report()
+    {
+        return $this->hasMany(SupplyReport::class);
+    }
 }
