@@ -2,7 +2,9 @@
 
 namespace App\Enum;
 
-enum SupplyReportAction: string
+use Filament\Support\Contracts\HasColor;
+
+enum SupplyReportAction: string implements HasColor
 {
     case DISPENSE = 'dispense';
     case ADD = 'add';
@@ -11,5 +13,13 @@ enum SupplyReportAction: string
     {
         $data = array_column(self::cases(), 'value');
         return array_combine($data, $data);
+    }
+
+    public function getColor(): string|array|null
+    {
+        return match ($this) {
+            self::ADD => 'success',
+            self::DISPENSE => 'warning',
+        };
     }
 }

@@ -9,11 +9,4 @@ use Filament\Resources\Pages\EditRecord;
 class EditSupplyReport extends EditRecord
 {
     protected static string $resource = SupplyReportResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
 }

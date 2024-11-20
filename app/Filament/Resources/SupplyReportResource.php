@@ -7,6 +7,7 @@ use App\Filament\Resources\SupplyReportResource\Pages;
 use App\Filament\Resources\SupplyReportResource\RelationManagers;
 use App\Models\Supply;
 use App\Models\SupplyReport;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -15,12 +16,15 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SupplyReportResource extends Resource
 {
@@ -51,11 +55,13 @@ class SupplyReportResource extends Resource
                     ->required(),
 
                 Select::make('action')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->options(SupplyReportAction::values())
                     ->native(false)
                     ->required(),
 
                 TextInput::make('handler')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->rules([
                         'string',
                         'regex:/^[a-zA-Z\s]+$/',
@@ -94,6 +100,7 @@ class SupplyReportResource extends Resource
                     ->extraAttributes(['class' => 'resize-none']),
 
                 DatePicker::make('date_acquired')
+                    ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->label('Date')
                     ->closeOnDateSelection()
                     ->required()
@@ -119,7 +126,10 @@ class SupplyReportResource extends Resource
 
                 TextColumn::make('quantity'),
 
-                TextColumn::make('action'),
+                TextColumn::make('action')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => Str::headline($state))
+                    ->color(fn(string $state): string => SupplyReportAction::from($state)->getColor()),
 
                 TextColumn::make('date_acquired')
                     ->label('Date')
@@ -129,8 +139,53 @@ class SupplyReportResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('return')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->form([
+                            TextInput::make('quantity')
+                                ->integer()
+                                ->maxLength(10)
+                                ->hint(fn($record) => "Available: " . $record->quantity - $record->quantity_returned)
+                                ->minValue(1)
+                                ->maxValue(fn($record) => $record->quantity - $record->quantity_returned)
+                                ->live()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function ($record, $data) {
+                            try {
+                                DB::transaction(function () use ($record, $data) {
+                                    $record->quantity_returned += $data['quantity'];
+                                    $supply = $record->supply;
+
+                                    $supply->used -= $data['quantity'];
+                                    $supply->total += $data['quantity'];
+
+                                    $record->save();
+                                    $supply->save();
+                                });
+
+                                Notification::make()
+                                    ->title("$record->description (ID: $record->id)")
+                                    ->body('Details Updated')
+                                    ->success()
+                                    ->send();
+                            } catch (Exception $e) {
+                                Notification::make()
+                                    ->title('Error')
+                                    ->body($e->getMessage())
+                                    ->warning()
+                                    ->send();
+                            }
+                        })
+                        ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value && $record->quantity > $record->quantity_returned)
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -149,14 +204,17 @@ class SupplyReportResource extends Resource
 
                 TextEntry::make('quantity'),
 
-                TextEntry::make('quantity_returned'),
-
-                TextEntry::make('unit_price'),
+                TextEntry::make('quantity_returned')
+                    ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value),
 
                 TextEntry::make('date_acquired')
-                    ->label('Date'),
+                    ->label('Date')
+                    ->date('F d, Y'),
 
                 TextEntry::make('action')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => Str::headline($state))
+                    ->color(fn(string $state): string => SupplyReportAction::from($state)->getColor())
 
             ]);
     }
