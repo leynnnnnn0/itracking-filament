@@ -8,6 +8,7 @@ use App\Filament\Resources\DashboardResource\Widgets\SummaryOverview;
 use App\Filament\Resources\EquipmentResource\Pages\ListEquipment;
 use App\Livewire\DeleteArchive;
 use CustomLoginPage;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;

@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
@@ -199,22 +200,42 @@ class SupplyReportResource extends Resource
         return $infolist
             ->schema([
 
-                TextEntry::make('id'),
-                TextEntry::make('supply.description'),
+                Section::make('Supply Information')
+                    ->schema([
+                        TextEntry::make('supply.id')
+                            ->label('Supply Id'),
 
-                TextEntry::make('quantity'),
+                        TextEntry::make('supply.description'),
 
-                TextEntry::make('quantity_returned')
-                    ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value),
+                        TextEntry::make('supply.categories.name')
+                            ->label('Categories')
+                            ->badge(),
 
-                TextEntry::make('date_acquired')
-                    ->label('Date')
-                    ->date('F d, Y'),
 
-                TextEntry::make('action')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => Str::headline($state))
-                    ->color(fn(string $state): string => SupplyReportAction::from($state)->getColor())
+
+                    ])->columns(2),
+
+                Section::make('Report Information')
+                    ->schema([
+                        TextEntry::make('id')
+                            ->label('Supply Report Id'),
+
+                        TextEntry::make('action')
+                            ->badge()
+                            ->formatStateUsing(fn($state) => Str::headline($state))
+                            ->color(fn(string $state): string => SupplyReportAction::from($state)->getColor()),
+
+                        TextEntry::make('quantity'),
+
+                        TextEntry::make('quantity_returned')
+                            ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value),
+
+                        TextEntry::make('date_acquired')
+                            ->label('Date')
+                            ->date('F d, Y'),
+
+
+                    ])->columns(2)
 
             ]);
     }
