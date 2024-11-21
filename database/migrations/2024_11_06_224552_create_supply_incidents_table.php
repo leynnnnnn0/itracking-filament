@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(Supply::class)->constrained()->cascadeOnDelete();
             $table->enum('type', SupplyIncidents::values());
             $table->integer('quantity');
+            $table->integer('reconciled_quantity')->default(0);
             $table->text('remarks')->nullable();
             $table->date('incident_date');
             $table->enum('status', SupplyIncidentStatus::values())->default(SupplyIncidentStatus::ACTIVE->value);

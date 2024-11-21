@@ -9,6 +9,7 @@ enum SupplyReportAction: string implements HasColor
     case DISPENSE = 'dispense';
     case ADD = 'add';
     case RETURN = 'return';
+    case FOUND = 'found';
 
     public static function values($exclude = [])
     {
@@ -27,7 +28,8 @@ enum SupplyReportAction: string implements HasColor
         return match ($this) {
             self::ADD => 'success',
             self::DISPENSE => 'warning',
-            self::RETURN => 'gray'
+            self::RETURN => 'gray',
+            self::FOUND => 'primary'
         };
     }
 }

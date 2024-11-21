@@ -16,6 +16,7 @@ class SupplyIncident extends Model implements Auditable
         'supply_id',
         'type',
         'quantity',
+        'reconciled_quantity',
         'remarks',
         'incident_date',
         'status'

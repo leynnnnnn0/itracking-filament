@@ -3,10 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Enum\SupplyIncidentStatus;
+use App\Enum\SupplyReportAction;
 use App\Filament\Resources\SupplyIncidentResource\Pages;
 use App\Filament\Resources\SupplyIncidentResource\RelationManagers;
 use App\Models\Supply;
 use App\Models\SupplyIncident;
+use App\Models\SupplyReport;
 use App\SupplyIncidents;
 use Exception;
 use Filament\Forms;
@@ -128,22 +130,78 @@ class SupplyIncidentResource extends Resource
                     Tables\Actions\Action::make('found')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->action(function ($record) {
-                            try {
-                                DB::transaction(function () use ($record) {
-                                    $record->status = SupplyIncidentStatus::FOUND->value;
-                                    $supply = $record->supply;
-                                    $supply->missing -= $record->quantity;
-                                    $supply->total += $record->quantity;
+                        ->modalDescription('Please confirm that the information provided is accurate before proceeding. This action will update the supply details record accordingly.')
+                        ->modalSubmitActionLabel('Submit')
+                        ->form([
+                            TextInput::make('quantity')
+                                ->integer()
+                                ->maxLength(10)
+                                ->hint(fn($record) => "Available: " . $record->quantity - $record->reconciled_quantity)
+                                ->minValue(1)
+                                ->maxValue(fn($record) => $record->quantity - $record->reconciled_quantity)
+                                ->live()
+                                ->extraInputAttributes([
+                                    'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
+                                ])
+                                ->required(),
 
-                                    $supply->save();
+                            TextInput::make('handler')
+                                ->rules([
+                                    'string',
+                                    'regex:/^[a-zA-Z\s]+$/',
+                                ])
+                                ->maxLength(30)
+                                ->required(),
+
+                            Textarea::make('remarks')
+                                ->rules([
+                                    'string',
+                                    'regex:/[a-zA-Z]/',
+                                ])
+                                ->extraAttributes(['class' => 'resize-none']),
+
+                            DatePicker::make('date_acquired')
+                                ->label('Date')
+                                ->closeOnDateSelection()
+                                ->required()
+                                ->default(today())
+                                ->beforeOrEqual(function (string $operation, $record) {
+                                    if ($operation === 'edit') {
+                                        return $record->date_acquired->endOfDay();
+                                    }
+                                    return now()->endOfDay();
+                                })
+                                ->native(false),
+                        ])
+                        ->action(function ($record, $data) {
+                            try {
+                                DB::transaction(function () use ($record, $data) {
+                                    $record->reconciled_quantity += $data['quantity'];
+
+                                    $supply = $record->supply;
+
+                                    $supply->missing -= $data['quantity'];
+                                    $supply->total += $data['quantity'];
+
+                                    SupplyReport::create([
+                                        'supply_id' => $supply->id,
+                                        'handler' => $data['handler'],
+                                        'quantity' => $data['quantity'],
+                                        'quantity_returned' => 0,
+                                        'remarks' => $data['remarks'],
+                                        'date_acquired' => $data['date_acquired'],
+                                        'action' => SupplyReportAction::FOUND->value
+                                    ]);
+
                                     $record->save();
+                                    $supply->save();
                                 });
                                 Notification::make()
                                     ->title('Updated Successfully.')
                                     ->success()
                                     ->send();
                             } catch (Exception $e) {
+                                dd($e);
                                 Notification::make()
                                     ->title('Error')
                                     ->body($e->getMessage())
@@ -151,7 +209,7 @@ class SupplyIncidentResource extends Resource
                                     ->send();
                             }
                         })
-                ])->visible(fn($record) => $record->type === 'missing' && $record->status = 'active')
+                ])->visible(fn($record) => $record->type === 'missing' && $record->status = 'active' && $record->quantity !== $record->reconciled_quantity)
 
             ])
             ->bulkActions([
@@ -175,6 +233,7 @@ class SupplyIncidentResource extends Resource
                 TextEntry::make('type'),
                 TextEntry::make('quantity')
                     ->label('Quantity'),
+                TextEntry::make('reconciled_quantity'),
                 TextEntry::make('incident_date')
                     ->date('F d, Y'),
                 TextEntry::make('status'),
