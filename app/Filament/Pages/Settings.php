@@ -93,9 +93,9 @@ class Settings extends Page
                 ->success()
                 ->send();
 
-            return redirect()->route('filament.auth.login');
+            return;
         } catch (\Exception $e) {
- 
+
             Log::error('Database Restore Failed: ' . $e->getMessage());
 
             Notification::make()

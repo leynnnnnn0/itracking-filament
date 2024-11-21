@@ -56,7 +56,7 @@
                     wire:model="backupFile"
                     accept=".sql"
                     class="flex-grow">
-                <x-filament::modal id="database-restore" alignment="center" :close-button="true">
+                <x-filament::modal color="danger" icon="heroicon-o-exclamation-triangle" id="database-restore" alignment="center" :close-button="true">
                     <x-slot name="trigger">
                         <x-filament::button color="warning" :disabled="!$backupFile">
                             Restore Backup
@@ -72,10 +72,10 @@
                     <x-slot name="footer">
                         <div class="flex justify-center">
                             <x-filament::button
-                                color="warning"
+                                color="danger"
                                 wire:click="performDatabaseRestore"
                                 :disabled="!$backupFile">
-                                Confirm
+                                Restore Database Data
                             </x-filament::button>
                         </div>
                     </x-slot>
