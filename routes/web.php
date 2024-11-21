@@ -15,21 +15,23 @@ Route::redirect('/', '/admin');
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
 
-Route::get('/equipment-pdf/{equipment}/{personnel}/{previousAccountableOfficer}', EquipmentPdf::class)->name('equipment-pdf');
+Route::middleware('auth')->group(function () {
+    Route::get('/equipment-pdf/{equipment}/{personnel}/{previousAccountableOfficer}', EquipmentPdf::class)->name('equipment-pdf');
 
-Route::get('/database-backup', [DatabaseBackupController::class, 'backup'])
-    ->name('database.backup')
-    ->middleware(['auth']);
+    Route::get('/database-backup', [DatabaseBackupController::class, 'backup'])
+        ->name('database.backup')
+        ->middleware(['auth']);
 
-Route::get('/user-manual', UserManualController::class)
-    ->name('user-manual')
-    ->middleware(['auth']);
+    Route::get('/user-manual', UserManualController::class)
+        ->name('user-manual')
+        ->middleware(['auth']);
 
-Route::get('/restore-database', RestoreDatabaseController::class)
-    ->name('restore-database')
-    ->middleware(['auth']);
+    Route::get('/restore-database', RestoreDatabaseController::class)
+        ->name('restore-database')
+        ->middleware(['auth']);
 
-Route::get('/system-guide', [UserManualViewController::class, 'index']);
+    Route::get('/system-guide', [UserManualViewController::class, 'index']);
+});
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])

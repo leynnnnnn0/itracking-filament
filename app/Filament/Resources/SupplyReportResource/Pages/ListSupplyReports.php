@@ -3,17 +3,17 @@
 namespace App\Filament\Resources\SupplyReportResource\Pages;
 
 use App\Filament\Resources\SupplyReportResource;
+use App\Traits\HasPdfDownload;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListSupplyReports extends ListRecords
 {
+    use HasPdfDownload;
     protected static string $resource = SupplyReportResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getViewName(): string
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return 'supply-reports';
     }
 }

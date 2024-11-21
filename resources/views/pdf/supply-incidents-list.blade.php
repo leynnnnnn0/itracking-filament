@@ -11,6 +11,7 @@
                     <th>Supply</th>
                     <th>Type</th>
                     <th>Quantity</th>
+                    <th>Reconciled Quantity</th>
                     <th>Incident Date</th>
                     <th>Remarks</th>
                 </tr>
@@ -23,6 +24,7 @@
                     <td>{{ $incident->supply->description }}</td>
                     <td>{{ $incident->type }}</td>
                     <td>{{ $incident->quantity }}</td>
+                    <td>{{ $incident->reconciled_quantity }}</td>
                     <td>{{ $incident->incident_date->format('F d, Y') }}</td>
                     <td>{{ $incident->remarks }}</td>
                 </tr>
