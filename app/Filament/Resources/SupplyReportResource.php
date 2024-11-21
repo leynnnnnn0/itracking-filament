@@ -265,6 +265,8 @@ class SupplyReportResource extends Resource
 
                         TextEntry::make('quantity'),
 
+                        TextEntry::make('handler'),
+
                         TextEntry::make('quantity_returned')
                             ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value),
 
