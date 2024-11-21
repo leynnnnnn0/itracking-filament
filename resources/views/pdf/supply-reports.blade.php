@@ -1,6 +1,6 @@
 <x-layouts.pdf>
     <div class="table-header">
-        <h1>{{ "List of Supplies" }}</h1>
+        <h1>{{ "Supplies Report List" }}</h1>
         <p>Generated on: {{ date('F d, Y') }}</p>
     </div>
     <table class="print-table">

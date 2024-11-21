@@ -578,7 +578,7 @@ class EquipmentResource extends Resource
                 Section::make('Equipment History')
                     ->schema([
                         RepeatableEntry::make('equipment_history')
-                            ->label('Historical Records')  // This will be the only label shown
+                            ->label('Historical Records') 
                             ->schema([
                                 TextEntry::make('created_at')
                                     ->label('Date Assigned')
