@@ -39,13 +39,6 @@ class Settings extends Page
         }
     }
 
-    public function updatedBackupFile($file)
-    {
-        $this->validate([
-            'backupFile' => 'required|mimes:sql|max:50000',
-        ]);
-    }
-
     public function performDatabaseRestore()
     {
         try {

@@ -53,7 +53,7 @@
             <div class="flex items-center space-x-4">
                 <input
                     type="file"
-                    wire:model="backupFile"
+                    wire:model.change="backupFile"
                     accept=".sql"
                     class="flex-grow">
                 <x-filament::modal color="danger" icon="heroicon-o-exclamation-triangle" id="database-restore" alignment="center" :close-button="true">

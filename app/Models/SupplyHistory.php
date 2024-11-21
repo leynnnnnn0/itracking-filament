@@ -61,6 +61,8 @@ class SupplyHistory extends Model implements Auditable
                 LIMIT 1
             ), 0) as used"),
                 DB::raw('SUM(added) as added'),
+                DB::raw('MAX(expired) as expired'),
+                DB::raw('MAX(missing) as missing'),
                 DB::raw("(COALESCE((
                 SELECT total 
                 FROM supply_histories as prev_history 
