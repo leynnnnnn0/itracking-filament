@@ -5,6 +5,7 @@ use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\Pdf\EquipmentPdf;
 use App\Http\Controllers\RestoreDatabaseController;
 use App\Http\Controllers\UserManualController;
+use App\Http\Controllers\UserManualViewController;
 use App\Livewire\DeleteArchive;
 use Illuminate\Support\Facades\Route;
 
@@ -28,11 +29,10 @@ Route::get('/restore-database', RestoreDatabaseController::class)
     ->name('restore-database')
     ->middleware(['auth']);
 
-
-
+Route::get('/system-guide', [UserManualViewController::class, 'index']);
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__ . '/auth.php';
+// require __DIR__ . '/auth.php';
