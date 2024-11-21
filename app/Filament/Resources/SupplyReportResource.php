@@ -57,7 +57,7 @@ class SupplyReportResource extends Resource
 
                 Select::make('action')
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
-                    ->options(SupplyReportAction::values())
+                    ->options(SupplyReportAction::values(['return']))
                     ->native(false)
                     ->required(),
 
@@ -158,6 +158,34 @@ class SupplyReportResource extends Resource
                                     'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189 && event.keyCode !== 190 && event.keyCode !== 110)',
                                 ])
                                 ->required(),
+
+                            TextInput::make('handler')
+                                ->rules([
+                                    'string',
+                                    'regex:/^[a-zA-Z\s]+$/',
+                                ])
+                                ->maxLength(30)
+                                ->required(),
+
+                            Textarea::make('remarks')
+                                ->rules([
+                                    'string',
+                                    'regex:/[a-zA-Z]/',
+                                ])
+                                ->extraAttributes(['class' => 'resize-none']),
+
+                            DatePicker::make('date_acquired')
+                                ->label('Date')
+                                ->closeOnDateSelection()
+                                ->required()
+                                ->default(today())
+                                ->beforeOrEqual(function (string $operation, $record) {
+                                    if ($operation === 'edit') {
+                                        return $record->date_acquired->endOfDay();
+                                    }
+                                    return now()->endOfDay();
+                                })
+                                ->native(false),
                         ])
                         ->action(function ($record, $data) {
                             try {
@@ -167,6 +195,16 @@ class SupplyReportResource extends Resource
 
                                     $supply->used -= $data['quantity'];
                                     $supply->total += $data['quantity'];
+
+                                    SupplyReport::create([
+                                        'supply_id' => $supply->id,
+                                        'handler' => $data['handler'],
+                                        'quantity' => $data['quantity'],
+                                        'quantity_returned' => $data['quantity'],
+                                        'remarks' => $data['remarks'],
+                                        'date_acquired' => $data['date_acquired'],
+                                        'action' => SupplyReportAction::RETURN->value
+                                    ]);
 
                                     $record->save();
                                     $supply->save();
