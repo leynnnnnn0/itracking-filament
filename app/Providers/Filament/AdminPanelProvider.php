@@ -40,17 +40,6 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(Vite::asset('resources/images/iTrackLogo.png'))
             ->brandLogoHeight('100px')
             ->login()
-            ->userMenuItems([
-                MenuItem::make()
-                    ->label('Database Backup')
-                    ->url('/database-backup')
-                    ->icon('heroicon-o-cog'),
-                MenuItem::make()
-                    ->label('User Manual')
-                    ->url('/user-manual')
-                    ->icon('heroicon-o-arrow-down-tray')
-                // Add more menu items...
-            ])
             ->brandName('iTracking')
             ->colors([
                 'primary' => '#0B592D',
