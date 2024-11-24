@@ -44,6 +44,12 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#0B592D',
             ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('User Manual')
+                    ->url('/user-manual')
+                    ->icon('heroicon-o-arrow-down-tray')
+            ])
             ->passwordReset()
             ->databaseNotifications()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
