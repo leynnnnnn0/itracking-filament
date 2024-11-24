@@ -18,4 +18,5 @@ class CreateSupply extends CreateRecord
     protected static string $resource = SupplyResource::class;
     protected static bool $canCreateAnother = false;
 
+    
 }
