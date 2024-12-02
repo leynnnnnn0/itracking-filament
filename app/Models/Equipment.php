@@ -57,7 +57,7 @@ class Equipment extends Model implements Auditable
 
     public function accountable_officer()
     {
-        return $this->belongsTo(AccountableOfficer::class);
+        return $this->belongsTo(Personnel::class, 'accountable_officer_id');
     }
 
     public function operating_unit_project()

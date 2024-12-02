@@ -17,6 +17,7 @@ class Personnel extends Model implements Auditable
     protected $fillable = [
         'office_id',
         'department_id',
+        'sub_icsmfr_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -56,5 +57,10 @@ class Personnel extends Model implements Auditable
     public function equipment_history()
     {
         return $this->hasMany(EquipmentHistory::class);
+    }
+
+    public function sub_icsmfr()
+    {
+        return $this->belongsTo(SubICSMFR::class);
     }
 }

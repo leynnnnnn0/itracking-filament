@@ -12,6 +12,7 @@ use App\Models\OperatingUnitProject;
 use App\Models\OrganizationUnit;
 use App\Models\Personnel;
 use App\Models\Position;
+use App\Models\SubICSMFR;
 use App\Models\SupplyCategory;
 use App\Models\Unit;
 use App\Models\User;
@@ -37,6 +38,7 @@ class DatabaseSeeder extends Seeder
         Office::factory(5)->create();
         Position::factory(5)->create();
         Unit::factory(5)->create();
+        SubICSMFR::factory(5)->create();
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
         AccountableOfficer::factory(100)->create();

@@ -84,6 +84,8 @@ class PersonnelResource extends Resource
                     ->regex('/^09\d{9}$/')
                     ->extraInputAttributes([
                         'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                        'oninput' => 'this.value = this.value.slice(0, 11)',
+                        'inputmode' => 'numeric'
                     ])
                     ->maxLength(11),
 

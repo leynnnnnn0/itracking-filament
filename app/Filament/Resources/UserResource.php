@@ -70,22 +70,20 @@ class UserResource extends Resource
                             ->maxLength(30)
                             ->required(),
 
-                        Select::make('sex')
-                            ->disabled(fn(string $operation): bool => $operation === 'edit')
-                            ->native(false)
-                            ->options(Gender::values())
-                            ->required(),
-
                         TextInput::make('phone_number')
+                            ->label('Office Phone')
                             ->required()
                             ->numeric()
                             ->regex('/^09\d{9}$/')
                             ->extraInputAttributes([
                                 'onkeydown' => 'return (event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189)',
+                                'oninput' => 'this.value = this.value.slice(0, 11)',
+                                'inputmode' => 'numeric'
                             ])
                             ->maxLength(11),
 
                         TextInput::make('email')
+                            ->label('Office Email')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->email(),

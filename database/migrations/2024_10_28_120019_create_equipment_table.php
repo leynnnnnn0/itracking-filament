@@ -21,7 +21,7 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->foreignId('personnel_id')->constrained('personnel')->cascadeOnDelete();
-            $table->foreignIdFor(AccountableOfficer::class)->constrained();
+            $table->foreignId('accountable_officer_id')->constrained('personnel')->cascadeOnDelete();
             $table->foreignIdFor(Fund::class)->constrained();
             $table->foreignIdFor(OperatingUnitProject::class)->constrained();
             $table->foreignIdFor(OrganizationUnit::class)->constrained();
