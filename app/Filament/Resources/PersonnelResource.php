@@ -54,6 +54,12 @@ class PersonnelResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
                     ->required(),
 
+                Select::make('sub_icsmfr_id')
+                    ->native(false)
+                    ->label('sub ics/mr')
+                    ->relationship('sub_icsmfr')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name),
+
                 TextInput::make('first_name')
                     ->rules([
                         'string',
@@ -196,6 +202,10 @@ class PersonnelResource extends Resource
                 TextEntry::make('department.name')
                     ->label('Department'),
 
+                TextEntry::make('sub_icsmfr.name')
+                    ->label('Sub ICS/MR'),
+
+
                 TextEntry::make('first_name'),
 
                 TextEntry::make('middle_name'),
@@ -236,6 +246,6 @@ class PersonnelResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['position', 'department', 'office']);
+        return parent::getEloquentQuery()->with(['sub_icsmfr', 'position', 'department', 'office']);
     }
 }

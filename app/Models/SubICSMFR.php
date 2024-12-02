@@ -19,6 +19,6 @@ class SubICSMFR extends Model implements Auditable
 
     public function personnel()
     {
-        return $this->hasMany(Personnel::class, 'sub_icsmfr_id');
+        return $this->hasMany(Personnel::class);
     }
 }

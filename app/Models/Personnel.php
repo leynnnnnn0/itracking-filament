@@ -61,6 +61,6 @@ class Personnel extends Model implements Auditable
 
     public function sub_icsmfr()
     {
-        return $this->belongsTo(SubICSMFR::class);
+        return $this->belongsTo(SubICSMFR::class, 'sub_icsmfr_id');
     }
 }
