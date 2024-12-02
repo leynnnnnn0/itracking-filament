@@ -25,6 +25,8 @@ class SUBICSMRResource extends Resource
     protected static ?string $model = SubICSMFR::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationLabel = 'Sub ICS/MR';
     protected static ?string $navigationGroup = 'Management';
 
     public static function form(Form $form): Form

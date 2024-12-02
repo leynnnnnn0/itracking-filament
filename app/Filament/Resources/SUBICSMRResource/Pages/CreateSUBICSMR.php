@@ -12,6 +12,7 @@ class CreateSUBICSMR extends CreateRecord
 {
     use HasRedirectUrl, HasConfirmationModal;
     protected static string $resource = SUBICSMRResource::class;
+    protected static ?string $title = 'Create Sub ICS/MR';
 
     protected static bool $canCreateAnother = false;
 }
