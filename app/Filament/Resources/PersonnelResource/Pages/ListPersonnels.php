@@ -17,4 +17,16 @@ class ListPersonnels extends ListRecords
     {
         return 'personnel-list';
     }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('export_as_pdf')
+                ->color('gray')
+                ->label('Export as PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->action(fn() => $this->export()),
+            Actions\CreateAction::make(),
+        ];
+    }
 }

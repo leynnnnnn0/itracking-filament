@@ -10,7 +10,6 @@
                 <th>First Name</th>
                 <th>Middle Name</th>
                 <th>Last Name</th>
-                <th>Gender</th>
                 <th>Phone Number</th>
                 <th>Email</th>
                 <th>Role</th>
@@ -23,7 +22,6 @@
                 <td>{{ $user->first_name }}</td>
                 <td>{{ $user->middle_name }}</td>
                 <td>{{ $user->last_name }}</td>
-                <td>{{ ucfirst($user->sex) }}</td>
                 <td>{{ $user->phone_number }}</td>
                 <td>{{ $user->email }}</td>
                 <td>{{ ucfirst($user->role) }}</td>
