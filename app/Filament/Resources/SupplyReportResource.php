@@ -58,7 +58,7 @@ class SupplyReportResource extends Resource
 
                 Select::make('action')
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
-                    ->options(SupplyReportAction::values(['return']))
+                    ->options(SupplyReportAction::values(['return', 'found']))
                     ->native(false)
                     ->required(),
 

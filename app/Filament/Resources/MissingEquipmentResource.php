@@ -86,7 +86,7 @@ class MissingEquipmentResource extends Resource
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->live()
                     ->native(false)
-                    ->options(MissingStatus::values())
+                    ->options(MissingStatus::values(['Found']))
                     ->default('Reported')
                     ->required(),
 
