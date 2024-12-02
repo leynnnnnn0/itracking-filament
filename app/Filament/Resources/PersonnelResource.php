@@ -54,13 +54,6 @@ class PersonnelResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
                     ->required(),
 
-                Select::make('position_id')
-                    ->native(false)
-                    ->label('Position')
-                    ->relationship('position')
-                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
-                    ->required(),
-
                 TextInput::make('first_name')
                     ->rules([
                         'string',
@@ -85,12 +78,7 @@ class PersonnelResource extends Resource
                     ->maxLength(30)
                     ->required(),
 
-                Select::make('sex')
-                    ->options(Gender::class)
-                    ->enum(Gender::class)
-                    ->required(),
-
-                TextInput::make('phone_number')
+                TextInput::make('office_phone')
                     ->required()
                     ->numeric()
                     ->regex('/^09\d{9}$/')
@@ -99,7 +87,7 @@ class PersonnelResource extends Resource
                     ])
                     ->maxLength(11),
 
-                TextInput::make('email')
+                TextInput::make('office_email')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->email(),
@@ -136,9 +124,8 @@ class PersonnelResource extends Resource
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('office.name'),
                 TextColumn::make('department.name'),
-                TextColumn::make('position.name'),
-                TextColumn::make('phone_number'),
-                TextColumn::make('email'),
+                TextColumn::make('office_phone'),
+                TextColumn::make('office_email'),
             ])
             ->filters([
                 TrashedFilter::make()
@@ -152,9 +139,6 @@ class PersonnelResource extends Resource
                     ->multiple()
                     ->relationship('department', 'name'),
 
-                SelectFilter::make('position')
-                    ->multiple()
-                    ->relationship('position', 'name'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -210,20 +194,16 @@ class PersonnelResource extends Resource
                 TextEntry::make('department.name')
                     ->label('Department'),
 
-                TextEntry::make('position.name')
-                    ->label('Position'),
-
                 TextEntry::make('first_name'),
 
                 TextEntry::make('middle_name'),
 
                 TextEntry::make('last_name'),
 
-                TextEntry::make('sex'),
 
-                TextEntry::make('email'),
+                TextEntry::make('office_email'),
 
-                TextEntry::make('phone_number'),
+                TextEntry::make('office_phone'),
 
                 TextEntry::make('start_date')
                     ->date('F d, Y'),

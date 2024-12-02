@@ -17,13 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('office_id')->constrained('offices')->cascadeOnDelete();
             $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
-            $table->foreignIdFor(Position::class)->constrained()->cascadeOnDelete();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->enum('sex', Gender::values());
-            $table->string('phone_number');
-            $table->string('email')->unique();
+            $table->string('office_phone');
+            $table->string('office_email')->unique();
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->text('remarks')->nullable();

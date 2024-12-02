@@ -31,6 +31,7 @@ class AccountingOfficerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'People';
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
