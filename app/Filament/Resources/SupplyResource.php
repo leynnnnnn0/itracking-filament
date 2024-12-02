@@ -175,6 +175,7 @@ class SupplyResource extends Resource
                                 ->required(),
 
                             TextInput::make('handler')
+                                ->label("Person In-Charge")
                                 ->rules([
                                     'string',
                                     'regex:/^[a-zA-Z\s]+$/',
@@ -253,6 +254,7 @@ class SupplyResource extends Resource
                                 ->required(),
 
                             TextInput::make('handler')
+                                ->label("Person In-Charge")
                                 ->rules([
                                     'string',
                                     'regex:/^[a-zA-Z\s]+$/',

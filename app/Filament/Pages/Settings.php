@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
@@ -13,11 +14,13 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -125,71 +128,91 @@ class Settings extends Page implements HasForms, HasActions
 
     public function performDatabaseRestore()
     {
-        try {
+        // Capture current session data before restoration
+        $currentSessionData = DB::table('sessions')
+            ->where('id', Session::getId())
+            ->first();
 
+        try {
             $data = $this->form->getState();
+
             if (!isset($data['file'])) {
                 throw new \Exception('No backup file was uploaded');
             }
 
             $uploadedFile = $data['file'];
-
             $path = storage_path("app/public/$uploadedFile");
 
             if (!file_exists($path)) {
                 throw new \Exception('Backup file not found');
             }
 
-            DB::beginTransaction();
+            // Read the SQL dump file
+            $sql = file_get_contents($path);
 
+            // Remove any comments and set statements at the beginning
+            $sql = preg_replace('/^--.*$/m', '', $sql);
+            $sql = preg_replace('/^\/\*!.*\*\/;$/m', '', $sql);
+            $sql = preg_replace('/^SET .*$/m', '', $sql);
 
-            try {
-                DB::table('sessions')->truncate();
-                DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                $sql = file_get_contents($path);
+            // Remove any SQL statements related to the sessions table
+            $sql = preg_replace('/(DROP\s+TABLE\s+IF\s+EXISTS\s+`?sessions`?;|TRUNCATE\s+TABLE\s+`?sessions`?;|CREATE\s+TABLE\s+`?sessions`?.*?;|INSERT\s+INTO\s+`?sessions`?.*?;)/is', '', $sql);
 
-                $statements = array_filter(
-                    array_map(
-                        'trim',
-                        explode(';', $sql)
-                    )
-                );
+            // Split the SQL into individual statements
+            $statements = array_filter(array_map('trim', explode(';', $sql)));
 
-                foreach ($statements as $statement) {
-                    if (!empty($statement)) {
-                        try {
-                            DB::statement($statement);
-                        } catch (\Exception $statementError) {
-                            Log::warning('SQL Statement Error: ' . $statementError->getMessage());
-                        }
+            // Disable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+            // Execute each SQL statement
+            foreach ($statements as $statement) {
+                if (!empty($statement)) {
+                    try {
+                        DB::statement($statement);
+                    } catch (\Exception $statementError) {
+                        // Log the problematic statement but continue with others
+                        Log::warning('Failed to execute SQL statement: ' . $statement);
+                        Log::warning('Error: ' . $statementError->getMessage());
                     }
                 }
-
-                DB::statement('SET FOREIGN_KEY_CHECKS=1');
-
-                DB::commit();
-
-                if ($uploadedFile instanceof TemporaryUploadedFile) {
-                    unlink($path);
-                } else {
-                    Storage::delete($uploadedFile);
-                }
-
-                Auth::guard('web')->logout();
-                session()->invalidate();
-                session()->regenerateToken();
-
-                Notification::make()
-                    ->title('Database Restored')
-                    ->body('Database has been successfully restored. Please log in again.')
-                    ->success()
-                    ->send();
-
-                return redirect()->route('filament.admin.auth.login');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw $e;
             }
+
+            // Re-enable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+            // Restore the current session if it exists
+            if ($currentSessionData) {
+
+                DB::table('sessions')
+                    ->updateOrInsert(
+                        ['id' => $currentSessionData->id],
+                        [
+                            'user_id' => $currentSessionData->user_id,
+                            'ip_address' => $currentSessionData->ip_address,
+                            'user_agent' => $currentSessionData->user_agent,
+                            'payload' => $currentSessionData->payload,
+                            'last_activity' => now()->timestamp
+                        ]
+                    );
+            }
+
+            // Clean up uploaded file
+            if ($uploadedFile instanceof UploadedFile) {
+                unlink($path);
+            } else {
+                Storage::delete($uploadedFile);
+            }
+
+
+
+
+            Notification::make()
+                ->title('Database Restored')
+                ->body('Database has been successfully restored.')
+                ->success()
+                ->send();
+
+            return redirect('/admin');
         } catch (\Exception $e) {
             Log::error('Database Restore Failed: ' . $e->getMessage());
 
@@ -199,7 +222,7 @@ class Settings extends Page implements HasForms, HasActions
                 ->danger()
                 ->send();
 
-            return back();
+            return back()->withErrors(['restore' => $e->getMessage()]);
         }
     }
     public function downloadUserManual()

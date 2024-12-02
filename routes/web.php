@@ -9,7 +9,7 @@ use App\Http\Controllers\UserManualViewController;
 use App\Livewire\DeleteArchive;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/admin');
+Route::redirect('/', '/admin')->name('home');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
@@ -37,4 +37,4 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-// require __DIR__ . '/auth.php';
+require __DIR__ . '/auth.php';

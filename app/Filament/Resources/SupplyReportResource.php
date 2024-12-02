@@ -63,6 +63,7 @@ class SupplyReportResource extends Resource
                     ->required(),
 
                 TextInput::make('handler')
+                    ->label('Person In-Charge')
                     ->disabled(fn(string $operation): bool => $operation === 'edit')
                     ->rules([
                         'string',
@@ -176,6 +177,7 @@ class SupplyReportResource extends Resource
                                 ->required(),
 
                             TextInput::make('handler')
+                                ->label("Person In-Charge")
                                 ->rules([
                                     'string',
                                     'regex:/^[a-zA-Z\s]+$/',
@@ -281,7 +283,8 @@ class SupplyReportResource extends Resource
 
                         TextEntry::make('quantity'),
 
-                        TextEntry::make('handler'),
+                        TextEntry::make('handler')
+                            ->label("Person In-Charge"),
 
                         TextEntry::make('quantity_returned')
                             ->visible(fn($record) => $record->action === SupplyReportAction::DISPENSE->value),

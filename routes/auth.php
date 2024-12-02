@@ -10,6 +10,7 @@ Route::middleware('guest')->group(function () {
 
     Volt::route('login', 'pages.auth.login')
         ->name('login');
+    Route::redirect('login', '/admin')->name('home');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
