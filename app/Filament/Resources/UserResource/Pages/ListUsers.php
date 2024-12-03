@@ -13,7 +13,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ListUsers extends ListRecords
 {
-    use HasExcelDownload;
     protected static string $resource = UserResource::class;
 
     protected function getHeaderActions(): array
@@ -33,10 +32,6 @@ class ListUsers extends ListRecords
         ];
     }
 
-    protected function getReturnModel()
-    {
-        return Excel::download($this->getExportModel(), $this->getExportName());
-    }
 
     public function exportAsExcel()
     {
