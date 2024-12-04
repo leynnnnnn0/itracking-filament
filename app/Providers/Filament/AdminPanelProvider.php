@@ -47,7 +47,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Help')
-                    ->url('/system-guide')
+                    ->url('/system-guide', true)
                     ->icon('heroicon-o-question-mark-circle'),
                 MenuItem::make()
                     ->label('User Manual')
