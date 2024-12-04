@@ -18,6 +18,7 @@ class SupplyReportExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'Supply ID',
+            'Supply Name',
             'Handler',
             'Quantity',
             'Remarks',
@@ -31,6 +32,7 @@ class SupplyReportExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $supply->supply_id,
+            $supply->supply->name,
             $supply->handler,
             $supply->quantity ?: '0',
             $supply->remarks,
