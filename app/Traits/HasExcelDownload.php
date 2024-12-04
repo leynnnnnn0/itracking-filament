@@ -7,11 +7,14 @@ use Maatwebsite\Excel\Facades\Excel;
 trait HasExcelDownload
 {
 
-    abstract function getReturnModel();
-    public function exportAsExcel()
+    protected $query;
+    public function __construct($query)
     {
-        $query = $this->getFilteredTableQuery();
-        $this->applySortingToTableQuery($query);
-        return $this->getReturnModel();
+        $this->query = $query;
+    }
+
+    public function collection()
+    {
+        return $this->query->get();
     }
 }

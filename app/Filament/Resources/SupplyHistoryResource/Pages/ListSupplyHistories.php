@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SupplyHistoryResource\Pages;
 
+use App\Exports\SupplyHistoryExport;
 use App\Filament\Resources\SupplyHistoryResource;
 use App\Models\Supply;
 use App\Models\SupplyHistory;
@@ -10,6 +11,7 @@ use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Blade;
+use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
 class ListSupplyHistories extends ListRecords
@@ -19,6 +21,11 @@ class ListSupplyHistories extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('export_as_excel')
+                ->color('gray')
+                ->label('Export as Excel')
+                ->icon('heroicon-o-document-arrow-down')
+                ->action(fn() => $this->exportAsExcel()),
             Actions\Action::make('export_as_pdf')
                 ->color('gray')
                 ->label('Export as PDF')
@@ -26,6 +33,13 @@ class ListSupplyHistories extends ListRecords
                 ->action(fn() => $this->export()),
             Actions\CreateAction::make(),
         ];
+    }
+
+    public function exportAsExcel()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+        return Excel::download(new SupplyHistoryExport($query), 'supply-history.xlsx');
     }
 
     public function export()

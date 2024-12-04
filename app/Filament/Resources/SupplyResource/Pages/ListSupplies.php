@@ -2,37 +2,29 @@
 
 namespace App\Filament\Resources\SupplyResource\Pages;
 
+use App\Exports\SupplyExport;
 use App\Filament\Resources\SupplyResource;
+use App\Traits\HasDownloads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Blade;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\ErrorHandler\Error\FatalError;
 use Throwable;
 
 class ListSupplies extends ListRecords
 {
+    use HasDownloads;
     protected static string $resource = SupplyResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\Action::make('export_as_pdf')
-                ->color('gray')
-                ->label('Export as PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->action(fn() => $this->export()),
-            Actions\CreateAction::make(),
-        ];
-    }
 
     public function export()
     {
         try {
-            ini_set('memory_limit', '1024M');  
-            set_time_limit(300);  
+            ini_set('memory_limit', '1024M');
+            set_time_limit(300);
 
             $query = $this->getFilteredTableQuery();
             $this->applySortingToTableQuery($query);
@@ -58,5 +50,12 @@ class ListSupplies extends ListRecords
 
             return back();
         }
+    }
+
+    public function exportAsExcel()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+        return Excel::download(new SupplyExport($query), 'supply.xlsx');
     }
 }
