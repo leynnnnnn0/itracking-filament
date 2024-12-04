@@ -32,12 +32,12 @@ class SupplyReportExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $supply->supply_id,
-            $supply->supply->name,
+            $supply->supply->description,
             $supply->handler,
             $supply->quantity ?: '0',
             $supply->remarks,
             $supply->quantity_returned ?: '0',
-            $supply->date_acquired ? $supply->date_acquired->format('Y-m-d') : null,
+            $supply->date_acquired ? $supply->date_acquired : null,
             $supply->action,
         ];
     }

@@ -17,6 +17,7 @@ class SupplyHistoryExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'Supply ID',
+            'Supply Name',
             'Quantity',
             'Used',
             'Missing',
@@ -30,6 +31,7 @@ class SupplyHistoryExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $supply->supply_id,
+            $supply->supply->description,
             $supply->quantity ?: "0",
             $supply->used ?: "0",
             $supply->missing ?: "0",
