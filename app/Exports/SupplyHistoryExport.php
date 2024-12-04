@@ -24,6 +24,7 @@ class SupplyHistoryExport implements FromCollection, WithHeadings, WithMapping
             'Expired',
             'Added',
             'Total',
+            'Supply Categories'
         ];
     }
 
@@ -38,6 +39,7 @@ class SupplyHistoryExport implements FromCollection, WithHeadings, WithMapping
             $supply->expired ?: "0",
             $supply->added ?: "0",
             $supply->total ?: "0",
+            $supply->categories->pluck('name')->implode(', '),
         ];
     }
 
