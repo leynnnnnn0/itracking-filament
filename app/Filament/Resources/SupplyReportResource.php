@@ -293,6 +293,8 @@ class SupplyReportResource extends Resource
                             ->label('Date')
                             ->date('F d, Y'),
 
+                        TextEntry::make('remarks'),
+
 
                     ])->columns(2)
 

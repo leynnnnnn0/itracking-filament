@@ -21,10 +21,11 @@ class SupplyReportExport implements FromCollection, WithHeadings, WithMapping
             'Supply Name',
             'Handler',
             'Quantity',
-            'Remarks',
+        
             'Quantity Returned',
             'Date Acquired',
             'Action',
+            'Remarks',
         ];
     }
 
@@ -35,10 +36,11 @@ class SupplyReportExport implements FromCollection, WithHeadings, WithMapping
             $supply->supply->description,
             $supply->handler,
             $supply->quantity ?: '0',
-            $supply->remarks,
+   
             $supply->quantity_returned ?: '0',
             $supply->date_acquired ? $supply->date_acquired : null,
             $supply->action,
+            $supply->remarks,
         ];
     }
 }

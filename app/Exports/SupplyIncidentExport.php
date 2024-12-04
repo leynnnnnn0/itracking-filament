@@ -21,9 +21,10 @@ class SupplyIncidentExport implements FromCollection, WithHeadings, WithMapping
             'Type',
             'Quantity',
             'Reconciled Quantity',
-            'Remarks',
+
             'Incident Date',
             'Status',
+            'Remarks',
         ];
     }
 
@@ -35,9 +36,10 @@ class SupplyIncidentExport implements FromCollection, WithHeadings, WithMapping
             $supply->type,
             $supply->quantity ?: "0",
             $supply->reconciled_quantity ?: "0",
-            $supply->remarks,
+
             $supply->incident_date ? $supply->incident_date : null,
             $supply->status,
+            $supply->remarks,
         ];
     }
 
