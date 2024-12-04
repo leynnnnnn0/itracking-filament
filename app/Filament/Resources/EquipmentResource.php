@@ -123,6 +123,12 @@ class EquipmentResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
                     ->required(),
 
+                Select::make('sub_icsmfr_id')
+                    ->native(false)
+                    ->label('Sub ICS/MR')
+                    ->relationship('sub_icsmfr')
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->full_name),
+
                 TextInput::make('property_number')
                     ->required()
                     ->prefix('PN')
@@ -572,13 +578,15 @@ class EquipmentResource extends Resource
 
                     TextEntry::make('fund.name'),
 
+                    TextEntry::make('sub_icsmfr.full_name'),
+
 
                 ])->columns(2),
 
                 Section::make('Equipment History')
                     ->schema([
                         RepeatableEntry::make('equipment_history')
-                            ->label('Historical Records') 
+                            ->label('Historical Records')
                             ->schema([
                                 TextEntry::make('created_at')
                                     ->label('Date Assigned')
@@ -615,7 +623,7 @@ class EquipmentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund'])
+        return parent::getEloquentQuery()->with(['personnel', 'accountable_officer', 'organization_unit', 'operating_unit_project', 'fund', 'sub_icsmfr'])
             ->orderBy('quantity');
     }
 

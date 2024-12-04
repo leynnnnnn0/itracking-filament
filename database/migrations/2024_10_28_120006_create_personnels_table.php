@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('office_id')->constrained('offices')->cascadeOnDelete();
             $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
-            $table->foreignId('sub_icsmfr_id')->nullable()->constrained('sub_i_c_s_m_f_r_s');
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');

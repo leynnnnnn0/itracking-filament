@@ -22,6 +22,7 @@ class Equipment extends Model implements Auditable
         'organization_unit_id',
         'operating_unit_project_id',
         'fund_id',
+        'sub_icsmfr_id',
         'unit',
         'property_number',
         'quantity',
@@ -88,5 +89,10 @@ class Equipment extends Model implements Auditable
     public function equipment_history()
     {
         return $this->hasMany(EquipmentHistory::class);
+    }
+
+    public function sub_icsmfr()
+    {
+        return $this->belongsTo(Personnel::class, 'sub_icsmfr_id');
     }
 }

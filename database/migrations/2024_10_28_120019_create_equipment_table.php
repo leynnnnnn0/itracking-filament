@@ -22,6 +22,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('personnel_id')->constrained('personnel')->cascadeOnDelete();
             $table->foreignId('accountable_officer_id')->constrained('personnel')->cascadeOnDelete();
+            $table->foreignId('sub_icsmfr_id')->nullable()->constrained('personnel')->cascadeOnDelete();
             $table->foreignIdFor(Fund::class)->constrained();
             $table->foreignIdFor(OperatingUnitProject::class)->constrained();
             $table->foreignIdFor(OrganizationUnit::class)->constrained();
