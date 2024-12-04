@@ -26,6 +26,7 @@ class SupplyExport implements FromCollection, WithHeadings, WithMapping
             'Total',
             'Expiry Date',
             'Is Consumable',
+            'Categories'
         ];
     }
 
@@ -43,6 +44,7 @@ class SupplyExport implements FromCollection, WithHeadings, WithMapping
             $supply->total ?: "0",
             $supply->expiry_date ? $supply->expiry_date->format('F d, Y') : null,
             $supply->is_consumable ? 'Yes' : 'No',
+            $supply->categories->pluck('name')->implode(', '),
         ];
     }
 }
