@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\MissingEquipment;
 use App\Traits\HasExcelDownload;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -36,7 +37,7 @@ class MissingEquipmentExport implements FromCollection, WithHeadings, WithMappin
             $borrowedEquipment->status,
             $borrowedEquipment->description,
             $borrowedEquipment->reported_by,
-            $borrowedEquipment->reported_date ? $borrowedEquipment->reported_date: null,
+            $borrowedEquipment->reported_date ? Carbon::parse($borrowedEquipment->reported_date)->format('F d, Y') : null,
             $borrowedEquipment->is_condemned ? 'Yes' : 'No',
             $borrowedEquipment->remarks,
         ];
