@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 class User extends Authenticatable implements HasName, Auditable
 {
@@ -59,5 +61,21 @@ class User extends Authenticatable implements HasName, Auditable
     public function getFilamentName(): string
     {
         return $this->first_name ?? '';
+    }
+
+    public function auditEvent($event)
+    {
+        // Create an audit entry with a custom event (e.g., login, logout)
+        Audit::create([
+            'user_type' => self::class,
+            'user_id' => Auth::id(),
+            'auditable_type' => self::class,
+            'auditable_id'   => $this->id,
+            'event'          => $event,
+            'url'            => request()->fullUrl(),
+            'ip_address'     => request()->ip(),
+            'user_agent'     => request()->userAgent(),
+            'created_at'     => now(),
+        ]);
     }
 }
