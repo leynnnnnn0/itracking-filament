@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('reported_by');
             $table->date('reported_date');
+            $table->text('remarks')->nullable();
             $table->boolean('is_condemned')->default(false);
             $table->softDeletes('deleted_at', precision: 0);
             $table->timestamps();

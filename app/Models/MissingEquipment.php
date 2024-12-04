@@ -21,7 +21,8 @@ class MissingEquipment extends Model implements Auditable
         'description',
         'reported_by',
         'reported_date',
-        'is_condemned'
+        'is_condemned',
+        'remarks'
     ];
 
     public function casts()

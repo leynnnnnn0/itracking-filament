@@ -368,6 +368,8 @@ class MissingEquipmentResource extends Resource
 
                         TextEntry::make('is_condemned')
                             ->formatStateUsing(fn($record) => $record->is_condemned ? 'Yes' : 'No'),
+
+                        TextEntry::make('remarks'),
                     ])->columns(2),
             ]);
     }

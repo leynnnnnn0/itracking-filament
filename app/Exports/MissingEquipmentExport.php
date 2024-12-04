@@ -14,8 +14,7 @@ class MissingEquipmentExport implements FromCollection, WithHeadings, WithMappin
     public function headings(): array
     {
         return [
-            'Borrowed Equipment',
-            'Borrowed Equipment PN',
+            'Equipment PN',
             'Equipment ID',
             'Quantity',
             'Quantity Found',
@@ -24,21 +23,22 @@ class MissingEquipmentExport implements FromCollection, WithHeadings, WithMappin
             'Reported By',
             'Reported Date',
             'Is Condemned',
+            'remarks',
         ];
     }
     public function map($borrowedEquipment): array
     {
         return [
-            $borrowedEquipment->equipment->name,
             $borrowedEquipment->equipment->property_number,
-            $borrowedEquipment->equipment_id,
+            $borrowedEquipment->equipment->name,
             $borrowedEquipment->quantity,
             $borrowedEquipment->quantity_found,
             $borrowedEquipment->status,
             $borrowedEquipment->description,
             $borrowedEquipment->reported_by,
-            $borrowedEquipment->reported_date ? $borrowedEquipment->reported_date->format('F d, Y') : null, // Format date if available
+            $borrowedEquipment->reported_date ? $borrowedEquipment->reported_date: null,
             $borrowedEquipment->is_condemned ? 'Yes' : 'No',
+            $borrowedEquipment->remarks,
         ];
     }
 }
