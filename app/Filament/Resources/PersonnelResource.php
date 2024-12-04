@@ -196,10 +196,6 @@ class PersonnelResource extends Resource
                 TextEntry::make('department.name')
                     ->label('Department'),
 
-                TextEntry::make('sub_icsmfr.name')
-                    ->label('Sub ICS/MR'),
-
-
                 TextEntry::make('first_name'),
 
                 TextEntry::make('middle_name'),

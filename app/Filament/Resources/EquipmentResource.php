@@ -578,7 +578,8 @@ class EquipmentResource extends Resource
 
                     TextEntry::make('fund.name'),
 
-                    TextEntry::make('sub_icsmfr.full_name'),
+                    TextEntry::make('sub_icsmfr.full_name')
+                        ->label('Sub ICS/MR'),
 
 
                 ])->columns(2),
