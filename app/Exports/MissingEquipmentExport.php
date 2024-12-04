@@ -29,8 +29,8 @@ class MissingEquipmentExport implements FromCollection, WithHeadings, WithMappin
     public function map($borrowedEquipment): array
     {
         return [
-            $borrowedEquipment->borrowed_equipment->name,
-            $borrowedEquipment->borrowed_equipment->property_number,
+            $borrowedEquipment->equipment->name,
+            $borrowedEquipment->equipment->property_number,
             $borrowedEquipment->equipment_id,
             $borrowedEquipment->quantity,
             $borrowedEquipment->quantity_found,
