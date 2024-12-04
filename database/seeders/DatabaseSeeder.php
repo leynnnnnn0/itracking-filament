@@ -38,7 +38,6 @@ class DatabaseSeeder extends Seeder
         Office::factory(5)->create();
         Position::factory(5)->create();
         Unit::factory(5)->create();
-        SubICSMFR::factory(5)->create();
         OperatingUnitProject::factory(5)->create();
         OrganizationUnit::factory(5)->create();
         AccountableOfficer::factory(100)->create();
