@@ -2,28 +2,20 @@
 
 namespace App\Filament\Resources\MissingEquipmentResource\Pages;
 
+use App\Exports\MissingEquipmentExport;
 use App\Filament\Resources\MissingEquipmentResource;
+use App\Traits\HasDownloads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Blade;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListMissingEquipment extends ListRecords
 {
+    use HasDownloads;
     protected static string $resource = MissingEquipmentResource::class;
     protected static ?string $title = 'Missing Equipment';
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\Action::make('export_as_pdf')
-                ->color('gray')
-                ->label('Export as PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->action(fn() => $this->export()),
-            Actions\CreateAction::make(),
-        ];
-    }
 
     public function export()
     {
@@ -40,5 +32,12 @@ class ListMissingEquipment extends ListRecords
             },
             'missing-equipment-list.pdf'
         );
+    }
+
+    public function exportAsExcel()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+        return Excel::download(new MissingEquipmentExport($query), 'missing-equipment.xlsx');
     }
 }

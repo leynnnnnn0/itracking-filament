@@ -2,28 +2,20 @@
 
 namespace App\Filament\Resources\BorrowedEquipmentResource\Pages;
 
+use App\Exports\BorrowedEquipmentExport;
 use App\Filament\Resources\BorrowedEquipmentResource;
+use App\Traits\HasDownloads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Blade;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListBorrowedEquipment extends ListRecords
 {
+    use HasDownloads;
     protected static string $resource = BorrowedEquipmentResource::class;
     protected static ?string $title = 'Borrow Equipment';
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\Action::make('export_as_pdf')
-                ->color('gray')
-                ->label('Export as PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->action(fn() => $this->export()),
-            Actions\CreateAction::make(),
-        ];
-    }
 
     public function export()
     {
@@ -40,5 +32,12 @@ class ListBorrowedEquipment extends ListRecords
             },
             'borrowed-equipment-list.pdf'
         );
+    }
+
+    public function exportAsExcel()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+        return Excel::download(new BorrowedEquipmentExport($query), 'borrowed-equipment.xlsx');
     }
 }

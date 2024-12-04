@@ -2,30 +2,23 @@
 
 namespace App\Filament\Resources\EquipmentResource\Pages;
 
+use App\Exports\EquipmentExport;
 use App\Filament\Resources\EquipmentResource;
 use App\Models\AccountableOfficer;
 use App\Models\Personnel;
+use App\Traits\HasDownloads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListEquipment extends ListRecords
 {
+    use HasDownloads;
     protected static string $resource = EquipmentResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\Action::make('export_as_pdf')
-                ->color('gray')
-                ->label('Export as PDF')
-                ->icon('heroicon-o-document-arrow-down')
-                ->action(fn() => $this->export()),
-            Actions\CreateAction::make(),
-        ];
-    }
 
     public function export()
     {
@@ -57,5 +50,12 @@ class ListEquipment extends ListRecords
             },
             'equipment-list.pdf'
         );
+    }
+
+    public function exportAsExcel()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+        return Excel::download(new EquipmentExport($query), 'equipment.xlsx');
     }
 }
